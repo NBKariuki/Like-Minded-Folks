@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Like-Minded Folks - MMF Tracker</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px 20px;
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header-emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .last-update {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .error {
+            background: rgba(255, 100, 100, 0.1);
+            border: 1px solid rgba(255, 100, 100, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+            color: #ff6b6b;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            margin: 10px 5px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .toggle-btn {
+            padding: 12px 28px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .toggle-btn.active {
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            border-color: transparent;
+            color: #0f0c29;
+        }
+
+        .month-selector {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            padding: 0 10px;
+        }
+
+        .month-btn {
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .month-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .month-btn.active {
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            border: none;
+            color: #0f0c29;
+        }
+
+        .member-view {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .alias-selector {
+            margin: 30px 0;
+        }
+
+        .alias-selector select {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 2px solid rgba(132, 250, 176, 0.3);
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .alias-selector select:focus {
+            outline: none;
+            border-color: #84fab0;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .alias-selector select option {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 10px;
+        }
+
+        .alias-selector select option:first-child {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .member-statement {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .statement-alias {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .statement-month {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .statement-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .statement-row:last-child {
+            border-bottom: none;
+            margin-top: 20px;
+            padding-top: 25px;
+            border-top: 2px solid rgba(132, 250, 176, 0.3);
+        }
+
+        .statement-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+        }
+
+        .statement-value {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #fff;
+            text-align: right;
+        }
+
+        .member-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 16px 0;
+            transition: all 0.3s ease;
+        }
+
+        .member-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .member-alias {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #84fab0;
+            margin-bottom: 16px;
+        }
+
+        .balance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+        }
+
+        .balance-item {
+            text-align: center;
+        }
+
+        .balance-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .balance-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .balance-value.positive {
+            color: #84fab0;
+        }
+
+        .balance-value.total {
+            color: #8fd3f4;
+            font-size: 1.3rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .month-selector {
+                gap: 6px;
+            }
+
+            .month-btn {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .toggle-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .member-statement {
+                padding: 20px;
+            }
+
+            .statement-alias {
+                font-size: 1.6rem;
+            }
+
+            .balance-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .placeholder-text {
+            color: rgba(255, 255, 255, 0.4) !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const MEMBERS = ['Tokyo', 'Berlin', 'Gandia', 'Denver', 'Helsinki', 'Oslo', 
+                        'Moscow', 'California', 'Lisbon', 'Stockholm', 'Paris', 'Marseille', 
+                        'Rio', 'Nairobi', 'Tel Aviv', 'Valencia', 'Manilla', 'Scofield', 
+                        'Bogota', 'Emirates', 'Dublin', 'Doha'];
+        const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+
+        function App() {
+            const [data, setData] = useState(null);
+            const [loading, setLoading] = useState(true);
+            const [error, setError] = useState(null);
+            const [selectedMonth, setSelectedMonth] = useState('January');
+            const [selectedAlias, setSelectedAlias] = useState('');
+            const [view, setView] = useState('member');
+            const [lastUpdate, setLastUpdate] = useState(null);
+
+            useEffect(() => {
+                loadExcelFile();
+            }, []);
+
+            const loadExcelFile = async () => {
+                try {
+                    setLoading(true);
+                    setError(null);
+                    
+                    // Add cache busting parameter
+                    const cacheBuster = new Date().getTime();
+                    const response = await fetch(`MMF_Tracker_2026_For_Website.xlsx?v=${cacheBuster}`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Could not load data file');
+                    }
+
+                    const arrayBuffer = await response.arrayBuffer();
+                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                    
+                    const parsedData = {};
+                    
+                    workbook.SheetNames.forEach(sheetName => {
+                        const worksheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        
+                        const monthData = {};
+                        
+                        for (let i = 2; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            if (row[0] && MEMBERS.includes(row[0])) {
+                                monthData[row[0]] = {
+                                    openingBalance: parseFloat(row[1]) || 0,
+                                    topups: parseFloat(row[2]) || 0,
+                                    interest: parseFloat(row[3]) || 0,
+                                    daysActive: parseInt(row[4]) || 0,
+                                    closingBalance: parseFloat(row[5]) || 0
+                                };
+                            }
+                        }
+                        
+                        parsedData[sheetName] = monthData;
+                    });
+                    
+                    setData(parsedData);
+                    setLastUpdate(new Date());
+                    setLoading(false);
+                } catch (err) {
+                    console.error('Error loading file:', err);
+                    setError('Unable to load data. Please refresh the page or contact the admin.');
+                    setLoading(false);
+                }
+            };
+
+            const getClosingBalance = (month, alias) => {
+                return data[month]?.[alias]?.closingBalance || 0;
+            };
+
+            const getAllMembersData = (month) => {
+                return MEMBERS.map(alias => ({
+                    alias,
+                    ...data[month]?.[alias] || {
+                        openingBalance: 0,
+                        topups: 0,
+                        interest: 0,
+                        daysActive: 0,
+                        closingBalance: 0
+                    }
+                }));
+            };
+
+            if (loading) {
+                return (
+                    <div className="app-container">
+                        <div className="header">
+                            <div className="header-emoji">💰</div>
+                            <h1>MMF Account Tracker</h1>
+                        </div>
+                        <div className="loading">Loading your data...</div>
+                    </div>
+                );
+            }
+
+            if (error) {
+                return (
+                    <div className="app-container">
+                        <div className="header">
+                            <div className="header-emoji">💰</div>
+                            <h1>MMF Account Tracker</h1>
+                        </div>
+                        <div className="error">
+                            <p>{error}</p>
+                            <button className="btn-secondary" onClick={loadExcelFile}>
+                                Retry
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="app-container">
+                    <div className="header">
+                        <div className="header-emoji">💰</div>
+                        <h1>Like-Minded Folks</h1>
+                        <p style={{ fontSize: '1.3rem', fontWeight: '600', marginTop: '5px', color: 'rgba(255, 255, 255, 0.9)' }}>MMF Account Tracker</p>
+                        {lastUpdate && (
+                            <div className="last-update">
+                                Last updated: {lastUpdate.toLocaleString('en-KE', {
+                                    dateStyle: 'medium',
+                                    timeStyle: 'short'
+                                })}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="month-selector">
+                        {MONTHS.map(month => (
+                            <button
+                                key={month}
+                                className={`month-btn ${selectedMonth === month ? 'active' : ''}`}
+                                onClick={() => setSelectedMonth(month)}
+                            >
+                                {month}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="view-toggle">
+                        <button
+                            className={`toggle-btn ${view === 'member' ? 'active' : ''}`}
+                            onClick={() => setView('member')}
+                        >
+                            📱 Member View
+                        </button>
+                        <button
+                            className={`toggle-btn ${view === 'all' ? 'active' : ''}`}
+                            onClick={() => setView('all')}
+                        >
+                            👥 All Members
+                        </button>
+                    </div>
+
+                    {view === 'member' && (
+                        <MemberView
+                            month={selectedMonth}
+                            selectedAlias={selectedAlias}
+                            setSelectedAlias={setSelectedAlias}
+                            data={data}
+                            getClosingBalance={getClosingBalance}
+                        />
+                    )}
+
+                    {view === 'all' && (
+                        <AllMembersView
+                            month={selectedMonth}
+                            members={getAllMembersData(selectedMonth)}
+                        />
+                    )}
+                </div>
+            );
+        }
+
+        function MemberView({ month, selectedAlias, setSelectedAlias, data, getClosingBalance }) {
+            const memberData = data[month]?.[selectedAlias] || {
+                openingBalance: 0,
+                topups: 0,
+                interest: 0,
+                daysActive: 0,
+                closingBalance: 0
+            };
+
+            return (
+                <div className="member-view">
+                    <div className="alias-selector">
+                        <select
+                            value={selectedAlias}
+                            onChange={(e) => setSelectedAlias(e.target.value)}
+                        >
+                            <option value="" disabled>👆 Select your alias to view balance</option>
+                            {MEMBERS.map(alias => (
+                                <option key={alias} value={alias}>{alias}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {selectedAlias && (
+                        <div className="member-statement">
+                            <div className="statement-alias">{selectedAlias}</div>
+                            <div className="statement-month">{month} 2026</div>
+
+                            <div style={{ marginTop: '30px' }}>
+                                <div className="statement-row">
+                                    <span className="statement-label">Started with</span>
+                                    <span className="statement-value">
+                                        KES {memberData.openingBalance.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </span>
+                                </div>
+
+                                <div className="statement-row">
+                                    <span className="statement-label">Top-ups</span>
+                                    <span className="statement-value" style={{ color: '#8fd3f4' }}>
+                                        KES {memberData.topups.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </span>
+                                </div>
+
+                                <div className="statement-row">
+                                    <span className="statement-label">Interest earned</span>
+                                    <span className="statement-value" style={{ color: '#84fab0' }}>
+                                        KES {memberData.interest.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </span>
+                                </div>
+
+                                <div className="statement-row">
+                                    <span className="statement-label">Days active</span>
+                                    <span className="statement-value">
+                                        {memberData.daysActive} days
+                                    </span>
+                                </div>
+
+                                <div className="statement-row">
+                                    <span className="statement-label" style={{ fontSize: '1.3rem', fontWeight: '700' }}>Current Balance</span>
+                                    <span className="statement-value" style={{ fontSize: '1.8rem', color: '#84fab0' }}>
+                                        KES {memberData.closingBalance.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        function AllMembersView({ month, members }) {
+            const totalOpening = members.reduce((sum, m) => sum + m.openingBalance, 0);
+            const totalTopups = members.reduce((sum, m) => sum + m.topups, 0);
+            const totalInterest = members.reduce((sum, m) => sum + m.interest, 0);
+            const totalClosing = members.reduce((sum, m) => sum + m.closingBalance, 0);
+
+            return (
+                <div>
+                    <h2 style={{ textAlign: 'center', marginBottom: '30px', fontSize: '2rem', color: '#84fab0' }}>
+                        All Members - {month} 2026
+                    </h2>
+
+                    <div className="member-card" style={{ background: 'rgba(132, 250, 176, 0.1)', borderColor: 'rgba(132, 250, 176, 0.3)' }}>
+                        <div className="member-alias" style={{ fontSize: '1.8rem' }}>GROUP TOTALS</div>
+                        <div className="balance-grid">
+                            <div className="balance-item">
+                                <div className="balance-label">Opening</div>
+                                <div className="balance-value total">
+                                    {totalOpening.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </div>
+                            </div>
+                            <div className="balance-item">
+                                <div className="balance-label">Top-ups</div>
+                                <div className="balance-value total">
+                                    {totalTopups.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </div>
+                            </div>
+                            <div className="balance-item">
+                                <div className="balance-label">Interest</div>
+                                <div className="balance-value total">
+                                    {totalInterest.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </div>
+                            </div>
+                            <div className="balance-item">
+                                <div className="balance-label">Closing</div>
+                                <div className="balance-value total">
+                                    {totalClosing.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {members.map(member => (
+                        <div key={member.alias} className="member-card">
+                            <div className="member-alias">{member.alias}</div>
+                            <div className="balance-grid">
+                                <div className="balance-item">
+                                    <div className="balance-label">Opening</div>
+                                    <div className="balance-value">
+                                        {member.openingBalance.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </div>
+                                </div>
+                                <div className="balance-item">
+                                    <div className="balance-label">Top-ups</div>
+                                    <div className="balance-value">
+                                        {member.topups.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </div>
+                                </div>
+                                <div className="balance-item">
+                                    <div className="balance-label">Interest</div>
+                                    <div className="balance-value positive">
+                                        {member.interest.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </div>
+                                </div>
+                                <div className="balance-item">
+                                    <div className="balance-label">Closing</div>
+                                    <div className="balance-value total">
+                                        {member.closingBalance.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </div>
+                                </div>
+                                <div className="balance-item">
+                                    <div className="balance-label">Days</div>
+                                    <div className="balance-value">
+                                        {member.daysActive}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
