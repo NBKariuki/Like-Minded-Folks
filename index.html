@@ -619,7 +619,7 @@
             const [data, setData] = useState(null);
             const [loading, setLoading] = useState(true);
             const [error, setError] = useState(null);
-            const [selectedMonth, setSelectedMonth] = useState('January');
+            const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth()); // Auto-select current month
             const [selectedAlias, setSelectedAlias] = useState('');
             const [view, setView] = useState('member');
             const [fileLastModified, setFileLastModified] = useState(null);
