@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Like-Minded Folks - MMF Tracker</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23302b63%22/><rect x=%225%22 y=%225%22 width=%2290%22 height=%2290%22 rx=%2215%22 fill=%22none%22 stroke=%22%2384fab0%22 stroke-width=%223%22/><text x=%2250%22 y=%2265%22 font-family=%22Arial,sans-serif%22 font-size=%2236%22 font-weight=%22700%22 fill=%22%2384fab0%22 text-anchor=%22middle%22>LMF</text></svg>">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         * {
@@ -355,9 +354,9 @@
             background: linear-gradient(135deg, rgba(132, 250, 176, 0.1) 0%, rgba(143, 211, 244, 0.1) 100%);
             border: 1px solid rgba(132, 250, 176, 0.3);
             border-radius: 16px;
-            padding: 20px;
-            margin: 30px auto 0;
-            max-width: 600px;
+            padding: 18px;
+            margin: 50px auto 0;
+            max-width: 650px;
         }
 
         .group-summary-title {
@@ -370,27 +369,36 @@
 
         .group-summary-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
         }
 
         .summary-item {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
-            padding: 15px;
+            padding: 8px 6px 12px;
             text-align: center;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            min-height: 80px;
+            align-items: end;
         }
 
         .summary-label {
-            font-size: 0.85rem;
+            font-size: 0.7rem;
             color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 8px;
+            line-height: 1.2;
+            padding-bottom: 4px;
+            align-self: start;
         }
 
         .summary-value {
-            font-size: 1.4rem;
+            font-size: 1.05rem;
             font-weight: 800;
             color: #8fd3f4;
+            line-height: 1.2;
+            text-align: center;
+            align-self: end;
         }
 
         .members-table-container {
@@ -411,17 +419,17 @@
         }
 
         .members-table th {
-            padding: 12px 10px;
+            padding: 10px 8px;
             text-align: left;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 700;
             color: #84fab0;
             border-bottom: 2px solid rgba(132, 250, 176, 0.3);
         }
 
         .members-table td {
-            padding: 12px 10px;
-            font-size: 0.9rem;
+            padding: 10px 8px;
+            font-size: 0.8rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -586,6 +594,139 @@
                 font-size: 1.2rem;
             }
         }
+
+        /* SITE TOUR */
+        .tour-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9998;
+        }
+
+        .tour-highlight {
+            position: absolute;
+            border-radius: 10px;
+            box-shadow: 0 0 0 4px rgba(132, 250, 176, 0.6), 0 0 0 9999px rgba(0, 0, 0, 0.55);
+            z-index: 9999;
+            pointer-events: none;
+            transition: all 0.4s ease;
+        }
+
+        .tour-tooltip {
+            position: absolute;
+            z-index: 10000;
+            background: #1e1e3a;
+            border: 1px solid rgba(132, 250, 176, 0.4);
+            border-radius: 14px;
+            padding: 22px 24px 18px;
+            max-width: 300px;
+            width: 90vw;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s ease;
+        }
+
+        .tour-tooltip-arrow {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #1e1e3a;
+            border-left: 1px solid rgba(132, 250, 176, 0.4);
+            border-bottom: 1px solid rgba(132, 250, 176, 0.4);
+        }
+
+        .tour-tooltip-arrow.arrow-top {
+            top: -7px;
+            left: 30px;
+            transform: rotate(-135deg);
+        }
+
+        .tour-tooltip-arrow.arrow-bottom {
+            bottom: -7px;
+            left: 30px;
+            transform: rotate(45deg);
+        }
+
+        .tour-step-badge {
+            display: inline-block;
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            color: #0f0c29;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .tour-tooltip h4 {
+            color: #84fab0;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .tour-tooltip p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .tour-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .tour-btn-next {
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            color: #0f0c29;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            transition: transform 0.2s ease;
+        }
+
+        .tour-btn-next:hover {
+            transform: translateY(-1px);
+        }
+
+        .tour-btn-skip {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            padding: 4px 0;
+        }
+
+        .tour-btn-skip:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .tour-dots {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .tour-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            transition: background 0.3s ease;
+        }
+
+        .tour-dot.active {
+            background: #84fab0;
+        }
     </style>
 </head>
 <body>
@@ -596,10 +737,26 @@
 
         const MEMBERS = ['Tokyo', 'Berlin', 'Gandia', 'Denver', 'Helsinki', 'Oslo', 
                         'Moscow', 'California', 'Lisbon', 'Stockholm', 'Paris', 'Marseille', 
-                        'Rio', 'Nairobi', 'Tel Aviv', 'Valencia', 'Manilla', 'Scofield', 
+                        'Rio', 'Nairobi', 'Tel Aviv', 'Valencia', 'Havana', 'Manilla', 'Scofield', 
                         'Bogota', 'Emirates', 'Dublin', 'Doha'];
         const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 
                        'July', 'August', 'September', 'October', 'November', 'December'];
+        
+        // Google Sheets CSV URLs for each month
+        const MONTH_CSV_URLS = {
+            'January': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=1881761154&single=true&output=csv',
+            'February': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=1182077627&single=true&output=csv',
+            'March': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=1149226024&single=true&output=csv',
+            'April': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=962111704&single=true&output=csv',
+            'May': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=514492782&single=true&output=csv',
+            'June': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=599461857&single=true&output=csv',
+            'July': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=703792530&single=true&output=csv',
+            'August': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=2093708979&single=true&output=csv',
+            'September': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=1079237043&single=true&output=csv',
+            'October': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=362389640&single=true&output=csv',
+            'November': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=350315922&single=true&output=csv',
+            'December': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=1016561798&single=true&output=csv'
+        };
         
         const MINIMUM_CONTRIBUTION = 4000;
         const WARNING_START_DAY = 10; // Warnings show from 10th onwards
@@ -611,9 +768,19 @@
             'Paris': 'Marseille',
             'Marseille': 'Paris'
         };
+
+        // Playful warning messages for partial contributions
+        const PARTIAL_CONTRIBUTION_MESSAGES = [
+            (amount, remaining) => `Hey there! 👋 You've put in KES ${amount.toLocaleString()} this month. Just KES ${remaining.toLocaleString()} more and you're all set for interest. You've got this! 💪`,
+            (amount, remaining) => `Nice start! 🌟 You're at KES ${amount.toLocaleString()} so far. Top up KES ${remaining.toLocaleString()} more to unlock this month's interest. Almost there!`,
+            (amount, remaining) => `Good progress! 🎯 Your KES ${amount.toLocaleString()} is working. Add KES ${remaining.toLocaleString()} more to hit the minimum and earn interest. Keep going!`,
+            (amount, remaining) => `You're on the right track! 🚀 KES ${amount.toLocaleString()} down, KES ${remaining.toLocaleString()} to go. Top up soon and don't miss out on this month's interest!`,
+            (amount, remaining) => `Almost there, friend! 😊 You've contributed KES ${amount.toLocaleString()}. Just KES ${remaining.toLocaleString()} more to qualify for interest this month!`
+        ];
         
         // Get current year dynamically
         const CURRENT_YEAR = new Date().getFullYear();
+
 
         // Returns current month name — defined here so it's available
         // before App's useState initialiser runs
@@ -623,6 +790,32 @@
 
         // Password protection
         const CORRECT_PASSWORD = 'LikeMinded2026';
+        const AUTH_EXPIRY_DAYS = 30;
+
+        function getAuthToken() {
+            try {
+                const raw = localStorage.getItem('mmf_auth');
+                if (!raw) return null;
+                const token = JSON.parse(raw);
+                const now = new Date().getTime();
+                if (now > token.expiresAt) {
+                    localStorage.removeItem('mmf_auth');
+                    return null;
+                }
+                return token;
+            } catch (e) {
+                localStorage.removeItem('mmf_auth');
+                return null;
+            }
+        }
+
+        function setAuthToken() {
+            const token = {
+                authenticated: true,
+                expiresAt: new Date().getTime() + (AUTH_EXPIRY_DAYS * 24 * 60 * 60 * 1000)
+            };
+            localStorage.setItem('mmf_auth', JSON.stringify(token));
+        }
 
         // Password Screen Component
         function PasswordScreen({ onSuccess }) {
@@ -633,7 +826,7 @@
             const handleSubmit = (e) => {
                 e.preventDefault();
                 if (password === CORRECT_PASSWORD) {
-                    sessionStorage.setItem('mmfAccess', 'true');
+                    setAuthToken();
                     onSuccess();
                 } else {
                     setError('Incorrect password. Please try again or contact admin.');
@@ -784,84 +977,301 @@
 
         // Main App Wrapper with Password Check
         function AppWithAuth() {
-            const [isAuthenticated, setIsAuthenticated] = useState(
-                sessionStorage.getItem('mmfAccess') === 'true'
-            );
+            const [isAuthenticated, setIsAuthenticated] = useState(() => !!getAuthToken());
+            const [showTour, setShowTour] = useState(false);
+
+            const handleAuthSuccess = () => {
+                setIsAuthenticated(true);
+                // If this is the very first login (no tour-seen flag), trigger the tour
+                if (!localStorage.getItem('mmf_tour_seen')) {
+                    setShowTour(true);
+                }
+            };
 
             if (!isAuthenticated) {
-                return <PasswordScreen onSuccess={() => setIsAuthenticated(true)} />;
+                return <PasswordScreen onSuccess={handleAuthSuccess} />;
             }
 
-            return <App />;
+            return <App showTour={showTour} onTourDone={() => {
+                localStorage.setItem('mmf_tour_seen', 'true');
+                setShowTour(false);
+            }} />;        }
+
+        // SITE TOUR COMPONENT
+        function SiteTour({ onDone, openSidebar, closeSidebar, onSidebarStepChange }) {
+            const [step, setStep] = useState(0);
+            const [highlightRect, setHighlightRect] = useState(null);
+            const tooltipRef = React.useRef(null);
+
+            const TOUR_STEPS = [
+                {
+                    selector: '.month-selector',
+                    title: 'Pick a Month',
+                    text: 'Tap any month to view that month\'s data across the whole group.',
+                    position: 'below',
+                    sidebar: false
+                },
+                {
+                    selector: '.view-toggle',
+                    title: 'Switch Views',
+                    text: 'Member View lets you check your own balance. All Members shows everyone side by side for easy comparison.',
+                    position: 'below',
+                    sidebar: false
+                },
+                {
+                    selector: '.alias-selector',
+                    title: 'Select Your Alias',
+                    text: 'Choose your alias from the dropdown to see your personal balance card for the selected month.',
+                    position: 'below',
+                    sidebar: false
+                },
+                {
+                    selector: '.sidebar-section:nth-child(2)',
+                    title: 'Track Activity',
+                    text: 'Tap here to open the shared tracker and see everyone\'s contribution activity.',
+                    position: 'below',
+                    sidebar: true
+                },
+                {
+                    selector: '.sidebar-section:nth-child(3)',
+                    title: 'Make a Deposit',
+                    text: 'M-PESA and bank deposit details are right here. Always include 308398M as your reference.',
+                    position: 'below',
+                    sidebar: true
+                },
+                {
+                    selector: '.sidebar-section:nth-child(4)',
+                    title: 'Group Rules',
+                    text: 'Quick reference for contribution minimums, interest rules, and withdrawal policy.',
+                    position: 'below',
+                    sidebar: true
+                },
+                {
+                    selector: '.sidebar-section:nth-child(5)',
+                    title: 'Etica Statements',
+                    text: 'Download the official monthly statements from Etica directly here when they\'re available.',
+                    position: 'below',
+                    sidebar: true
+                }
+            ];
+
+            // Open/close sidebar AND notify App whether current step is a sidebar step
+            useEffect(() => {
+                const isMobile = window.innerWidth <= 968;
+                const isSidebarStep = TOUR_STEPS[step].sidebar;
+                if (isMobile && isSidebarStep) {
+                    openSidebar();
+                } else if (isMobile) {
+                    closeSidebar();
+                }
+                onSidebarStepChange(isSidebarStep);
+            }, [step]);
+
+            // Position highlight whenever step changes, with a short delay to let sidebar animate open
+            useEffect(() => {
+                const timer = setTimeout(() => {
+                    positionHighlight();
+                }, 350);
+                window.addEventListener('resize', positionHighlight);
+                return () => {
+                    clearTimeout(timer);
+                    window.removeEventListener('resize', positionHighlight);
+                };
+            }, [step]);
+
+            function positionHighlight() {
+                const el = document.querySelector(TOUR_STEPS[step].selector);
+                if (el) {
+                    const rect = el.getBoundingClientRect();
+                    setHighlightRect({
+                        top: rect.top + window.scrollY - 6,
+                        left: rect.left - 6,
+                        width: rect.width + 12,
+                        height: rect.height + 12
+                    });
+                }
+            }
+
+            function getTooltipStyle() {
+                if (!highlightRect) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
+                const pos = TOUR_STEPS[step].position;
+                const base = {
+                    left: Math.max(10, Math.min(highlightRect.left, window.innerWidth - 310)) + 'px',
+                };
+                if (pos === 'below') {
+                    base.top = (highlightRect.top + highlightRect.height + 14) + 'px';
+                } else {
+                    base.top = (highlightRect.top - 180) + 'px';
+                }
+                return base;
+            }
+
+            const currentStep = TOUR_STEPS[step];
+            const isLast = step === TOUR_STEPS.length - 1;
+
+            function handleNext() {
+                if (isLast) {
+                    closeSidebar();
+                    onSidebarStepChange(false);
+                    onDone();
+                } else {
+                    setStep(s => s + 1);
+                }
+            }
+
+            function handleDone() {
+                closeSidebar();
+                onSidebarStepChange(false);
+                onDone();
+            }
+
+            return (
+                <>
+                    <div className="tour-overlay" onClick={handleDone} />
+                    {highlightRect && (
+                        <div className="tour-highlight" style={{
+                            top: highlightRect.top + 'px',
+                            left: highlightRect.left + 'px',
+                            width: highlightRect.width + 'px',
+                            height: highlightRect.height + 'px'
+                        }} />
+                    )}
+                    <div className="tour-tooltip" style={getTooltipStyle()} ref={tooltipRef}>
+                        <div className={`tour-tooltip-arrow arrow-${currentStep.position === 'below' ? 'top' : 'bottom'}`} />
+                        <div className="tour-step-badge">STEP {step + 1} OF {TOUR_STEPS.length}</div>
+                        <h4>{currentStep.title}</h4>
+                        <p>{currentStep.text}</p>
+                        <div className="tour-controls">
+                            <button className="tour-btn-skip" onClick={handleDone}>Skip tour</button>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div className="tour-dots">
+                                    {TOUR_STEPS.map((_, i) => (
+                                        <div key={i} className={`tour-dot ${i === step ? 'active' : ''}`} />
+                                    ))}
+                                </div>
+                                <button className="tour-btn-next" onClick={handleNext}>
+                                    {isLast ? '🎉 Done' : 'Next →'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </>
+            );
         }
 
-        function App() {
+        function App({ showTour, onTourDone }) {
             const [data, setData] = useState(null);
             const [loading, setLoading] = useState(true);
             const [error, setError] = useState(null);
-            const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth()); // Auto-select current month
+            const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
             const [selectedAlias, setSelectedAlias] = useState('');
             const [view, setView] = useState('member');
             const [fileLastModified, setFileLastModified] = useState(null);
             const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+            const [tourSidebarActive, setTourSidebarActive] = useState(false);
 
             useEffect(() => {
-                loadExcelFile();
+                loadDataFromGoogleSheets();
             }, []);
 
-            const loadExcelFile = async () => {
+            const loadDataFromGoogleSheets = async () => {
                 try {
                     setLoading(true);
                     setError(null);
                     
-                    const cacheBuster = new Date().getTime();
-                    const response = await fetch(`MMF_Tracker_2026_For_Website.xlsx?v=${cacheBuster}`);
-                    
-                    if (!response.ok) {
-                        throw new Error('Could not load data file');
-                    }
-
-                    const lastModified = response.headers.get('Last-Modified');
-                    if (lastModified) {
-                        setFileLastModified(new Date(lastModified));
-                    } else {
-                        setFileLastModified(new Date());
-                    }
-
-                    const arrayBuffer = await response.arrayBuffer();
-                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                    
                     const parsedData = {};
                     
-                    workbook.SheetNames.forEach(sheetName => {
-                        const worksheet = workbook.Sheets[sheetName];
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    // Fetch all 12 months in parallel
+                    const fetchPromises = MONTHS.map(async (month) => {
+                        const csvUrl = MONTH_CSV_URLS[month];
+                        const cacheBuster = new Date().getTime();
+                        const response = await fetch(`${csvUrl}&_=${cacheBuster}`);
+                        
+                        if (!response.ok) {
+                            throw new Error(`Could not load ${month} data`);
+                        }
+                        
+                        const csvText = await response.text();
+                        const lines = csvText.split('\n').filter(line => line.trim());
                         
                         const monthData = {};
                         
-                        for (let i = 2; i < jsonData.length; i++) {
-                            const row = jsonData[i];
-                            if (row[0] && MEMBERS.includes(row[0])) {
-                                monthData[row[0]] = {
-                                    openingBalance: parseFloat(row[1]) || 0,
-                                    topups: parseFloat(row[2]) || 0,
-                                    interest: parseFloat(row[3]) || 0,
-                                    daysActive: parseInt(row[4]) || 0,
-                                    closingBalance: parseFloat(row[5]) || 0
+                        // Skip first 3 rows (title, blank, headers) — data starts at row 4 (index 3)
+                        for (let i = 3; i < lines.length; i++) {
+                            const cols = parseCSVLine(lines[i]);
+                            const alias = cols[0]?.trim().replace(/"/g, '');
+                            
+                            if (alias && MEMBERS.includes(alias)) {
+                                // Helper function to parse numbers (removes commas, quotes, etc.)
+                                const parseNumber = (str) => {
+                                    if (!str) return 0;
+                                    // Remove quotes, commas, and whitespace, then parse
+                                    const cleaned = str.replace(/["',\s]/g, '');
+                                    return parseFloat(cleaned) || 0;
                                 };
+                                
+                                const openingBalance = parseNumber(cols[1]);
+                                const topups = parseNumber(cols[2]);
+                                const interest = parseNumber(cols[3]);
+                                const daysActive = parseInt(cols[4]?.replace(/[",\s]/g, '')) || 0;
+                                const closingBalance = parseNumber(cols[5]);
+                                
+                                monthData[alias] = {
+                                    openingBalance,
+                                    topups,
+                                    interest,
+                                    daysActive,
+                                    closingBalance
+                                };
+                                
+                                // Debug log for first member only
+                                if (Object.keys(monthData).length === 1) {
+                                    console.log(`${month} - First member (${alias}):`, {
+                                        raw: cols.slice(1, 6),
+                                        parsed: { openingBalance, topups, interest, daysActive, closingBalance }
+                                    });
+                                }
                             }
                         }
                         
-                        parsedData[sheetName] = monthData;
+                        return { month, monthData };
+                    });
+                    
+                    const results = await Promise.all(fetchPromises);
+                    results.forEach(({ month, monthData }) => {
+                        parsedData[month] = monthData;
                     });
                     
                     setData(parsedData);
+                    setFileLastModified(new Date()); // Current timestamp since Google Sheets doesn't send Last-Modified
                     setLoading(false);
                 } catch (err) {
-                    console.error('Error loading file:', err);
-                    setError('Unable to load data. Please refresh the page or contact the admin.');
+                    console.error('Error loading data:', err);
+                    setError('Unable to load data from Google Sheets. Please refresh the page or contact the admin.');
                     setLoading(false);
                 }
+            };
+
+            // Simple CSV parser that handles quoted fields
+            const parseCSVLine = (line) => {
+                const result = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(current);
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                result.push(current);
+                return result;
             };
 
             const getAllMembersData = (month) => {
@@ -881,11 +1291,38 @@
                 if (!data || !data[selectedMonth]) return null;
                 
                 const members = getAllMembersData(selectedMonth);
-                const totalContributions = members.reduce((sum, m) => sum + m.topups, 0);
-                const totalInterest = members.reduce((sum, m) => sum + m.interest, 0);
+                const monthTopups = members.reduce((sum, m) => sum + m.topups, 0);
+                const monthInterest = members.reduce((sum, m) => sum + m.interest, 0);
                 const totalBalance = members.reduce((sum, m) => sum + m.closingBalance, 0);
                 
-                return { totalContributions, totalInterest, totalBalance };
+                // Calculate cumulative contributions (all months up to selected month)
+                const selectedMonthIndex = MONTHS.indexOf(selectedMonth);
+                let cumulativeContributions = 0;
+                
+                for (let i = 0; i <= selectedMonthIndex; i++) {
+                    const monthName = MONTHS[i];
+                    if (data[monthName]) {
+                        const monthMembers = getAllMembersData(monthName);
+                        cumulativeContributions += monthMembers.reduce((sum, m) => sum + m.topups, 0);
+                    }
+                }
+                
+                // Debug log
+                console.log(`Group Stats for ${selectedMonth}:`, {
+                    memberCount: members.length,
+                    monthTopups,
+                    monthInterest,
+                    cumulativeContributions,
+                    totalBalance,
+                    sampleMember: members[0]
+                });
+                
+                return { 
+                    monthTopups,           // This month's contributions only
+                    monthInterest,         // This month's interest
+                    cumulativeContributions, // All contributions from Jan to selected month
+                    totalBalance 
+                };
             };
 
             const isCurrentMonth = (month) => {
@@ -923,7 +1360,7 @@
                             </div>
                             <div className="error">
                                 <p>{error}</p>
-                                <button className="btn-secondary" onClick={loadExcelFile}>Retry</button>
+                                <button className="btn-secondary" onClick={loadDataFromGoogleSheets}>Retry</button>
                             </div>
                         </div>
                     </div>
@@ -936,7 +1373,7 @@
                 <>
                     <div className="app-layout">
                         {/* LEFT SIDEBAR */}
-                        <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+                        <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`} style={tourSidebarActive ? { zIndex: 10001 } : {}}>
                             <div className="sidebar-close">
                                 <button onClick={() => setMobileMenuOpen(false)}>✕ Close</button>
                             </div>
@@ -944,7 +1381,7 @@
                             {/* Track Contributions */}
                             <div className="sidebar-section">
                                 <h3>📊 Track Activity</h3>
-                                <a href="https://shorturl.at/7dQr0" target="_blank" rel="noopener noreferrer" className="sidebar-link">
+                                <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQfQdBVl01cxsIoGnfJLltGDuOkIVDFqj-rNg3KwFVZ8-GGbUqk1DSs_CVaygisjaLhg30g1gjzIsdC/pubhtml?gid=2079453016&single=true" target="_blank" rel="noopener noreferrer" className="sidebar-link">
                                     View Contributions
                                 </a>
                             </div>
@@ -998,6 +1435,16 @@
                             {/* Etica Monthly Statements */}
                             <div className="sidebar-section">
                                 <h3>📄 Etica Monthly Statements</h3>
+                                <div style={{ 
+                                    fontSize: '0.75rem', 
+                                    fontStyle: 'italic', 
+                                    color: '#ff9800',
+                                    marginBottom: '12px',
+                                    textAlign: 'right',
+                                    opacity: 0.9
+                                }}>
+                                    Password: 308398
+                                </div>
                                 <select 
                                     className="statements-dropdown"
                                     onChange={(e) => {
@@ -1118,6 +1565,9 @@
                         </main>
                     </div>
 
+                    {/* SITE TOUR */}
+                    {showTour && <SiteTour onDone={onTourDone} openSidebar={() => setMobileMenuOpen(true)} closeSidebar={() => setMobileMenuOpen(false)} onSidebarStepChange={setTourSidebarActive} />}
+
                     {/* MOBILE MENU TOGGLE */}
                     <button className="mobile-menu-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
                         ☰
@@ -1147,15 +1597,29 @@
                     const partnerData = data[month]?.[partnerAlias] || { topups: 0 };
                     const combinedTopups = memberData.topups + partnerData.topups;
                     
-                    if (combinedTopups < MINIMUM_CONTRIBUTION) {
+                    if (combinedTopups > 0 && combinedTopups < MINIMUM_CONTRIBUTION) {
+                        // Partial contribution - soft message
                         showWarning = true;
-                        warningMessage = `Your combined ${month} contribution with ${partnerAlias} (KES ${combinedTopups.toLocaleString()}) is below the group minimum of KES ${MINIMUM_CONTRIBUTION.toLocaleString()}. Please coordinate to top up soon so you don't lose out on this month's interest.`;
+                        const remaining = MINIMUM_CONTRIBUTION - combinedTopups;
+                        const randomMsg = PARTIAL_CONTRIBUTION_MESSAGES[Math.floor(Math.random() * PARTIAL_CONTRIBUTION_MESSAGES.length)];
+                        warningMessage = randomMsg(combinedTopups, remaining) + ` (Combined with ${partnerAlias})`;
+                    } else if (combinedTopups === 0) {
+                        // Zero contribution - more direct
+                        showWarning = true;
+                        warningMessage = `Your combined ${month} contribution with ${partnerAlias} hasn't been recorded yet. Please coordinate to deposit KES ${MINIMUM_CONTRIBUTION.toLocaleString()} soon so you don't miss out on this month's interest.`;
                     }
                 } else {
-                    // Individual member - check personal contribution
-                    if (memberData.topups < MINIMUM_CONTRIBUTION) {
+                    // Individual member
+                    if (memberData.topups > 0 && memberData.topups < MINIMUM_CONTRIBUTION) {
+                        // Partial contribution - soft message
                         showWarning = true;
-                        warningMessage = `Your ${month} balance (KES ${memberData.closingBalance.toLocaleString()}) is below the agreed group minimum. Please top it up soon so you don't lose out on this month's interest.`;
+                        const remaining = MINIMUM_CONTRIBUTION - memberData.topups;
+                        const randomMsg = PARTIAL_CONTRIBUTION_MESSAGES[Math.floor(Math.random() * PARTIAL_CONTRIBUTION_MESSAGES.length)];
+                        warningMessage = randomMsg(memberData.topups, remaining);
+                    } else if (memberData.topups === 0) {
+                        // Zero contribution - more direct
+                        showWarning = true;
+                        warningMessage = `Your ${month} contribution hasn't been recorded yet. Please deposit at least KES ${MINIMUM_CONTRIBUTION.toLocaleString()} soon to qualify for this month's interest.`;
                     }
                 }
             }
@@ -1198,9 +1662,20 @@
                                             KES {memberData.interest.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </span>
                                     </div>
+                                    <div style={{ 
+                                        fontSize: '0.7rem', 
+                                        fontStyle: 'italic', 
+                                        color: '#ff9800',
+                                        marginTop: '-8px',
+                                        marginBottom: '10px',
+                                        textAlign: 'right',
+                                        paddingRight: '4px'
+                                    }}>
+                                        Early deposits earn more interest
+                                    </div>
 
                                     <div className="statement-row">
-                                        <span className="statement-label">Days active</span>
+                                        <span className="statement-label">Days Earning</span>
                                         <span className="statement-value">
                                             {memberData.daysActive} days
                                         </span>
@@ -1249,15 +1724,21 @@
                             <div className="group-summary-title">📊 Group Summary - {month}</div>
                             <div className="group-summary-grid">
                                 <div className="summary-item">
-                                    <div className="summary-label">Total Contributed</div>
+                                    <div className="summary-label">Total Contributions<br/>(Jan-{month})</div>
                                     <div className="summary-value">
-                                        KES {stats.totalContributions.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
+                                        KES {stats.cumulativeContributions.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
                                     </div>
                                 </div>
                                 <div className="summary-item">
-                                    <div className="summary-label">Total Interest</div>
+                                    <div className="summary-label">{month} Top-ups</div>
                                     <div className="summary-value">
-                                        KES {stats.totalInterest.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
+                                        KES {stats.monthTopups.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
+                                    </div>
+                                </div>
+                                <div className="summary-item">
+                                    <div className="summary-label">{month} Interest</div>
+                                    <div className="summary-value">
+                                        KES {stats.monthInterest.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
                                     </div>
                                 </div>
                             </div>
@@ -1286,9 +1767,8 @@
                                     <th>Alias</th>
                                     <th className="number-col">Opening</th>
                                     <th className="number-col">Top-ups</th>
-                                    <th className="number-col">Interest</th>
+                                    <th className="number-col">{month.slice(0, 3)} Interest</th>
                                     <th className="number-col">Closing</th>
-                                    <th className="number-col">Days</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1307,7 +1787,6 @@
                                         <td className="number-col" style={{ fontWeight: '700', color: '#8fd3f4' }}>
                                             {member.closingBalance.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
                                         </td>
-                                        <td className="number-col">{member.daysActive}</td>
                                     </tr>
                                 ))}
                                 <tr className="total-row">
@@ -1316,7 +1795,6 @@
                                     <td className="number-col">{totalTopups.toLocaleString('en-KE', { maximumFractionDigits: 0 })}</td>
                                     <td className="number-col">{totalInterest.toLocaleString('en-KE', { maximumFractionDigits: 0 })}</td>
                                     <td className="number-col">{totalClosing.toLocaleString('en-KE', { maximumFractionDigits: 0 })}</td>
-                                    <td className="number-col">-</td>
                                 </tr>
                             </tbody>
                         </table>
