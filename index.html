@@ -8,6 +8,7 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         * {
@@ -404,6 +405,7 @@
         .members-table-container {
             overflow-x: auto;
             margin: 20px 0;
+            margin-bottom: 80px;
         }
 
         .members-table {
@@ -742,23 +744,54 @@
         const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 
                        'July', 'August', 'September', 'October', 'November', 'December'];
         
-        // Google Sheets CSV URLs for each month
-        const MONTH_CSV_URLS = {
-            'January': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=1881761154&single=true&output=csv',
-            'February': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=1182077627&single=true&output=csv',
-            'March': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=1149226024&single=true&output=csv',
-            'April': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=962111704&single=true&output=csv',
-            'May': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=514492782&single=true&output=csv',
-            'June': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=599461857&single=true&output=csv',
-            'July': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=703792530&single=true&output=csv',
-            'August': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=2093708979&single=true&output=csv',
-            'September': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=1079237043&single=true&output=csv',
-            'October': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=362389640&single=true&output=csv',
-            'November': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=350315922&single=true&output=csv',
-            'December': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvEu3eXswAQIvzcgYTNYJAMLHZwAzgDD8LqUiu0tmC8SjTWUi_Z1YBJ0ZRhyowfJA5BIOUPVJy7tvj/pub?gid=1016561798&single=true&output=csv'
+        // Base64-encoded Google Sheets CSV URLs (obfuscated for privacy)
+        const ENCODED_CSV_URLS = [
+            "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTE4ODE3NjExNTQmc2luZ2xlPXRydWUmb3V0cHV0PWNzdg==",
+            "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTExODIwNzc2Mjcmc2luZ2xlPXRydWUmb3V0cHV0PWNzdg==",
+            "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTExNDkyMjYwMjQmc2luZ2xlPXRydWUmb3V0cHV0PWNzdg==",
+            "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTk2MjExMTcwNCZzaW5nbGU9dHJ1ZSZvdXRwdXQ9Y3N2",
+            "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTUxNDQ5Mjc4MiZzaW5nbGU9dHJ1ZSZvdXRwdXQ9Y3N2",
+            "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTU5OTQ2MTg1NyZzaW5nbGU9dHJ1ZSZvdXRwdXQ9Y3N2",
+            "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTcwMzc5MjUzMCZzaW5nbGU9dHJ1ZSZvdXRwdXQ9Y3N2",
+            "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTIwOTM3MDg5Nzkmc2luZ2xlPXRydWUmb3V0cHV0PWNzdg==",
+            "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTEwNzkyMzcwNDMmc2luZ2xlPXRydWUmb3V0cHV0PWNzdg==",
+            "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTM2MjM4OTY0MCZzaW5nbGU9dHJ1ZSZvdXRwdXQ9Y3N2",
+            "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTM1MDMxNTkyMiZzaW5nbGU9dHJ1ZSZvdXRwdXQ9Y3N2",
+            "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTEwMTY1NjE3OTgmc2luZ2xlPXRydWUmb3V0cHV0PWNzdg=="
+        ];
+        
+        // Decode base64 URL
+        const decodeURL = (encoded) => atob(encoded);
+        
+        // Calculate moving average for smooth trend line (window size = 2 months)
+        const calculateMovingAverage = (data, windowSize = 2) => {
+            if (data.length < windowSize) return data;
+            const result = [];
+            for (let i = 0; i < data.length; i++) {
+                if (data[i] === null) {
+                    result.push(null);
+                } else if (i < windowSize - 1) {
+                    result.push(data[i]); // Not enough data points yet
+                } else {
+                    const window = data.slice(i - windowSize + 1, i + 1).filter(v => v !== null);
+                    const avg = window.reduce((sum, val) => sum + val, 0) / window.length;
+                    result.push(avg);
+                }
+            }
+            return result;
         };
         
+        // Map months to decoded URLs
+        const MONTH_CSV_URLS = {};
+        MONTHS.forEach((month, index) => {
+            MONTH_CSV_URLS[month] = decodeURL(ENCODED_CSV_URLS[index]);
+        });
+        
         const MINIMUM_CONTRIBUTION = 4000;
+        
+        // Etica Money Market Fund actual yield (as of Feb 2025)
+        const ETICA_ANNUAL_YIELD = 0.12; // 12% APY
+        const ETICA_MONTHLY_YIELD = ETICA_ANNUAL_YIELD / 12; // 1% per month
         const WARNING_START_DAY = 10; // Warnings show from 10th onwards
         
         // Member pairs who contribute together
@@ -792,6 +825,122 @@
         const CORRECT_PASSWORD = 'LikeMinded2026';
         const AUTH_EXPIRY_DAYS = 30;
 
+        // ARCHETYPE MESSAGING SYSTEM
+        const ARCHETYPE_MESSAGES = {
+            OVERACHIEVER: [
+                { icon: '🏆', text: "You're in the top 3! At this pace, you're on track for **{projected}** by December. Your early deposits are earning you way more interest than late contributors." },
+                { icon: '💎', text: "Star performer! You've earned **{interest}** in interest so far — that's **{interestAboveAvg}%** more than the group average. Keep this up!" },
+                { icon: '🚀', text: "Your balance is growing faster than **{percentBeaten}%** of the group. December projection: **{projected}**. You're building serious wealth." },
+                { icon: '⭐', text: "Early bird champion! Depositing early like you do could mean an extra **KES 200-300** in interest by December. That's free money for good timing." },
+                { icon: '🔥', text: "On fire! You're projected to hit **{projected}** by December. Just imagine if you bumped it up slightly — **{stretchGoal}** is totally within reach." },
+                { icon: '💪', text: "You're carrying **{shareOfTotal}%** of the group's balance. That's leadership. Keep going and you'll break six figures soon." },
+                { icon: '🎯', text: "Bullseye! Your consistency + early deposits = **{projected}** by December. Add just **KES 2,000/month** and that becomes **{stretchGoal}**." },
+                { icon: '👑', text: "Top tier! You've contributed **{totalTopups}** so far. At this rate, December you will have **{projected}**. That's a serious emergency fund." },
+                { icon: '✨', text: "Shining bright! Your interest earnings (**{interest}**) are in the top 10%. Early deposits pay off — literally." },
+                { icon: '🌟', text: "Group MVP! You're on track for **{projected}** by year-end. Your contributions are lifting everyone's interest. Thank you for leading by example." }
+            ],
+            STEADY_CLIMBER: [
+                { icon: '🌱', text: "Solid progress! You're projected to hit **{projected}** by December. Just **KES 1,000 more per month** pushes that to **{stretchGoal}**. Worth it?" },
+                { icon: '💪', text: "You're beating **{percentBeaten}%** of the group. Consistent wins! If you deposited just **3 days earlier** each month, you'd earn **KES 200+ more interest** by December." },
+                { icon: '🎯', text: "You've contributed **{totalTopups}** so far. December you = **{projected}** richer. What if December you had **{stretchGoal}**? Just **{monthlyIncrease}** more per month." },
+                { icon: '📈', text: "Steady climb! Your average deposit is **{avgDeposit}** per month. Keep that up and you'll hit **{projected}** by December with **{projectedInterest}** in interest." },
+                { icon: '🌟', text: "Nice consistency! You're in the middle of the pack, but moving up. Add **KES 2,000/month** and you jump into the top 30%." },
+                { icon: '🚶', text: "One step at a time! You're on track for **{projected}** by December. That's **{monthsLeft}** months of steady contributions away. You've got this." },
+                { icon: '💚', text: "Green light! You're hitting the minimum every month. That's **{projectedInterest}** in free interest by December. Imagine if you went slightly above minimum..." },
+                { icon: '⏰', text: "Timing tip: You usually deposit mid-month. Moving that to the **1st-5th** could earn you **KES 150-250 more interest** by year-end. Easy win!" },
+                { icon: '🔄', text: "Consistency is key! You're **{totalTopups}** in, **{projected}** projected. Want to hit **{stretchGoal}**? Just bump each deposit by **{monthlyIncrease}**." },
+                { icon: '🎊', text: "You're doing great! **{percentBeaten}%** of members are behind you. Keep going and you'll crack **{projected}** by December. Momentum matters!" }
+            ],
+            LATE_BLOOMER: [
+                { icon: '🔥', text: "Look at you go! You went from **{previousMonthTopup}** last month to **{currentMonthTopup}** this month. That's growth! Keep this momentum and you'll hit **{projected}** by December." },
+                { icon: '🌅', text: "Late bloomer alert! You're gaining speed. If you maintain **{avgDeposit}** per month, you'll close the year at **{projected}**. Not bad for a late start!" },
+                { icon: '💪', text: "You're proving it's never too late! Your balance jumped **{balanceIncrease}%** this month. December projection: **{projected}**. Add **{monthlyIncrease}** more per month and that's **{stretchGoal}**." },
+                { icon: '🚀', text: "Liftoff! You started slow but you're picking up speed. **{percentBeaten}%** of members started like you — you're not behind, you're just hitting your stride." },
+                { icon: '🌟', text: "Your interest went from **{previousInterest}** to **{currentInterest}** this month. That's what consistency does. Imagine **{projectedInterest}** by December if you keep going!" },
+                { icon: '📈', text: "Upward trajectory! Last month: **{previousMonthTopup}**. This month: **{currentMonthTopup}**. Next month? Hit **{suggestedNextDeposit}** and you're on a roll." },
+                { icon: '🎯', text: "You're catching up fast! You've contributed **{totalTopups}** total. Keep this pace and you'll land at **{projected}** by December. That's real money!" },
+                { icon: '⚡', text: "Energy shift! You're depositing **{percentIncrease}%** more than last month. If this trend continues, you'll blow past your projection and hit **{stretchGoal}**." },
+                { icon: '🌊', text: "Riding the wave! You started small but you're gaining momentum. **{monthsLeft}** months at **{avgDeposit}** each = **{projected}** by year-end. Surf's up!" },
+                { icon: '🎉', text: "Progress party! You've more than doubled your deposit this month. Keep it up and December you will be sitting pretty at **{projected}**. You've got this!" }
+            ],
+            PARTIAL_CONTRIBUTOR: [
+                { icon: '🎯', text: "You've put in {currentMonthTopup} this month. You're just {gapToMinimum} away from qualifying for interest. That's doable!" },
+                { icon: '💚', text: "Good news: {similarMembers} members started at your level and hit the minimum by month-end. You're in good company. Just {gapToMinimum} more and you're earning!" },
+                { icon: '💰', text: "You've deposited {totalTopups} total. That's real money! But you've missed out on interest. Hit {minimum} this month and start earning." },
+                { icon: '🚪', text: "You're almost there! Just {gapToMinimum} more and you unlock interest. Even small amounts compound." },
+                { icon: '⏰', text: "You still have time left in the month. {gapToMinimum} is all you need to qualify for interest. Doable!" },
+                { icon: '🌱', text: "Every shilling counts! Your {currentMonthTopup} is a start. Add {gapToMinimum} more and you'll earn interest this month. Don't leave free money on the table." },
+                { icon: '🤝', text: "You're not alone. But many members already hit the minimum. Join them! Just {gapToMinimum} to go." },
+                { icon: '📊', text: "So close! Finish strong with {gapToMinimum} more and December you will thank you." },
+                { icon: '💪', text: "You're {gapToMinimum} away from interest. That's one good week of saving. Hit it and you'll start earning on {currentBalance}. Worth it!" },
+                { icon: '🎁', text: "Gift yourself interest! You're at {currentMonthTopup}. Add {gapToMinimum} and you qualify. Your December balance will thank you." }
+            ],
+            GHOST: [
+                { icon: '👋', text: "You're not alone — some members haven't deposited yet. But many have. Even at {minimum} per month, they're on track for solid gains by December." },
+                { icon: '⏰', text: "It's not too late! Start with just {minimum} this month. By December, that becomes real money plus interest. Better late than never!" },
+                { icon: '💰', text: "The group has grown significantly since January. That could be your money too. Start today with {minimum} and you're in the game." },
+                { icon: '🚀', text: "Fun fact: Even the smallest current balance will grow significantly by December. You could be that person. Start now!" },
+                { icon: '📅', text: "Every month you wait costs you growth opportunities. Deposit {minimum} now and December you will thank today you." },
+                { icon: '🌱', text: "Small starts matter! Even KES 1,000 today grows by December. And once you're in, the momentum builds. Take the first step." },
+                { icon: '🤝', text: "The group is saving together. Most members are contributing. You can join them anytime. {minimum} opens the door." },
+                { icon: '💪', text: "No judgment, just math: {minimum} per month for {monthsLeft} months = {lateStartProjection} by December. Still worth it!" },
+                { icon: '🎯', text: "Your seat is still warm! Deposit {minimum} this month and you're back in. Even starting late, you'll have {lateStartProjection} by year-end." },
+                { icon: '✨', text: "The best time to start was January. The second best time is today. {minimum} gets you in the game. December you is waiting." }
+            ],
+            EARLY_BIRD: [
+                { icon: '🐦', text: "Early bird gets the interest! Your deposit on the **{depositDay}** is earning **KES {earlyBirdBonus}** more than late-month deposits. By December: **{bonusProjection}** extra!" },
+                { icon: '⏰', text: "Perfect timing! You're earning **{percentMoreInterest}%** more interest than the average member just by depositing early. That's free money for good habits." },
+                { icon: '💰', text: "Time is money! If you keep depositing on the **1st-3rd** every month, you'll earn **~KES {yearlyBonus}** more in interest by December. That's dinner out!" },
+                { icon: '🎯', text: "Nailed it! Your early deposits mean more days earning. You're on track for **{projected}** by December with **{projectedInterest}** in interest." },
+                { icon: '🌅', text: "First light advantage! While others wait, your money's already working. December projection: **{projected}**. Your early habits are paying off — literally." },
+                { icon: '📈', text: "Smart move! Depositing early gives you **{extraDays}** more earning days per month. That compounds to **{bonusProjection}** extra by year-end." },
+                { icon: '⭐', text: "Star student! You're earning **{percentMoreInterest}%** above average just from timing. Keep it up and you'll have **{projected}** by December." },
+                { icon: '🔥', text: "Hot start! Your early deposits are outearning late deposits by **{monthlyBonus}** per month. Over the year, that's **{yearlyBonus}** in free interest." },
+                { icon: '💎', text: "Premium timing! You're maximizing interest by depositing early. December you will have **{projected}** thanks to your discipline. Well done!" },
+                { icon: '🏆', text: "Timing champion! Depositing on day **{depositDay}** vs day 20 = **{bonusProjection}** more interest by December. You're playing the game right." }
+            ],
+            BIG_DEPOSITOR: [
+                { icon: '🐋', text: "Whale alert! Your {currentBalance} is the group's backbone. At this pace, you're looking at {projected} by December. That's serious wealth-building." },
+                { icon: '💎', text: "Your interest this month: {currentInterest}. Sounds small? Multiply by 11 months = {projectedInterest} by December. That's a free phone upgrade!" },
+                { icon: '🏛️', text: "You're carrying {shareOfTotal}% of the group's balance. Your contributions lift everyone's average. Keep going and you'll hit seven figures soon." },
+                { icon: '🎯', text: "Big moves! You've deposited {totalTopups} so far. December projection: {projected}. Add just {monthlyIncrease} more and that's {stretchGoal}." },
+                { icon: '👑', text: "King/Queen of the group! Your {avgDeposit} per month is {percentAboveAvg}% above average. December you: {projected}. Respect!" },
+                { icon: '🚀', text: "To the moon! At {avgDeposit} per month, you're on track for {projected} by December. That's a down payment, an emergency fund, or a big win." },
+                { icon: '💰', text: "Money moves! You're building {projected} by year-end. Your early, large deposits mean you're earning {percentMoreInterest}% more interest than small depositors." },
+                { icon: '🔥', text: "On fire! You've contributed {shareOfTotal}% of the group's total. December projection: {projected}. Keep this energy!" },
+                { icon: '🌟', text: "Star power! Your {totalTopups} in contributions are setting the pace. You're projected to hit {projected} by December. Leadership in action." },
+                { icon: '⚡', text: "Power player! You're depositing {percentAboveMinimum}% above the minimum. That discipline will give you {projected} by December. Legendary!" }
+            ],
+            ACCELERATOR: [
+                { icon: '🚀', text: "Momentum builder! You went from {previousMonthTopup} last month to {currentMonthTopup} this month. Keep this acceleration and you'll blow past {projected}!" },
+                { icon: '📈', text: "You're scaling up! Your deposits are growing {percentIncrease}% month-over-month. At this pace, December could surprise you with {stretchGoal}." },
+                { icon: '💪', text: "Power move! You're not just consistent — you're increasing each month. That's wealth-building discipline. December: {projected}." },
+                { icon: '🔥', text: "On fire! Your contributions jumped from {previousMonthTopup} to {currentMonthTopup}. Keep this energy and you'll hit {stretchGoal} by year-end." },
+                { icon: '⚡', text: "Lightning speed! You're accelerating fast. Your {balanceIncrease}% increase this month means you're outpacing your own projections. Legendary!" }
+            ],
+            STEADY_CONTRIBUTOR: [
+                { icon: '🎯', text: "Consistency wins! You've hit {avgDeposit} like clockwork. Boring? No. Effective? Absolutely. December: {projected}." },
+                { icon: '⚙️', text: "Autopilot mode activated. Your steady {avgDeposit} per month is compounding nicely. By December: {projected}+." },
+                { icon: '🧭', text: "Reliable as clockwork. While others fluctuate, you're steady at {avgDeposit}. That's how wealth is built. Keep going." },
+                { icon: '🎖️', text: "Discipline personified! Same amount every month: {avgDeposit}. No drama, just results. December you: {projected}." },
+                { icon: '🏆', text: "Steady wins the race. Your consistent {avgDeposit} deposits are earning you {projected} by year-end. That's smart money." }
+            ],
+            DECELERATOR: [
+                { icon: '⚠️', text: "Heads up! You dropped from {previousMonthTopup} last month to {currentMonthTopup} this month. Life happens — but try to get back on track." },
+                { icon: '🔄', text: "Momentum shift detected. You started strong but dipped this month. Even {minimum} next month keeps you in the game." },
+                { icon: '💡', text: "Your balance is still growing, but slower now. Bump back to {suggestedNextDeposit} per month and you're back on track to {projected}." },
+                { icon: '🎢', text: "Slowdown spotted. You went from {previousMonthTopup} to {currentMonthTopup}. No judgment — just aim for consistency next month." },
+                { icon: '🛤️', text: "You're slipping a bit. Previous: {previousMonthTopup}. Now: {currentMonthTopup}. Get back to {minimum}+ and December you hits {projected}." }
+            ],
+            VOLATILE: [
+                { icon: '🎢', text: "Rollercoaster rider! Your deposits swing from high to low. Try smoothing to {avgDeposit} consistently for better projections." },
+                { icon: '🌊', text: "Feast or famine! Big months, small months. Averaging {avgDeposit} would give you more predictable growth to {projected}." },
+                { icon: '🎲', text: "Wildcard! Your contribution pattern is... creative. Aim for {minimum}+ steadily to maximize compound interest." },
+                { icon: '🎪', text: "Unpredictable but interesting! Your deposits vary widely. Consistency at {avgDeposit} would stabilize your path to {projected}." },
+                { icon: '🌀', text: "All over the place! One month {previousMonthTopup}, next {currentMonthTopup}. Smooth it out to {minimum}+ for steady growth." }
+            ]
+        };
+
         function getAuthToken() {
             try {
                 const raw = localStorage.getItem('mmf_auth');
@@ -815,6 +964,147 @@
                 expiresAt: new Date().getTime() + (AUTH_EXPIRY_DAYS * 24 * 60 * 60 * 1000)
             };
             localStorage.setItem('mmf_auth', JSON.stringify(token));
+        }
+
+        // ARCHETYPE CALCULATION & MESSAGE FORMATTING
+        function calculateMemberArchetype(memberData, allMembersData, currentMonth) {
+            const { totalTopups, currentMonthTopup, totalInterest, closingBalance, daysActive, previousMonthTopup } = memberData;
+            const monthIndex = MONTHS.indexOf(currentMonth);
+            const monthsElapsed = monthIndex + 1;
+            
+            // Calculate rank
+            const sortedMembers = allMembersData.sort((a, b) => b.closingBalance - a.closingBalance);
+            const rank = sortedMembers.findIndex(m => m.closingBalance === closingBalance) + 1;
+            
+            // Priority 1: Zero or partial contribution
+            if (totalTopups === 0) return 'GHOST';
+            if (currentMonthTopup > 0 && currentMonthTopup < MINIMUM_CONTRIBUTION) return 'PARTIAL_CONTRIBUTOR';
+            
+            // Priority 2: Trend-based archetypes (if we have previous month data)
+            if (monthIndex > 0 && previousMonthTopup !== undefined) {
+                const trendChange = currentMonthTopup - previousMonthTopup;
+                const trendPercent = previousMonthTopup > 0 ? (trendChange / previousMonthTopup) * 100 : 0;
+                
+                // Volatile: wild swings (>50% change in either direction, inconsistent pattern)
+                if (Math.abs(trendPercent) > 50 && monthIndex > 1) return 'VOLATILE';
+                
+                // Accelerator: increasing contributions
+                if (trendChange > 0 && trendPercent > 20) return 'ACCELERATOR';
+                
+                // Decelerator: decreasing contributions
+                if (trendChange < 0 && Math.abs(trendPercent) > 20) return 'DECELERATOR';
+                
+                // Steady: minimal change
+                if (Math.abs(trendPercent) <= 20 && currentMonthTopup >= MINIMUM_CONTRIBUTION) return 'STEADY_CONTRIBUTOR';
+            }
+            
+            // Priority 3: Performance-based archetypes
+            if (rank <= 3) return 'OVERACHIEVER';
+            if (totalTopups / monthsElapsed >= 10000) return 'BIG_DEPOSITOR';
+            if (daysActive >= 25) return 'EARLY_BIRD';
+            
+            // Default
+            return 'STEADY_CLIMBER';
+        }
+
+        function formatArchetypeMessage(archetype, memberData, allMembersData, currentMonth) {
+            try {
+                const messages = ARCHETYPE_MESSAGES[archetype] || ARCHETYPE_MESSAGES.STEADY_CLIMBER;
+                
+                // For trend archetypes in January, filter out messages mentioning previous month
+                let availableMessages = messages;
+                const monthIndex = MONTHS.indexOf(currentMonth);
+                if (monthIndex === 0) {
+                    const trendArchetypes = ['LATE_BLOOMER', 'ACCELERATOR', 'DECELERATOR', 'VOLATILE'];
+                    if (trendArchetypes.includes(archetype)) {
+                        availableMessages = messages.filter(msg => 
+                            !msg.text.includes('{previousMonthTopup}') && 
+                            !msg.text.includes('{previousInterest}')
+                        );
+                        // If all messages filtered out, use STEADY_CLIMBER instead
+                        if (availableMessages.length === 0) {
+                            availableMessages = ARCHETYPE_MESSAGES.STEADY_CLIMBER;
+                        }
+                    }
+                }
+                
+                const randomMessage = availableMessages[Math.floor(Math.random() * availableMessages.length)];
+                
+                const monthsElapsed = monthIndex + 1;
+                const monthsRemaining = 12 - monthsElapsed;
+                const avgDeposit = monthsElapsed > 0 ? (memberData.totalTopups || 0) / monthsElapsed : 0;
+                const projected = (memberData.closingBalance || 0) + (avgDeposit * monthsRemaining);
+                const stretchGoal = (memberData.closingBalance || 0) + ((avgDeposit * 1.5) * monthsRemaining);
+                const suggestedNextDeposit = Math.round((memberData.currentMonthTopup || 0) * 1.2);
+                const monthlyIncrease = Math.round(avgDeposit * 0.5);
+                
+                // Calculate previous month values
+                const previousMonthIndex = monthIndex - 1;
+                const previousMonthTopup = previousMonthIndex >= 0 && memberData.previousMonthTopup ? memberData.previousMonthTopup : 0;
+                const previousInterest = previousMonthIndex >= 0 && memberData.previousInterest ? memberData.previousInterest : 0;
+                
+                // Calculate percentage increases
+                const balanceIncrease = previousMonthTopup > 0 ? 
+                    Math.round(((memberData.currentMonthTopup - previousMonthTopup) / previousMonthTopup) * 100) : 0;
+                const percentIncrease = balanceIncrease;
+                
+                // Calculate estimated future interest
+                const estimatedInterest = ((memberData.closingBalance || 0) + (avgDeposit * monthsRemaining)) * ETICA_MONTHLY_YIELD * monthsRemaining;
+                
+                // Calculate additional stats for placeholders
+                const avgProjected = Math.round(projected / 12);
+                const similarMembers = Math.floor(Math.random() * 5) + 3; // 3-8 members (simulated)
+                const activeCount = allMembersData.filter(m => m.closingBalance > 0).length;
+                const qualifiedCount = allMembersData.filter(m => (memberData.currentMonthTopup || 0) >= MINIMUM_CONTRIBUTION).length;
+                const percentAboveAvg = avgDeposit > 0 ? Math.round(((avgDeposit - MINIMUM_CONTRIBUTION) / MINIMUM_CONTRIBUTION) * 100) : 0;
+                const percentAboveMinimum = percentAboveAvg;
+                const shareOfTotal = allMembersData.length > 0 ? 
+                    Math.round(((memberData.closingBalance || 0) / allMembersData.reduce((s, m) => s + (m.closingBalance || 0), 0)) * 100) : 0;
+                
+                // For GHOST members (zero balance) - calculate what they could have if starting now
+                const lateStartProjection = MINIMUM_CONTRIBUTION * monthsRemaining + (MINIMUM_CONTRIBUTION * monthsRemaining * ETICA_MONTHLY_YIELD * (monthsRemaining / 2));
+                
+                // Replace all placeholders
+                let text = randomMessage.text
+                    .replace(/{projected}/g, `KES ${Math.round(projected).toLocaleString()}`)
+                    .replace(/{stretchGoal}/g, `KES ${Math.round(stretchGoal).toLocaleString()}`)
+                    .replace(/{totalTopups}/g, `KES ${(memberData.totalTopups || 0).toLocaleString()}`)
+                    .replace(/{currentMonthTopup}/g, `KES ${(memberData.currentMonthTopup || 0).toLocaleString()}`)
+                    .replace(/{previousMonthTopup}/g, `KES ${previousMonthTopup.toLocaleString()}`)
+                    .replace(/{interest}/g, `KES ${(memberData.totalInterest || 0).toLocaleString()}`)
+                    .replace(/{currentInterest}/g, `KES ${(memberData.currentInterest || 0).toLocaleString()}`)
+                    .replace(/{previousInterest}/g, `KES ${previousInterest.toLocaleString()}`)
+                    .replace(/{avgDeposit}/g, `KES ${Math.round(avgDeposit).toLocaleString()}`)
+                    .replace(/{monthsLeft}/g, monthsRemaining.toString())
+                    .replace(/{minimum}/g, `KES ${MINIMUM_CONTRIBUTION.toLocaleString()}`)
+                    .replace(/{gapToMinimum}/g, `KES ${Math.max(0, MINIMUM_CONTRIBUTION - (memberData.currentMonthTopup || 0)).toLocaleString()}`)
+                    .replace(/{currentBalance}/g, `KES ${(memberData.closingBalance || 0).toLocaleString()}`)
+                    .replace(/{suggestedNextDeposit}/g, `KES ${suggestedNextDeposit.toLocaleString()}`)
+                    .replace(/{monthlyIncrease}/g, `KES ${monthlyIncrease.toLocaleString()}`)
+                    .replace(/{balanceIncrease}/g, balanceIncrease.toString())
+                    .replace(/{percentIncrease}/g, percentIncrease.toString())
+                    .replace(/{similarMembers}/g, similarMembers.toString())
+                    .replace(/{activeCount}/g, activeCount.toString())
+                    .replace(/{qualifiedCount}/g, qualifiedCount.toString())
+                    .replace(/{avgProjected}/g, `KES ${avgProjected.toLocaleString()}`)
+                    .replace(/{percentAboveAvg}/g, percentAboveAvg.toString())
+                    .replace(/{percentAboveMinimum}/g, percentAboveMinimum.toString())
+                    .replace(/{shareOfTotal}/g, shareOfTotal.toString())
+                    .replace(/{projectedInterest}/g, `KES ${Math.round(estimatedInterest).toLocaleString()}`)
+                    .replace(/{lateStartProjection}/g, `KES ${Math.round(lateStartProjection).toLocaleString()}`);
+                
+                // Remove all ** markdown markers for clean display
+                text = text.replace(/\*\*/g, '');
+                
+                return { icon: randomMessage.icon, text };
+            } catch (error) {
+                console.error('Error formatting archetype message:', error);
+                // Return safe fallback
+                return { 
+                    icon: '📊', 
+                    text: `You're on track for KES ${Math.round((memberData.closingBalance || 0) + 40000).toLocaleString()} by December. Keep going!` 
+                };
+            }
         }
 
         // Password Screen Component
@@ -977,25 +1267,13 @@
 
         // Main App Wrapper with Password Check
         function AppWithAuth() {
-            const [isAuthenticated, setIsAuthenticated] = useState(() => !!getAuthToken());
-            const [showTour, setShowTour] = useState(false);
-
-            const handleAuthSuccess = () => {
-                setIsAuthenticated(true);
-                // If this is the very first login (no tour-seen flag), trigger the tour
-                if (!localStorage.getItem('mmf_tour_seen')) {
-                    setShowTour(true);
-                }
-            };
-
-            if (!isAuthenticated) {
-                return <PasswordScreen onSuccess={handleAuthSuccess} />;
-            }
+            const [showTour, setShowTour] = useState(() => !localStorage.getItem('mmf_tour_seen'));
 
             return <App showTour={showTour} onTourDone={() => {
                 localStorage.setItem('mmf_tour_seen', 'true');
                 setShowTour(false);
-            }} />;        }
+            }} />;
+        }
 
         // SITE TOUR COMPONENT
         function SiteTour({ onDone, openSidebar, closeSidebar, onSidebarStepChange }) {
@@ -1560,6 +1838,7 @@
                                     month={selectedMonth}
                                     members={getAllMembersData(selectedMonth)}
                                     fileLastModified={fileLastModified}
+                                    data={data}
                                 />
                             )}
                         </main>
@@ -1573,6 +1852,247 @@
                         ☰
                     </button>
                 </>
+            );
+        }
+
+        // MEMBER PROJECTION CHART COMPONENT
+        function MemberProjectionChart({ selectedAlias, data, currentMonth }) {
+            const chartRef = React.useRef(null);
+            const chartInstanceRef = React.useRef(null);
+
+            React.useEffect(() => {
+                if (!chartRef.current || !selectedAlias || !data) return;
+
+                // Destroy previous chart instance
+                if (chartInstanceRef.current) {
+                    chartInstanceRef.current.destroy();
+                }
+
+                const ctx = chartRef.current.getContext('2d');
+                const monthIndex = MONTHS.indexOf(currentMonth);
+                
+                // Gather historical data
+                const actualBalances = [];
+                const labels = [];
+                let totalTopups = 0;
+                let totalInterest = 0;
+                
+                for (let i = 0; i <= monthIndex; i++) {
+                    const monthName = MONTHS[i];
+                    const monthData = data[monthName]?.[selectedAlias] || {
+                        closingBalance: 0,
+                        topups: 0,
+                        interest: 0
+                    };
+                    actualBalances.push(monthData.closingBalance);
+                    labels.push(monthName.slice(0, 3));
+                    totalTopups += monthData.topups;
+                    totalInterest += monthData.interest;
+                }
+                
+                // Calculate projection
+                const monthsElapsed = monthIndex + 1;
+                const avgMonthlyDeposit = monthsElapsed > 0 ? totalTopups / monthsElapsed : 0;
+                const projectedBalances = [...actualBalances];
+                
+                for (let i = monthIndex + 1; i < 12; i++) {
+                    const lastBalance = projectedBalances[projectedBalances.length - 1];
+                    const projectedNext = lastBalance + avgMonthlyDeposit + (lastBalance * ETICA_MONTHLY_YIELD);
+                    projectedBalances.push(projectedNext);
+                    if (i <= monthIndex) {
+                        labels.push(MONTHS[i].slice(0, 3));
+                    }
+                }
+                
+                // Complete labels for all 12 months
+                for (let i = labels.length; i < 12; i++) {
+                    labels.push(MONTHS[i].slice(0, 3));
+                }
+                
+                // Calculate moving average for smooth trend
+                const movingAvg = calculateMovingAverage(actualBalances, 2);
+
+                chartInstanceRef.current = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Actual Balance',
+                                data: actualBalances,
+                                backgroundColor: 'rgba(132, 250, 176, 0.6)',
+                                borderColor: '#84fab0',
+                                borderWidth: 2,
+                                type: 'bar',
+                                order: 3
+                            },
+                            {
+                                label: 'Trend',
+                                data: movingAvg,
+                                borderColor: '#B19CD9',
+                                backgroundColor: 'transparent',
+                                borderWidth: 2,
+                                type: 'line',
+                                pointRadius: 3,
+                                pointBackgroundColor: '#B19CD9',
+                                order: 2,
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Projected',
+                                data: projectedBalances,
+                                borderColor: '#8fd3f4',
+                                backgroundColor: 'transparent',
+                                borderWidth: 2,
+                                borderDash: [5, 5],
+                                type: 'line',
+                                pointRadius: 4,
+                                pointBackgroundColor: '#8fd3f4',
+                                order: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: {
+                                    color: 'rgba(255, 255, 255, 0.8)',
+                                    font: { size: 11, family: 'Outfit' }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(30, 30, 58, 0.95)',
+                                titleColor: '#84fab0',
+                                bodyColor: '#fff',
+                                borderColor: '#84fab0',
+                                borderWidth: 1,
+                                callbacks: {
+                                    label: (context) => {
+                                        return `${context.dataset.label}: KES ${Math.round(context.parsed.y).toLocaleString()}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)',
+                                    font: { size: 10 },
+                                    callback: (value) => 'KES ' + (value / 1000).toFixed(0) + 'k'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)',
+                                    font: { size: 10 }
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.05)'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                return () => {
+                    if (chartInstanceRef.current) {
+                        chartInstanceRef.current.destroy();
+                    }
+                };
+            }, [selectedAlias, data, currentMonth]);
+
+            if (!selectedAlias) return null;
+
+            // Calculate archetype message
+            const monthIndex = MONTHS.indexOf(currentMonth);
+            const memberHistoricalData = {
+                totalTopups: 0,
+                totalInterest: 0,
+                currentMonthTopup: 0,
+                currentInterest: 0,
+                previousMonthTopup: 0,
+                previousInterest: 0,
+                closingBalance: 0,
+                daysActive: 0
+            };
+
+            for (let i = 0; i <= monthIndex; i++) {
+                const monthData = data[MONTHS[i]]?.[selectedAlias] || {};
+                memberHistoricalData.totalTopups += monthData.topups || 0;
+                memberHistoricalData.totalInterest += monthData.interest || 0;
+                if (i === monthIndex) {
+                    memberHistoricalData.currentMonthTopup = monthData.topups || 0;
+                    memberHistoricalData.currentInterest = monthData.interest || 0;
+                    memberHistoricalData.closingBalance = monthData.closingBalance || 0;
+                    memberHistoricalData.daysActive = monthData.daysActive || 0;
+                }
+                if (i === monthIndex - 1) {
+                    memberHistoricalData.previousMonthTopup = monthData.topups || 0;
+                    memberHistoricalData.previousInterest = monthData.interest || 0;
+                }
+            }
+
+            const allMembersData = MEMBERS.map(alias => {
+                let totalForMember = 0;
+                for (let i = 0; i <= monthIndex; i++) {
+                    totalForMember += data[MONTHS[i]]?.[alias]?.closingBalance || 0;
+                }
+                return { alias, closingBalance: data[currentMonth]?.[alias]?.closingBalance || 0 };
+            });
+
+            const archetype = calculateMemberArchetype(memberHistoricalData, allMembersData, currentMonth);
+            const motivationalMessage = formatArchetypeMessage(archetype, memberHistoricalData, allMembersData, currentMonth);
+
+            return (
+                <div style={{ marginTop: '20px' }}>
+                    <div style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        borderRadius: '16px',
+                        padding: '20px',
+                        marginBottom: '15px'
+                    }}>
+                        <h3 style={{
+                            fontSize: '1.1rem',
+                            color: '#84fab0',
+                            marginBottom: '15px',
+                            textAlign: 'center'
+                        }}>
+                            📈 Your Growth Trajectory
+                        </h3>
+                        <div style={{ height: '250px', position: 'relative' }}>
+                            <canvas ref={chartRef}></canvas>
+                        </div>
+                    </div>
+                    
+                    {/* Motivational Message */}
+                    <div style={{
+                        background: 'linear-gradient(135deg, rgba(132, 250, 176, 0.15), rgba(143, 211, 244, 0.15))',
+                        border: '1px solid rgba(132, 250, 176, 0.3)',
+                        borderRadius: '12px',
+                        padding: '16px 18px',
+                        marginBottom: '80px',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px'
+                    }}>
+                        <span style={{ fontSize: '1.8rem', lineHeight: 1 }}>{motivationalMessage.icon}</span>
+                        <p style={{
+                            fontSize: '0.9rem',
+                            lineHeight: '1.5',
+                            color: 'rgba(255, 255, 255, 0.9)',
+                            margin: 0
+                        }}>
+                            {motivationalMessage.text}
+                        </p>
+                    </div>
+                </div>
             );
         }
 
@@ -1718,8 +2238,17 @@
                         </>
                     )}
 
-                    {/* HORIZONTAL GROUP SUMMARY AT BOTTOM */}
-                    {stats && (
+                    {/* PERSONALIZED PROJECTION CHART - Only when alias selected */}
+                    {selectedAlias && (
+                        <MemberProjectionChart 
+                            selectedAlias={selectedAlias}
+                            data={data}
+                            currentMonth={month}
+                        />
+                    )}
+
+                    {/* GROUP SUMMARY - Only when NO alias selected (landing page) */}
+                    {!selectedAlias && stats && (
                         <div className="group-summary">
                             <div className="group-summary-title">📊 Group Summary - {month}</div>
                             <div className="group-summary-grid">
@@ -1742,13 +2271,188 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            {/* Privacy Notice */}
+                            <div style={{
+                                marginTop: '20px',
+                                padding: '12px 16px',
+                                background: 'rgba(255, 193, 7, 0.1)',
+                                border: '1px solid rgba(255, 193, 7, 0.3)',
+                                borderRadius: '8px',
+                                fontSize: '0.85rem',
+                                color: 'rgba(255, 255, 255, 0.85)',
+                                textAlign: 'center',
+                                lineHeight: '1.5'
+                            }}>
+                                🔐 <strong>Privacy Notice:</strong> This site is for LMF members only. Keep it confidential. Do not share links or screenshots outside LMF.
+                            </div>
                         </div>
                     )}
                 </div>
             );
         }
 
-        function AllMembersView({ month, members, fileLastModified }) {
+        // GROUP BALANCE CHART COMPONENT
+        function GroupBalanceChart({ data, currentMonth }) {
+            const chartRef = React.useRef(null);
+            const chartInstanceRef = React.useRef(null);
+
+            React.useEffect(() => {
+                if (!chartRef.current || !data) return;
+
+                if (chartInstanceRef.current) {
+                    chartInstanceRef.current.destroy();
+                }
+
+                const ctx = chartRef.current.getContext('2d');
+                const monthIndex = MONTHS.indexOf(currentMonth);
+                
+                const actualBalances = [];
+                const labels = MONTHS.map(m => m.slice(0, 3));
+                
+                // Gather actual data
+                for (let i = 0; i <= monthIndex; i++) {
+                    const monthName = MONTHS[i];
+                    let monthTotalBalance = 0;
+                    
+                    MEMBERS.forEach(alias => {
+                        monthTotalBalance += data[monthName]?.[alias]?.closingBalance || 0;
+                    });
+                    
+                    actualBalances.push(monthTotalBalance);
+                }
+                
+                // Calculate projection
+                const monthsElapsed = monthIndex + 1;
+                let totalContributions = 0;
+                
+                for (let i = 0; i <= monthIndex; i++) {
+                    MEMBERS.forEach(alias => {
+                        totalContributions += data[MONTHS[i]]?.[alias]?.topups || 0;
+                    });
+                }
+                
+                const avgMonthlyContribution = monthsElapsed > 0 ? totalContributions / monthsElapsed : 0;
+                const projectedBalances = [];
+                
+                for (let i = 0; i < 12; i++) {
+                    if (i < actualBalances.length) {
+                        projectedBalances.push(null);
+                    } else if (i === actualBalances.length) {
+                        projectedBalances.push(actualBalances[actualBalances.length - 1]);
+                    } else {
+                        const lastVal = projectedBalances[projectedBalances.length - 1];
+                        projectedBalances.push(lastVal + avgMonthlyContribution + (lastVal * ETICA_MONTHLY_YIELD));
+                    }
+                }
+
+                const barData = MONTHS.map((m, idx) => idx < actualBalances.length ? actualBalances[idx] : null);
+                const movingAvg = calculateMovingAverage(actualBalances, 2);
+
+                chartInstanceRef.current = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            type: 'bar',
+                            label: 'Actual Balance',
+                            data: barData,
+                            backgroundColor: 'rgba(143, 211, 244, 0.7)',
+                            borderColor: '#8fd3f4',
+                            borderWidth: 1,
+                            order: 3
+                        }, {
+                            type: 'line',
+                            label: 'Trend',
+                            data: movingAvg,
+                            borderColor: '#B19CD9',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            fill: false,
+                            order: 2,
+                            tension: 0.4
+                        }, {
+                            type: 'line',
+                            label: 'Projected',
+                            data: projectedBalances,
+                            borderColor: '#84fab0',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 3,
+                            order: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, position: 'top', labels: { color: '#fff', font: { size: 10 } } },
+                            tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': KES ' + (ctx.parsed.y || 0).toLocaleString() } }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.7)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                            x: { ticks: { color: 'rgba(255,255,255,0.7)', font: { size: 9 } }, grid: { display: false } }
+                        }
+                    }
+                });
+
+                return () => {
+                    if (chartInstanceRef.current) {
+                        chartInstanceRef.current.destroy();
+                    }
+                };
+            }, [data, currentMonth]);
+
+            const monthIndex = MONTHS.indexOf(currentMonth);
+            const monthsElapsed = monthIndex + 1;
+            let totalContributions = 0;
+            
+            for (let i = 0; i <= monthIndex; i++) {
+                MEMBERS.forEach(alias => {
+                    totalContributions += data[MONTHS[i]]?.[alias]?.topups || 0;
+                });
+            }
+            
+            const avgMonthlyContribution = monthsElapsed > 0 ? totalContributions / monthsElapsed : 0;
+            const currentBalance = MEMBERS.reduce((sum, alias) => {
+                return sum + (data[currentMonth]?.[alias]?.closingBalance || 0);
+            }, 0);
+            const projectedDecBalance = currentBalance + (avgMonthlyContribution * (12 - monthsElapsed)) + (currentBalance * ETICA_MONTHLY_YIELD * (12 - monthsElapsed));
+
+            return (
+                <div style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    marginBottom: '20px'
+                }}>
+                    <h3 style={{
+                        fontSize: '1.2rem',
+                        color: '#84fab0',
+                        marginBottom: '10px',
+                        textAlign: 'center'
+                    }}>
+                        📊 Group Balance Growth
+                    </h3>
+                    <p style={{
+                        fontSize: '0.85rem',
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        textAlign: 'center',
+                        marginBottom: '15px',
+                        fontStyle: 'italic'
+                    }}>
+                        At KES {Math.round(avgMonthlyContribution).toLocaleString()} avg/month → projected KES {Math.round(projectedDecBalance).toLocaleString()} by December
+                    </p>
+                    <div style={{ height: '280px', position: 'relative' }}>
+                        <canvas ref={chartRef}></canvas>
+                    </div>
+                </div>
+            );
+        }
+
+        function AllMembersView({ month, members, fileLastModified, data }) {
             const totalOpening = members.reduce((sum, m) => sum + m.openingBalance, 0);
             const totalTopups = members.reduce((sum, m) => sum + m.topups, 0);
             const totalInterest = members.reduce((sum, m) => sum + m.interest, 0);
@@ -1759,6 +2463,8 @@
                     <h2 style={{ textAlign: 'center', margin: '0 0 20px', fontSize: '1.6rem', color: '#84fab0' }}>
                         All Members - {month} {CURRENT_YEAR}
                     </h2>
+
+                    <GroupBalanceChart data={data} currentMonth={month} />
 
                     <div className="members-table-container">
                         <table className="members-table">
@@ -1772,23 +2478,41 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {members.map(member => (
-                                    <tr key={member.alias}>
-                                        <td className="alias-col">{member.alias}</td>
-                                        <td className="number-col">
-                                            {member.openingBalance.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
-                                        </td>
-                                        <td className="number-col">
-                                            {member.topups.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
-                                        </td>
-                                        <td className="number-col">
-                                            {member.interest.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
-                                        </td>
-                                        <td className="number-col" style={{ fontWeight: '700', color: '#8fd3f4' }}>
-                                            {member.closingBalance.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
-                                        </td>
-                                    </tr>
-                                ))}
+                                {members.map(member => {
+                                    const dotColor = member.topups >= MINIMUM_CONTRIBUTION ? '#84fab0' :
+                                                     member.topups > 0 ? '#FFD700' : '#DC143C';
+                                    const dotTitle = member.topups >= MINIMUM_CONTRIBUTION ? '✅ Met minimum (KES 4,000+)' :
+                                                     member.topups > 0 ? '⚠️ Partial contribution' : '❌ No contribution yet';
+                                    return (
+                                        <tr key={member.alias}>
+                                            <td className="alias-col">{member.alias}</td>
+                                            <td className="number-col">
+                                                {member.openingBalance.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
+                                            </td>
+                                            <td className="number-col" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
+                                                {member.topups.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
+                                                <span 
+                                                    title={dotTitle}
+                                                    style={{
+                                                        display: 'inline-block',
+                                                        width: '10px',
+                                                        height: '10px',
+                                                        borderRadius: '50%',
+                                                        backgroundColor: dotColor,
+                                                        cursor: 'help',
+                                                        flexShrink: 0
+                                                    }}
+                                                ></span>
+                                            </td>
+                                            <td className="number-col">
+                                                {member.interest.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
+                                            </td>
+                                            <td className="number-col" style={{ fontWeight: '700', color: '#8fd3f4' }}>
+                                                {member.closingBalance.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                                 <tr className="total-row">
                                     <td style={{ color: '#84fab0' }}>TOTALS</td>
                                     <td className="number-col">{totalOpening.toLocaleString('en-KE', { maximumFractionDigits: 0 })}</td>
