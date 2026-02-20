@@ -107,7 +107,7 @@
             flex-shrink: 0;
         }
         .sidebar-section h3 {
-            color: var(--t3);
+            color: var(--t1);
             font-size: 0.62rem;
             font-weight: 700;
             letter-spacing: 0.09em;
@@ -183,7 +183,7 @@
 
         /* ── SECTION LABELS ──────────────────────── */
         .section-label {
-            font-size: 0.65rem; font-weight: 700; color: var(--t3);
+            font-size: 0.65rem; font-weight: 700; color: var(--t1);
             text-transform: uppercase; letter-spacing: 0.1em;
             margin-bottom: 8px;
         }
@@ -1409,7 +1409,7 @@
                 <div className="member-view">
                     <div className="alias-selector">
                         <select value={selectedAlias} onChange={e=>setSelectedAlias(e.target.value)}>
-                            <option value="" disabled>Select your alias to view balance</option>
+                            <option value="" disabled>👆 Select your alias to view balance</option>
                             {MEMBERS.map(a=><option key={a} value={a}>{a}</option>)}
                         </select>
                     </div>
