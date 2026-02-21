@@ -258,6 +258,49 @@
         .noent { color:var(--t3); font-size:0.76rem; text-align:center; padding:14px 0; }
         .div  { height:1px; background:var(--border); margin:22px 0; }
 
+
+        /* ── CONFIRM MODAL ── */
+        .modal-overlay {
+            display:flex; position:fixed; inset:0; z-index:999;
+            background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);
+            align-items:center; justify-content:center;
+            opacity:0; pointer-events:none;
+            transition: opacity 0.2s;
+        }
+        .modal-overlay.show { opacity:1; pointer-events:all; }
+        .modal {
+            background:var(--card); border:1px solid var(--border2);
+            border-radius:18px; padding:28px 24px 24px;
+            width:calc(100% - 40px); max-width:320px;
+            display:flex; flex-direction:column; align-items:center;
+        }
+        .modal-icon  { font-size:2rem; margin-bottom:10px; }
+        .modal-title { font-size:1rem; font-weight:800; margin-bottom:4px; }
+        .modal-sub   { font-size:0.75rem; color:var(--t2); margin-bottom:20px; text-align:center; line-height:1.5; }
+        .modal-dots  { display:flex; gap:12px; margin-bottom:20px; }
+        .modal-dot   { width:13px; height:13px; border-radius:50%; border:2px solid var(--border2); background:transparent; transition:all .15s; }
+        .modal-dot.on{ background:var(--accent); border-color:var(--accent); }
+        .modal-numpad {
+            display:grid; grid-template-columns:repeat(3,1fr);
+            gap:8px; width:100%;
+        }
+        .mnk {
+            height:56px; border-radius:10px;
+            background:rgba(255,255,255,0.05); border:1px solid var(--border2);
+            color:var(--t1); font-family:'Sora',sans-serif;
+            font-size:1.2rem; font-weight:700; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            transition:all .1s; touch-action:manipulation;
+        }
+        .mnk:active { background:var(--ad); border-color:var(--accent); transform:scale(0.93); }
+        .mnk.mdel   { font-size:0.9rem; color:var(--t2); }
+        .mnk.mblank { background:transparent; border:none; pointer-events:none; }
+        .modal-err  { color:var(--red); font-size:0.75rem; margin-top:10px; min-height:18px; text-align:center; }
+        .modal-cancel {
+            margin-top:14px; background:transparent; border:none;
+            color:var(--t3); font-family:'Sora',sans-serif;
+            font-size:0.8rem; cursor:pointer; padding:6px;
+        }
         @keyframes spin { to{transform:rotate(360deg);} }
         .spin { width:17px; height:17px; flex-shrink:0; border:2.5px solid rgba(10,10,15,.25); border-top-color:#0a0a0f; border-radius:50%; animation:spin .65s linear infinite; }
     </style>
@@ -392,7 +435,7 @@
         <textarea id="notes" placeholder="e.g. Second deposit this week, partial top-up…"></textarea>
     </div>
 
-    <button class="subbtn" id="subBtn" onclick="submit()">
+    <button class="subbtn" id="subBtn" onclick="handleSubmit()">
         <span id="subLbl">Log Deposit</span>
     </button>
     <div class="stat" id="statBox"></div>
@@ -407,21 +450,66 @@
 
 </div>
 
+<!-- CONFIRM PIN MODAL -->
+<div class="modal-overlay" id="confirmOverlay">
+    <div class="modal">
+        <div class="modal-icon">🔒</div>
+        <div class="modal-title">Confirm Deposit</div>
+        <div class="modal-sub" id="confirmSub">Enter PIN to confirm</div>
+        <div class="modal-dots">
+            <div class="modal-dot" id="md0"></div>
+            <div class="modal-dot" id="md1"></div>
+            <div class="modal-dot" id="md2"></div>
+            <div class="modal-dot" id="md3"></div>
+        </div>
+        <div class="modal-numpad">
+            <button class="mnk" onclick="mnk('1')">1</button>
+            <button class="mnk" onclick="mnk('2')">2</button>
+            <button class="mnk" onclick="mnk('3')">3</button>
+            <button class="mnk" onclick="mnk('4')">4</button>
+            <button class="mnk" onclick="mnk('5')">5</button>
+            <button class="mnk" onclick="mnk('6')">6</button>
+            <button class="mnk" onclick="mnk('7')">7</button>
+            <button class="mnk" onclick="mnk('8')">8</button>
+            <button class="mnk" onclick="mnk('9')">9</button>
+            <button class="mnk mblank"></button>
+            <button class="mnk" onclick="mnk('0')">0</button>
+            <button class="mnk mdel" onclick="mnkDel()">⌫</button>
+        </div>
+        <div class="modal-err" id="confirmErr"></div>
+        <button class="modal-cancel" onclick="closeConfirm()">✕ Cancel</button>
+    </div>
+</div>
+
 <script>
-const ADMIN_PIN       = '1234';
+// UI gate only — real security is server-side in Apps Script
+const ADMIN_PIN       = '1234';  // must match SERVER_PIN in Apps Script
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqEfsYI_8AKAlYfuUyzoiYbLRYXTQJVYgVygEXysGlwE5cMwQVDcsdI_c9LyYJOLXy/exec';
+
+// Stable device token for audit trail & rate limiting
+const CLIENT_TOKEN = (()=>{
+    try {
+        let t = localStorage.getItem('lmf_token');
+        if (!t) { t = 'dev_' + Math.random().toString(36).slice(2,10) + '_' + Date.now(); localStorage.setItem('lmf_token',t); }
+        return t;
+    } catch(e) { return 'dev_' + Math.random().toString(36).slice(2,10); }
+})();
+const DEVICE_INFO = navigator.userAgent.slice(0,150);
 
 let method     = 'MPESA';
 let creditMode = 'single';
 let splitCnt   = 0;
 let log        = [];
-let usedCodes  = new Set();   // blocks duplicates within session
+let usedCodes  = new Set();
 let pin        = '';
+let enteredPin = '';  // captured at login, sent with every submission
 
-const MEMBERS = ['Tokyo','Berlin','Gandia','Denver','Helsinki','Oslo','Moscow',
+const MEMBERS = [
+    'Tokyo','Berlin','Gandia','Denver','Helsinki','Oslo','Moscow',
     'California','Lisbon','Stockholm','Paris','Marseille','Rio','Nairobi',
     'Tel Aviv','Valencia','Havana','Manilla','Scofield','Bogota',
-    'Emirates','Dublin','Doha','Bern'];
+    'Emirates','Dublin','Doha','Bern'
+]; // 24 members — California & Lisbon are separate, Paris & Marseille are separate
 
 document.addEventListener('DOMContentLoaded', () => {
     setToday();
@@ -447,6 +535,7 @@ function dots() {
 }
 function checkPin() {
     if (pin === ADMIN_PIN) {
+        enteredPin = pin;  // store for server-side verification
         document.getElementById('lockScreen').style.display='none';
         document.getElementById('mainForm').style.display='block';
     } else {
@@ -581,7 +670,7 @@ function updBal() {
 }
 
 /* ── SUBMIT ──────────────────────────────────────────────────── */
-async function submit() {
+async function handleSubmit() {
     const from  = document.getElementById('fromMember').value;
     const amt   = parseFloat(document.getElementById('totalAmt').value);
     const code  = document.getElementById('refCode').value.trim().toUpperCase();
@@ -610,21 +699,16 @@ async function submit() {
         if(Math.abs(tot-amt)>0.01) return stat('err',`Split total KES ${tot.toLocaleString()} ≠ KES ${amt.toLocaleString()}.`);
     }
 
-    const btn=document.getElementById('subBtn'), lbl=document.getElementById('subLbl');
-    btn.disabled=true; lbl.innerHTML='<div class="spin"></div> Logging…';
-    stat('wait','Sending to Google Sheets…');
+    // Build payload — PIN will be added by the confirm modal
+    const payload={
+        timestamp:new Date().toISOString(), date, week:weekNum(new Date(date)),
+        from, method, totalAmount:amt, refCode:code, notes, credits,
+        isSplit:creditMode==='split',
+        clientToken:CLIENT_TOKEN, deviceInfo:DEVICE_INFO
+    };
 
-    const payload={timestamp:new Date().toISOString(),date,week:weekNum(new Date(date)),from,method,totalAmount:amt,refCode:code,notes,credits,isSplit:creditMode==='split'};
-
-    try {
-        if (APPS_SCRIPT_URL!=='YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-            await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-        } else { await new Promise(r=>setTimeout(r,1200)); }
-        done(payload);
-    } catch(e) {
-        stat('err','❌ Failed — check connection.\n'+e.message);
-        btn.disabled=false; lbl.textContent='Log Deposit';
-    }
+    // Open confirm-PIN modal — actual submission fires from fireSubmit()
+    openConfirm(payload);
 }
 
 function done(p) {
@@ -657,6 +741,99 @@ function renderLog() {
         const cr=e.credits.map(c=>`<span style="color:var(--t2)">${c.alias}</span> <span class="mono" style="color:var(--accent);font-size:.78rem">+${c.amount.toLocaleString()}</span>`).join(' · ');
         return `<div class="loge"><div class="logt"><div class="loga">${e.from}${badge}</div><div class="logamt">KES ${e.totalAmount.toLocaleString()}</div></div><div class="logm">${e.date} · ${e.refCode}<br>→ ${cr}</div></div>`;
     }).join('');
+}
+
+
+/* ── CONFIRM PIN MODAL ───────────────────────────────────────── */
+let confirmPin   = '';
+let pendingPayload = null;
+
+function openConfirm(payload) {
+    pendingPayload = payload;
+    confirmPin = '';
+    updateModalDots();
+    document.getElementById('confirmErr').textContent = '';
+    // Show summary in subtitle
+    const creds = payload.isSplit
+        ? payload.credits.map(c => c.alias + ' KES ' + c.amount.toLocaleString()).join(', ')
+        : payload.credits[0].alias + ' · KES ' + payload.totalAmount.toLocaleString();
+    document.getElementById('confirmSub').textContent = creds;
+    document.getElementById('confirmOverlay').classList.add('show');
+}
+
+function closeConfirm() {
+    document.getElementById('confirmOverlay').classList.remove('show');
+    pendingPayload = null; confirmPin = '';
+    updateModalDots();
+    // Reset submit button
+    document.getElementById('subBtn').disabled = false;
+    document.getElementById('subLbl').textContent = 'Log Deposit';
+    const s = document.getElementById('statBox');
+    s.className = 'stat'; s.textContent = '';
+}
+
+function mnk(d) {
+    if (confirmPin.length >= 4) return;
+    confirmPin += d;
+    updateModalDots();
+    if (confirmPin.length === 4) setTimeout(fireSubmit, 130);
+}
+function mnkDel() { confirmPin = confirmPin.slice(0,-1); updateModalDots(); }
+function updateModalDots() {
+    for (let i=0;i<4;i++) document.getElementById('md'+i).classList.toggle('on', i<confirmPin.length);
+}
+
+async function fireSubmit() {
+    if (confirmPin !== ADMIN_PIN) {
+        document.getElementById('confirmErr').textContent = '❌ Wrong PIN — try again';
+        confirmPin = ''; updateModalDots();
+        return;
+    }
+    // PIN correct — close modal and send
+    document.getElementById('confirmOverlay').classList.remove('show');
+    pendingPayload.pin = confirmPin;
+    await sendPayload(pendingPayload);
+}
+
+async function sendPayload(payload) {
+    const btn = document.getElementById('subBtn');
+    const lbl = document.getElementById('subLbl');
+    btn.disabled = true;
+    lbl.innerHTML = '<div class="spin"></div> Logging…';
+    stat('wait', 'Sending to Google Sheets…');
+
+    try {
+        if (APPS_SCRIPT_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+            try {
+                const resp = await fetch(APPS_SCRIPT_URL, {
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify(payload)
+                });
+                const result = await resp.json();
+                if (result.status === 'wrong_pin') {
+                    stat('err', '❌ Wrong PIN — ' + result.remaining + ' attempt' + (result.remaining===1?'':'s') + ' remaining.');
+                    btn.disabled=false; lbl.textContent='Log Deposit'; return;
+                }
+                if (result.status === 'locked') {
+                    stat('err', '🔒 ' + result.message);
+                    btn.disabled=false; lbl.textContent='Log Deposit'; return;
+                }
+                if (result.status === 'error') {
+                    stat('err', '❌ Server error: ' + result.message);
+                    btn.disabled=false; lbl.textContent='Log Deposit'; return;
+                }
+            } catch(corsErr) {
+                await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+            }
+        } else {
+            await new Promise(r=>setTimeout(r,1200));
+        }
+        done(payload);
+    } catch(e) {
+        stat('err','❌ Failed — check connection.\n'+e.message);
+        btn.disabled=false; lbl.textContent='Log Deposit';
+    }
 }
 
 function stat(type,msg){const el=document.getElementById('statBox');el.className='stat '+type;el.textContent=msg;}
