@@ -435,7 +435,7 @@
         <textarea id="notes" placeholder="e.g. Second deposit this week, partial top-up…"></textarea>
     </div>
 
-    <button class="subbtn" id="subBtn" onclick="handleSubmit()">
+    <button class="subbtn" id="subBtn" onclick="triggerSubmit()">
         <span id="subLbl">Log Deposit</span>
     </button>
     <div class="stat" id="statBox"></div>
@@ -448,37 +448,6 @@
     <div id="logList"></div>
     <div class="noent" id="noEnt">No entries logged yet this session</div>
 
-</div>
-
-<!-- CONFIRM PIN MODAL -->
-<div class="modal-overlay" id="confirmOverlay">
-    <div class="modal">
-        <div class="modal-icon">🔒</div>
-        <div class="modal-title">Confirm Deposit</div>
-        <div class="modal-sub" id="confirmSub">Enter PIN to confirm</div>
-        <div class="modal-dots">
-            <div class="modal-dot" id="md0"></div>
-            <div class="modal-dot" id="md1"></div>
-            <div class="modal-dot" id="md2"></div>
-            <div class="modal-dot" id="md3"></div>
-        </div>
-        <div class="modal-numpad">
-            <button class="mnk" onclick="mnk('1')">1</button>
-            <button class="mnk" onclick="mnk('2')">2</button>
-            <button class="mnk" onclick="mnk('3')">3</button>
-            <button class="mnk" onclick="mnk('4')">4</button>
-            <button class="mnk" onclick="mnk('5')">5</button>
-            <button class="mnk" onclick="mnk('6')">6</button>
-            <button class="mnk" onclick="mnk('7')">7</button>
-            <button class="mnk" onclick="mnk('8')">8</button>
-            <button class="mnk" onclick="mnk('9')">9</button>
-            <button class="mnk mblank"></button>
-            <button class="mnk" onclick="mnk('0')">0</button>
-            <button class="mnk mdel" onclick="mnkDel()">⌫</button>
-        </div>
-        <div class="modal-err" id="confirmErr"></div>
-        <button class="modal-cancel" onclick="closeConfirm()">✕ Cancel</button>
-    </div>
 </div>
 
 <script>
@@ -514,6 +483,13 @@ const MEMBERS = [
 document.addEventListener('DOMContentLoaded', () => {
     setToday();
     addRow(); addRow();
+    // Verify modal element exists
+    const mo = document.getElementById('confirmOverlay');
+    if (!mo) {
+        console.error('CRITICAL: confirmOverlay element not found in DOM');
+    } else {
+        console.log('✓ Modal ready');
+    }
 });
 
 function setToday() {
@@ -670,6 +646,15 @@ function updBal() {
 }
 
 /* ── SUBMIT ──────────────────────────────────────────────────── */
+function triggerSubmit() {
+    handleSubmit().catch(function(err) {
+        console.error('Submit error:', err);
+        stat('err', '❌ Error: ' + err.message);
+        document.getElementById('subBtn').disabled = false;
+        document.getElementById('subLbl').textContent = 'Log Deposit';
+    });
+}
+
 async function handleSubmit() {
     const from  = document.getElementById('fromMember').value;
     const amt   = parseFloat(document.getElementById('totalAmt').value);
@@ -776,7 +761,7 @@ function mnk(d) {
     if (confirmPin.length >= 4) return;
     confirmPin += d;
     updateModalDots();
-    if (confirmPin.length === 4) setTimeout(fireSubmit, 130);
+    if (confirmPin.length === 4) setTimeout(function(){ fireSubmit().catch(function(e){ console.error(e); }); }, 130);
 }
 function mnkDel() { confirmPin = confirmPin.slice(0,-1); updateModalDots(); }
 function updateModalDots() {
@@ -839,5 +824,36 @@ async function sendPayload(payload) {
 function stat(type,msg){const el=document.getElementById('statBox');el.className='stat '+type;el.textContent=msg;}
 function weekNum(d){const u=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const dw=u.getUTCDay()||7;u.setUTCDate(u.getUTCDate()+4-dw);const y=new Date(Date.UTC(u.getUTCFullYear(),0,1));return 'W'+Math.ceil((((u-y)/86400000)+1)/7);}
 </script>
+
+<!-- CONFIRM PIN MODAL -->
+<div class="modal-overlay" id="confirmOverlay">
+    <div class="modal">
+        <div class="modal-icon">🔒</div>
+        <div class="modal-title">Confirm Deposit</div>
+        <div class="modal-sub" id="confirmSub">Enter PIN to confirm</div>
+        <div class="modal-dots">
+            <div class="modal-dot" id="md0"></div>
+            <div class="modal-dot" id="md1"></div>
+            <div class="modal-dot" id="md2"></div>
+            <div class="modal-dot" id="md3"></div>
+        </div>
+        <div class="modal-numpad">
+            <button class="mnk" onclick="mnk('1')">1</button>
+            <button class="mnk" onclick="mnk('2')">2</button>
+            <button class="mnk" onclick="mnk('3')">3</button>
+            <button class="mnk" onclick="mnk('4')">4</button>
+            <button class="mnk" onclick="mnk('5')">5</button>
+            <button class="mnk" onclick="mnk('6')">6</button>
+            <button class="mnk" onclick="mnk('7')">7</button>
+            <button class="mnk" onclick="mnk('8')">8</button>
+            <button class="mnk" onclick="mnk('9')">9</button>
+            <button class="mnk mblank"></button>
+            <button class="mnk" onclick="mnk('0')">0</button>
+            <button class="mnk mdel" onclick="mnkDel()">⌫</button>
+        </div>
+        <div class="modal-err" id="confirmErr"></div>
+        <button class="modal-cancel" onclick="closeConfirm()">✕ Cancel</button>
+    </div>
+</div>
 </body>
 </html>
