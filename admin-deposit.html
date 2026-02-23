@@ -1,859 +1,668 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0a0a0f">
-    <title>LMF · Log Deposit</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg:      #0a0a0f;
-            --card:    #13131c;
-            --border:  rgba(255,255,255,0.09);
-            --border2: rgba(255,255,255,0.15);
-            --accent:  #00e5a0;
-            --ad:      rgba(0,229,160,0.11);
-            --blue:    #60a5fa;
-            --bd:      rgba(96,165,250,0.11);
-            --gold:    #fbbf24;
-            --gd:      rgba(251,191,36,0.11);
-            --red:     #f87171;
-            --rd:      rgba(248,113,113,0.11);
-            --t1:      #f0f0f8;
-            --t2:      rgba(240,240,248,0.72);
-            --t3:      #a0a8c0;
-            --r:       13px;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-        html { font-size:16px; }
-        body {
-            font-family:'Sora',sans-serif; background:var(--bg); color:var(--t1);
-            min-height:100svh; padding-bottom:60px; overscroll-behavior:none;
-            background-image:radial-gradient(ellipse 100% 30% at 50% 0%,rgba(0,229,160,0.06) 0%,transparent 65%);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0c0c0c">
+<title>LMF · Log Deposit</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #0c0c0c;
+  --card:  #161616;
+  --well:  #1d1d1d;
+  --ink:   #f0eeea;
+  --ink2:  rgba(240,238,234,.55);
+  --ink3:  rgba(240,238,234,.26);
+  --edge:  rgba(240,238,234,.07);
+  --edge2: rgba(240,238,234,.14);
+  --gr:    #00e5a0;
+  --grl:   rgba(0,229,160,.09);
+  --grl2:  rgba(0,229,160,.18);
+  --red:   #ff6b6b;
+  --redl:  rgba(255,107,107,.10);
+  --gold:  #f5c842;
+  --goldl: rgba(245,200,66,.10);
+  --blue:  #5ba3f5;
+  --bluel: rgba(91,163,245,.10);
+  --r:     11px;
+  --r2:    18px;
+  --r3:    22px;
+}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { font-size:16px; }
+body {
+  font-family:'Bricolage Grotesque',sans-serif;
+  background:var(--bg); color:var(--ink);
+  min-height:100svh; padding-bottom:40px;
+  overscroll-behavior:none;
+}
 
-        /* HEADER */
-        .header {
-            position:sticky; top:0; z-index:100;
-            padding:13px 16px; display:flex; align-items:center; gap:11px;
-            background:rgba(10,10,15,0.93); backdrop-filter:blur(14px);
-            border-bottom:1px solid var(--border);
-        }
-        .hicon {
-            width:36px; height:36px; border-radius:10px; flex-shrink:0;
-            background:linear-gradient(135deg,#00e5a0,#60a5fa);
-            display:flex; align-items:center; justify-content:center; font-size:1rem;
-        }
-        .htitle { font-size:0.95rem; font-weight:800; }
-        .hsub   { font-size:0.65rem; color:var(--t3); margin-top:1px; }
+/* ─── HEADER ─────────────────────────────────────── */
+.hdr {
+  position:sticky; top:0; z-index:100;
+  padding:10px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+  background:rgba(12,12,12,.96); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--edge);
+}
+.hdr-l   { display:flex; align-items:center; gap:8px; }
+.hdr-pill { background:var(--ink); color:var(--bg); font-size:.55rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; padding:4px 9px; border-radius:20px; flex-shrink:0; }
+.hdr-name { font-size:.92rem; font-weight:700; letter-spacing:-.02em; }
+.hdr-tag  { font-size:.55rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); border:1px solid var(--edge2); padding:3px 8px; border-radius:20px; }
 
-        /* LOCK */
-        #lockScreen {
-            display:flex; flex-direction:column; align-items:center;
-            justify-content:center; min-height:calc(100svh - 62px); padding:0 28px;
-        }
-        .lock-emoji { font-size:2.8rem; margin-bottom:14px; }
-        .lock-title { font-size:1.35rem; font-weight:800; margin-bottom:5px; }
-        .lock-sub   { font-size:0.82rem; color:var(--t2); margin-bottom:28px; }
+/* ─── LOCK ───────────────────────────────────────── */
+#lockScreen {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  min-height:calc(100svh - 48px); padding:0 20px;
+}
+.lock-eye  { font-size:.56rem; font-weight:800; letter-spacing:.18em; text-transform:uppercase; color:var(--ink3); margin-bottom:16px; }
+.lock-h    { font-size:2.8rem; font-weight:800; letter-spacing:-.04em; line-height:.94; text-align:center; margin-bottom:8px; }
+.lock-h em { font-style:italic; font-weight:400; color:var(--ink2); }
+.lock-s    { font-size:.78rem; color:var(--ink3); margin-bottom:44px; text-align:center; }
+.pin-dots  { display:flex; gap:13px; margin-bottom:32px; }
+.pin-dot   { width:12px; height:12px; border-radius:50%; border:1.5px solid var(--edge2); background:transparent; transition:all .15s; }
+.pin-dot.on{ background:var(--gr); border-color:var(--gr); transform:scale(1.15); box-shadow:0 0 10px rgba(0,229,160,.4); }
+.numpad    { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; width:100%; max-width:270px; }
+.nk        { height:66px; border-radius:var(--r2); background:var(--card); border:1px solid var(--edge2); color:var(--ink); font-family:'Bricolage Grotesque',sans-serif; font-size:1.45rem; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .1s; user-select:none; touch-action:manipulation; }
+.nk:active { background:var(--ink); color:var(--bg); transform:scale(.93); }
+.nk.del   { font-size:1rem; color:var(--ink2); }
+.nk.blank { background:transparent; border:none; pointer-events:none; }
+.pin-err  { color:var(--red); font-size:.74rem; margin-top:14px; min-height:18px; text-align:center; }
 
-        /* PIN dots */
-        .pin-dots { display:flex; gap:14px; margin-bottom:28px; }
-        .pin-dot  {
-            width:15px; height:15px; border-radius:50%;
-            border:2px solid var(--border2); background:transparent;
-            transition:all .15s;
-        }
-        .pin-dot.on { background:var(--accent); border-color:var(--accent); }
+/* ─── MAIN ───────────────────────────────────────── */
+#mainForm { display:none; padding:12px 12px 0; }
 
-        /* Numpad */
-        .numpad {
-            display:grid; grid-template-columns:repeat(3,1fr);
-            gap:10px; width:100%; max-width:290px;
-        }
-        .nk {
-            height:66px; border-radius:var(--r);
-            background:var(--card); border:1px solid var(--border2);
-            color:var(--t1); font-family:'Sora',sans-serif;
-            font-size:1.35rem; font-weight:700; cursor:pointer;
-            display:flex; align-items:center; justify-content:center;
-            transition:all .1s; user-select:none; touch-action:manipulation;
-        }
-        .nk:active { background:var(--ad); border-color:var(--accent); transform:scale(0.93); }
-        .nk.del    { font-size:1rem; color:var(--t2); }
-        .nk.go     { background:var(--accent); color:#0a0a0f; border-color:var(--accent); font-size:0.92rem; font-weight:800; }
-        .nk.go:active { opacity:0.8; transform:scale(0.96); }
-        .nk.blank  { background:transparent; border:none; pointer-events:none; }
-        .pin-err   { color:var(--red); font-size:0.8rem; margin-top:14px; min-height:20px; text-align:center; }
+/* ─── 3 BIG CARDS ────────────────────────────────── */
+.card {
+  background:var(--card);
+  border:1px solid var(--edge2);
+  border-radius:var(--r3);
+  margin-bottom:10px;
+  overflow:hidden;
+}
 
-        /* MAIN FORM */
-        #mainForm { display:none; padding:0 16px; }
+/* Card header strip */
+.card-hd {
+  padding:12px 14px 11px;
+  border-bottom:1px solid var(--edge);
+  display:flex; align-items:center; gap:8px;
+}
+.card-icon {
+  width:28px; height:28px; border-radius:8px;
+  background:var(--grl); border:1px solid var(--grl2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.75rem; flex-shrink:0;
+}
+.card-title {
+  font-size:.7rem; font-weight:800; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--gr);
+  line-height:1;
+}
+.card-sub {
+  font-size:.6rem; color:var(--ink3); margin-top:1px;
+}
 
-        /* SECTION LABEL */
-        .sl {
-            font-size:0.63rem; font-weight:700; letter-spacing:0.1em;
-            text-transform:uppercase; color:var(--t3);
-            margin:18px 0 8px; display:flex; align-items:center; gap:8px;
-        }
-        .sl::after { content:''; flex:1; height:1px; background:var(--border); }
+/* Card body */
+.card-b { padding:13px 13px; }
 
-        /* INPUTS */
-        .ig { position:relative; margin-bottom:8px; }
-        .ii {
-            position:absolute; left:13px; top:50%; transform:translateY(-50%);
-            font-size:0.95rem; pointer-events:none; color:var(--t3); z-index:2;
-        }
-        input, select, textarea {
-            width:100%; background:var(--card); border:1px solid var(--border2);
-            border-radius:var(--r); color:var(--t1);
-            font-family:'Sora',sans-serif; font-size:1rem; font-weight:500;
-            padding:14px 13px 14px 42px; outline:none; -webkit-appearance:none;
-            transition:border-color .2s, box-shadow .2s; touch-action:manipulation;
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,229,160,0.1);
-        }
-        input::placeholder { color:rgba(240,240,248,0.3); }
-        select option { background:#1a1a26; }
-        .mono { font-family:'JetBrains Mono',monospace; font-weight:600; }
-        .amt-in { font-size:1.2rem; padding-left:58px; }
-        .kpfx {
-            position:absolute; left:13px; top:50%; transform:translateY(-50%);
-            font-family:'JetBrains Mono',monospace; font-size:0.68rem; font-weight:700;
-            color:var(--accent); z-index:2; letter-spacing:.05em;
-        }
-        .code-in { font-family:'JetBrains Mono',monospace; font-size:1rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
-        textarea { resize:none; padding-left:13px; font-size:0.88rem; line-height:1.6; min-height:76px; }
+/* ─── SECTION LABELS (inside card 2) ─────────────── */
+.sl {
+  display:flex; align-items:center; gap:7px;
+  font-size:.58rem; font-weight:800; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--gr);
+  margin:16px 0 8px;
+}
+.sl:first-child { margin-top:0; }
+.sl-dot {
+  width:16px; height:16px; border-radius:5px; flex-shrink:0;
+  background:var(--grl); border:1px solid var(--grl2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.5rem; font-weight:800; color:var(--gr);
+}
+.sl::after { content:''; flex:1; height:1px; background:var(--edge); }
 
-        /* PASTE BOX */
-        .pwrap { position:relative; }
-        .pbox {
-            width:100%; min-height:90px; background:var(--card);
-            border:1px solid var(--border2); border-radius:var(--r); color:var(--t1);
-            font-family:'Sora',sans-serif; font-size:0.84rem; line-height:1.55;
-            padding:12px 13px 40px; resize:none; outline:none;
-            -webkit-appearance:none; transition:border-color .2s;
-        }
-        .pbox:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,229,160,0.1); }
-        .pbox::placeholder { color:rgba(240,240,248,0.28); font-size:0.78rem; }
-        .pbox.dup {
-            border-color:var(--red); background:rgba(248,113,113,0.04);
-            text-decoration:line-through; color:var(--t2);
-        }
-        .pbtn {
-            position:absolute; bottom:9px; right:9px;
-            background:var(--accent); color:#0a0a0f; border:none; border-radius:9px;
-            font-family:'Sora',sans-serif; font-size:0.76rem; font-weight:800;
-            padding:7px 14px; cursor:pointer; touch-action:manipulation;
-        }
+/* ─── INPUTS ─────────────────────────────────────── */
+.ig { position:relative; margin-bottom:7px; }
+.ig:last-of-type { margin-bottom:0; }
+.ii { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:.84rem; pointer-events:none; color:var(--ink3); z-index:2; }
+input, select, textarea {
+  width:100%; background:var(--well); border:1px solid var(--edge2);
+  border-radius:var(--r); color:var(--ink);
+  font-family:'Bricolage Grotesque',sans-serif; font-size:.9rem; font-weight:500;
+  padding:12px 11px 12px 38px; outline:none; -webkit-appearance:none;
+  transition:border-color .15s, box-shadow .15s; touch-action:manipulation;
+}
+input:focus, select:focus, textarea:focus { border-color:var(--gr); box-shadow:0 0 0 2px var(--grl2); }
+input::placeholder { color:var(--ink3); }
+select option { background:#1a1a1a; }
+.mono { font-family:'DM Mono',monospace; font-weight:500; }
+.amt-in {
+  font-size:1.45rem; font-weight:800; letter-spacing:-.02em;
+  padding-left:54px; font-family:'Bricolage Grotesque',sans-serif;
+}
+.kpfx { position:absolute; left:11px; top:50%; transform:translateY(-50%); font-family:'DM Mono',monospace; font-size:.58rem; font-weight:500; color:var(--gr); z-index:2; letter-spacing:.04em; }
+.code-in { font-family:'DM Mono',monospace; font-size:.88rem; font-weight:500; letter-spacing:.1em; text-transform:uppercase; }
+textarea { resize:none; padding-left:11px; font-size:.82rem; line-height:1.6; min-height:74px; }
 
-        /* BANNERS */
-        .dup-ban {
-            display:none; margin-top:7px; padding:10px 13px;
-            background:var(--rd); border:1px solid rgba(248,113,113,0.3);
-            border-radius:var(--r); font-size:0.8rem; color:var(--red); line-height:1.5;
-        }
-        .dup-ban.show { display:block; }
+/* ─── CARD 1: PASTE ──────────────────────────────── */
+.pwrap { position:relative; }
+.pbox {
+  width:100%; min-height:84px; background:var(--well);
+  border:1px solid var(--edge2); border-radius:var(--r);
+  color:var(--ink); font-family:'Bricolage Grotesque',sans-serif;
+  font-size:.82rem; line-height:1.6;
+  padding:11px 11px 42px; resize:none; outline:none;
+  -webkit-appearance:none; transition:border-color .15s;
+}
+.pbox:focus { border-color:var(--gr); box-shadow:0 0 0 2px var(--grl2); }
+.pbox::placeholder { color:var(--ink3); font-size:.74rem; }
+.pbox.dup { border-color:var(--red); background:var(--redl); text-decoration:line-through; color:var(--ink2); }
+.pbtn {
+  position:absolute; bottom:8px; right:8px;
+  background:var(--gr); color:#0c0c0c;
+  border:none; border-radius:8px;
+  font-family:'Bricolage Grotesque',sans-serif; font-size:.7rem; font-weight:800;
+  padding:7px 14px; cursor:pointer; touch-action:manipulation;
+}
+.pbtn:active { opacity:.82; }
 
-        /* EXTRACTED */
-        .excard { display:none; margin-top:8px; background:var(--ad); border:1px solid rgba(0,229,160,0.22); border-radius:var(--r); padding:11px 13px; }
-        .excard.show { display:block; }
-        .exrow { display:flex; justify-content:space-between; align-items:center; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
-        .exrow:last-of-type { border-bottom:none; }
-        .exlbl { font-size:0.7rem; color:var(--t3); }
-        .exval { font-family:'JetBrains Mono',monospace; font-size:0.82rem; font-weight:600; color:var(--accent); }
-        .exwarn { font-size:0.72rem; color:var(--gold); margin-top:7px; }
+.dup-ban { display:none; margin-top:7px; padding:9px 12px; background:var(--redl); border:1px solid rgba(255,107,107,.2); border-radius:var(--r); font-size:.76rem; color:var(--red); line-height:1.5; }
+.dup-ban.show { display:block; }
 
-        /* METHOD */
-        .mrow { display:flex; gap:8px; }
-        .mbtn {
-            flex:1; padding:12px 6px; background:var(--card); border:1px solid var(--border2);
-            border-radius:var(--r); color:var(--t2); font-family:'Sora',sans-serif;
-            font-size:0.82rem; font-weight:700; cursor:pointer;
-            display:flex; flex-direction:column; align-items:center; gap:3px;
-            transition:all .18s; touch-action:manipulation;
-        }
-        .mbtn .mi { font-size:1.3rem; }
-        .mbtn.on  { background:var(--ad); border-color:var(--accent); color:var(--accent); }
+.excard { display:none; margin-top:7px; background:var(--grl); border:1px solid var(--grl2); border-radius:var(--r); padding:10px 12px; }
+.excard.show { display:block; }
+.exrow { display:flex; justify-content:space-between; align-items:center; padding:3px 0; border-bottom:1px solid rgba(240,238,234,.05); }
+.exrow:last-of-type { border-bottom:none; }
+.exlbl { font-size:.6rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink3); }
+.exval { font-family:'DM Mono',monospace; font-size:.78rem; color:var(--gr); }
+.exwarn { font-size:.68rem; color:var(--gold); margin-top:6px; }
 
-        /* CREDIT TOGGLE */
-        .ctoggle { display:flex; border-radius:var(--r); overflow:hidden; border:1px solid var(--border2); margin-bottom:10px; }
-        .ctbtn {
-            flex:1; padding:12px 8px; background:var(--card); border:none;
-            color:var(--t2); font-family:'Sora',sans-serif; font-size:0.82rem;
-            font-weight:700; cursor:pointer; transition:all .18s; touch-action:manipulation;
-            border-right:1px solid var(--border2);
-        }
-        .ctbtn:last-child { border-right:none; }
-        .ctbtn.on { background:var(--ad); color:var(--accent); }
+/* ─── METHOD BUTTONS ─────────────────────────────── */
+.mrow { display:flex; gap:7px; }
+.mbtn {
+  flex:1; padding:13px 6px;
+  background:var(--well); border:1.5px solid var(--edge2); border-radius:var(--r);
+  color:var(--ink2); font-family:'Bricolage Grotesque',sans-serif;
+  font-size:.82rem; font-weight:700; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  transition:all .15s; touch-action:manipulation;
+}
+.mbtn .mi { font-size:1.3rem; }
+.mbtn.on  { background:var(--ink); border-color:var(--ink); color:var(--bg); box-shadow:0 4px 16px rgba(0,0,0,.35); }
 
-        /* SPLIT */
-        .srow { display:flex; gap:7px; align-items:center; margin-bottom:8px; }
-        .ssw  { flex:1; position:relative; }
-        .ssw .ii { font-size:0.85rem; }
-        .ssw select { font-size:0.9rem; padding:12px 10px 12px 36px; }
-        .saw  { width:118px; flex-shrink:0; position:relative; }
-        .saw .kpfx { font-size:0.62rem; }
-        .saw input { font-size:0.92rem; padding:12px 10px 12px 44px; }
-        .sdel {
-            width:38px; height:46px; flex-shrink:0;
-            background:var(--rd); border:1px solid rgba(248,113,113,0.2);
-            border-radius:var(--r); color:var(--red); font-size:1rem;
-            cursor:pointer; display:flex; align-items:center; justify-content:center;
-            touch-action:manipulation;
-        }
-        .addbtn {
-            width:100%; padding:11px; background:transparent;
-            border:1px dashed rgba(255,255,255,0.12); border-radius:var(--r);
-            color:var(--t3); font-family:'Sora',sans-serif;
-            font-size:0.82rem; font-weight:600; cursor:pointer; margin-top:2px;
-            touch-action:manipulation; transition:all .18s;
-        }
-        .addbtn:active { border-color:var(--accent); color:var(--accent); }
+/* ─── CREDIT TOGGLE ──────────────────────────────── */
+.ctoggle { display:flex; border-radius:var(--r); overflow:hidden; border:1.5px solid var(--edge2); margin-bottom:7px; }
+.ctbtn { flex:1; padding:11px 6px; background:var(--well); border:none; color:var(--ink2); font-family:'Bricolage Grotesque',sans-serif; font-size:.82rem; font-weight:700; cursor:pointer; transition:all .15s; touch-action:manipulation; border-right:1px solid var(--edge2); }
+.ctbtn:last-child { border-right:none; }
+.ctbtn.on { background:var(--ink); color:var(--bg); }
 
-        /* BALANCE */
-        .balbar {
-            margin-top:10px; padding:11px 14px; background:var(--card);
-            border-radius:var(--r); border:1px solid var(--border);
-            display:flex; justify-content:space-between; align-items:center;
-        }
-        .ballbl { font-size:0.72rem; color:var(--t3); }
-        .balval { font-family:'JetBrains Mono',monospace; font-size:0.95rem; font-weight:600; }
-        .bok  { color:var(--accent); }
-        .bover{ color:var(--red); }
-        .bund { color:var(--gold); }
+/* ─── SPLIT ──────────────────────────────────────── */
+.srow { display:flex; gap:6px; align-items:center; margin-bottom:6px; }
+.ssw  { flex:1; position:relative; }
+.ssw .ii { font-size:.8rem; }
+.ssw select { font-size:.84rem; padding:11px 8px 11px 34px; }
+.saw  { width:108px; flex-shrink:0; position:relative; }
+.saw .kpfx { font-size:.56rem; }
+.saw input { font-size:.86rem; padding:11px 8px 11px 42px; }
+.sdel { width:36px; height:43px; flex-shrink:0; background:var(--redl); border:1px solid rgba(255,107,107,.18); border-radius:var(--r); color:var(--red); font-size:.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; touch-action:manipulation; }
+.sdel:active { background:var(--red); color:#fff; }
+.addbtn { width:100%; padding:11px; background:transparent; border:1.5px dashed var(--edge2); border-radius:var(--r); color:var(--ink3); font-family:'Bricolage Grotesque',sans-serif; font-size:.8rem; font-weight:700; cursor:pointer; margin-top:2px; touch-action:manipulation; transition:all .15s; }
+.addbtn:active { border-color:var(--gr); color:var(--gr); }
+.balbar { margin-top:8px; padding:10px 13px; background:var(--well); border-radius:var(--r); border:1px solid var(--edge); display:flex; justify-content:space-between; align-items:center; }
+.ballbl { font-size:.6rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink3); }
+.balval { font-family:'DM Mono',monospace; font-size:.86rem; }
+.bok { color:var(--gr); } .bover { color:var(--red); } .bund { color:var(--gold); }
 
-        /* SUBMIT */
-        .subbtn {
-            width:100%; padding:17px; margin-top:22px;
-            background:var(--accent); color:#0a0a0f; border:none; border-radius:var(--r);
-            font-family:'Sora',sans-serif; font-size:1.05rem; font-weight:800;
-            cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
-            transition:all .2s; touch-action:manipulation;
-        }
-        .subbtn:disabled { background:rgba(0,229,160,0.2); color:rgba(10,10,15,.4); cursor:not-allowed; }
-        .subbtn:not(:disabled):active { transform:scale(0.98); }
+/* ─── GREEN SUBMIT PILL ──────────────────────────── */
+.subbtn {
+  width:100%; padding:16px;
+  background:var(--gr); color:#0c0c0c;
+  border:none; border-radius:50px;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:.98rem; font-weight:800; letter-spacing:.01em;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px;
+  transition:all .18s; touch-action:manipulation;
+  box-shadow:0 6px 24px rgba(0,229,160,.22);
+  margin-top:14px;
+}
+.subbtn:disabled { background:var(--well); color:var(--ink3); box-shadow:none; cursor:not-allowed; border:1px solid var(--edge); border-radius:50px; }
+.subbtn:not(:disabled):active { transform:scale(.97); opacity:.9; }
 
-        /* STATUS */
-        .stat { display:none; margin-top:12px; padding:13px 15px; border-radius:var(--r); font-size:0.84rem; line-height:1.6; white-space:pre-line; text-align:center; }
-        .ok  { display:block; background:var(--ad); border:1px solid rgba(0,229,160,.25); color:var(--accent); }
-        .err { display:block; background:var(--rd); border:1px solid rgba(248,113,113,.25); color:var(--red); }
-        .wait{ display:block; background:rgba(255,255,255,.03); border:1px solid var(--border); color:var(--t2); }
+/* ─── STATUS ─────────────────────────────────────── */
+.stat { display:none; margin-top:9px; padding:12px 14px; border-radius:var(--r); font-size:.8rem; line-height:1.6; white-space:pre-line; text-align:center; }
+.ok   { display:block; background:var(--grl); border:1px solid var(--grl2); color:var(--gr); }
+.err  { display:block; background:var(--redl); border:1px solid rgba(255,107,107,.2); color:var(--red); }
+.wait { display:block; background:var(--well); border:1px solid var(--edge); color:var(--ink2); }
 
-        /* LOG */
-        .loghead { display:flex; justify-content:space-between; align-items:center; margin-top:28px; margin-bottom:10px; }
-        .logtitle { font-size:0.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--t3); }
-        .logcount { font-size:0.65rem; color:var(--t3); background:rgba(255,255,255,.05); padding:3px 9px; border-radius:20px; }
-        .loge { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:11px 13px; margin-bottom:7px; }
-        .logt { display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; }
-        .loga { font-size:0.88rem; font-weight:700; }
-        .logamt { font-family:'JetBrains Mono',monospace; font-size:0.88rem; font-weight:600; color:var(--accent); }
-        .logm { font-size:0.68rem; color:var(--t3); line-height:1.5; }
-        .badge { display:inline-block; font-size:0.58rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:20px; margin-left:5px; }
-        .bm { background:var(--ad); color:var(--accent); }
-        .bb { background:var(--bd); color:var(--blue); }
-        .bs { background:var(--gd); color:var(--gold); }
-        .noent { color:var(--t3); font-size:0.76rem; text-align:center; padding:14px 0; }
-        .div  { height:1px; background:var(--border); margin:22px 0; }
+/* ─── CARD 3: LOG ────────────────────────────────── */
+.log-hd { display:flex; justify-content:space-between; align-items:center; padding:12px 14px 11px; border-bottom:1px solid var(--edge); }
+.log-title { font-size:.9rem; font-weight:800; letter-spacing:-.02em; }
+.log-title em { font-style:italic; font-weight:400; color:var(--ink2); }
+.log-cnt { font-size:.55rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); background:var(--well); padding:3px 8px; border-radius:20px; border:1px solid var(--edge); }
+.log-b { padding:9px 11px; }
+.loge { background:var(--well); border:1px solid var(--edge); border-radius:var(--r2); padding:11px 13px; margin-bottom:6px; }
+.loge:last-child { margin-bottom:0; }
+.logt  { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px; }
+.loga  { font-size:.86rem; font-weight:800; letter-spacing:-.01em; }
+.logamt { font-size:.96rem; font-weight:800; color:var(--gr); letter-spacing:-.01em; }
+.logm  { font-size:.66rem; color:var(--ink3); line-height:1.55; }
+.badge { display:inline-block; font-size:.5rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; padding:2px 6px; border-radius:20px; margin-left:5px; vertical-align:middle; }
+.bm { background:var(--grl); color:var(--gr); border:1px solid var(--grl2); }
+.bb { background:var(--bluel); color:var(--blue); border:1px solid rgba(91,163,245,.2); }
+.bs { background:var(--goldl); color:var(--gold); border:1px solid rgba(245,200,66,.2); }
+.noent { color:var(--ink3); font-size:.76rem; text-align:center; padding:18px 0; }
 
+/* ─── MODAL — bottom sheet ───────────────────────── */
+.modal-ov { display:flex; position:fixed; inset:0; z-index:999; background:rgba(0,0,0,.84); backdrop-filter:blur(14px); align-items:flex-end; justify-content:center; opacity:0; pointer-events:none; transition:opacity .22s; }
+.modal-ov.show { opacity:1; pointer-events:all; }
+.modal { background:var(--card); border:1px solid var(--edge2); border-radius:24px 24px 0 0; padding:0 20px 48px; width:100%; max-width:440px; display:flex; flex-direction:column; align-items:center; transform:translateY(36px); transition:transform .26s cubic-bezier(.2,.8,.3,1); }
+.modal-ov.show .modal { transform:translateY(0); }
+.modal-handle { width:34px; height:4px; border-radius:2px; background:var(--edge2); margin:12px auto 18px; }
+.modal-eye   { font-size:.56rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); margin-bottom:5px; }
+.modal-title { font-size:1.8rem; font-weight:800; letter-spacing:-.04em; line-height:1; margin-bottom:3px; text-align:center; }
+.modal-title em { font-style:italic; font-weight:400; color:var(--ink2); }
+.modal-sub   { font-size:.74rem; color:var(--ink3); margin-bottom:22px; text-align:center; line-height:1.45; max-width:200px; }
+.modal-dots  { display:flex; gap:13px; margin-bottom:22px; }
+.modal-dot   { width:11px; height:11px; border-radius:50%; border:1.5px solid var(--edge2); background:transparent; transition:all .14s; }
+.modal-dot.on { background:var(--gr); border-color:var(--gr); transform:scale(1.12); box-shadow:0 0 8px rgba(0,229,160,.4); }
+.modal-npad  { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; width:100%; }
+.mnk    { height:56px; border-radius:var(--r); background:var(--well); border:1px solid var(--edge); color:var(--ink); font-family:'Bricolage Grotesque',sans-serif; font-size:1.3rem; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .1s; touch-action:manipulation; }
+.mnk:active { background:var(--ink); color:var(--bg); transform:scale(.93); }
+.mnk.mdel   { font-size:.88rem; color:var(--ink2); }
+.mnk.mblank { background:transparent; border:none; pointer-events:none; }
+.modal-err  { color:var(--red); font-size:.72rem; margin-top:10px; min-height:17px; text-align:center; }
+.modal-cancel { margin-top:12px; background:transparent; border:none; color:var(--ink3); font-family:'Bricolage Grotesque',sans-serif; font-size:.78rem; font-weight:700; cursor:pointer; padding:7px 14px; }
 
-        /* ── CONFIRM MODAL ── */
-        .modal-overlay {
-            display:flex; position:fixed; inset:0; z-index:999;
-            background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);
-            align-items:center; justify-content:center;
-            opacity:0; pointer-events:none;
-            transition: opacity 0.2s;
-        }
-        .modal-overlay.show { opacity:1; pointer-events:all; }
-        .modal {
-            background:var(--card); border:1px solid var(--border2);
-            border-radius:18px; padding:28px 24px 24px;
-            width:calc(100% - 40px); max-width:320px;
-            display:flex; flex-direction:column; align-items:center;
-        }
-        .modal-icon  { font-size:2rem; margin-bottom:10px; }
-        .modal-title { font-size:1rem; font-weight:800; margin-bottom:4px; }
-        .modal-sub   { font-size:0.75rem; color:var(--t2); margin-bottom:20px; text-align:center; line-height:1.5; }
-        .modal-dots  { display:flex; gap:12px; margin-bottom:20px; }
-        .modal-dot   { width:13px; height:13px; border-radius:50%; border:2px solid var(--border2); background:transparent; transition:all .15s; }
-        .modal-dot.on{ background:var(--accent); border-color:var(--accent); }
-        .modal-numpad {
-            display:grid; grid-template-columns:repeat(3,1fr);
-            gap:8px; width:100%;
-        }
-        .mnk {
-            height:56px; border-radius:10px;
-            background:rgba(255,255,255,0.05); border:1px solid var(--border2);
-            color:var(--t1); font-family:'Sora',sans-serif;
-            font-size:1.2rem; font-weight:700; cursor:pointer;
-            display:flex; align-items:center; justify-content:center;
-            transition:all .1s; touch-action:manipulation;
-        }
-        .mnk:active { background:var(--ad); border-color:var(--accent); transform:scale(0.93); }
-        .mnk.mdel   { font-size:0.9rem; color:var(--t2); }
-        .mnk.mblank { background:transparent; border:none; pointer-events:none; }
-        .modal-err  { color:var(--red); font-size:0.75rem; margin-top:10px; min-height:18px; text-align:center; }
-        .modal-cancel {
-            margin-top:14px; background:transparent; border:none;
-            color:var(--t3); font-family:'Sora',sans-serif;
-            font-size:0.8rem; cursor:pointer; padding:6px;
-        }
-        @keyframes spin { to{transform:rotate(360deg);} }
-        .spin { width:17px; height:17px; flex-shrink:0; border:2.5px solid rgba(10,10,15,.25); border-top-color:#0a0a0f; border-radius:50%; animation:spin .65s linear infinite; }
-    </style>
+@keyframes spin { to { transform:rotate(360deg); } }
+.spin { width:15px; height:15px; flex-shrink:0; border:2px solid rgba(12,12,12,.22); border-top-color:var(--bg); border-radius:50%; animation:spin .6s linear infinite; }
+@keyframes up { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+.up { animation:up .26s ease both; }
+</style>
 </head>
 <body>
 
-<div class="header">
-    <div class="hicon">💰</div>
-    <div>
-        <div class="htitle">LMF · Deposit Log</div>
-        <div class="hsub">Admin · Private</div>
-    </div>
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="hdr-pill">LMF</div>
+    <div class="hdr-name">Deposit Log</div>
+  </div>
+  <div class="hdr-tag">Admin &middot; Private</div>
 </div>
 
-<!-- LOCK -->
+<!-- ══════════════ LOCK SCREEN ══════════════ -->
 <div id="lockScreen">
-    <div class="lock-emoji">🔐</div>
-    <div class="lock-title">Admin Access</div>
-    <div class="lock-sub">Enter your PIN to continue</div>
-    <div class="pin-dots">
-        <div class="pin-dot" id="d0"></div>
-        <div class="pin-dot" id="d1"></div>
-        <div class="pin-dot" id="d2"></div>
-        <div class="pin-dot" id="d3"></div>
-    </div>
-    <div class="numpad">
-        <button class="nk" onclick="nk('1')">1</button>
-        <button class="nk" onclick="nk('2')">2</button>
-        <button class="nk" onclick="nk('3')">3</button>
-        <button class="nk" onclick="nk('4')">4</button>
-        <button class="nk" onclick="nk('5')">5</button>
-        <button class="nk" onclick="nk('6')">6</button>
-        <button class="nk" onclick="nk('7')">7</button>
-        <button class="nk" onclick="nk('8')">8</button>
-        <button class="nk" onclick="nk('9')">9</button>
-        <button class="nk blank"></button>
-        <button class="nk" onclick="nk('0')">0</button>
-        <button class="nk del" onclick="nkDel()">⌫</button>
-    </div>
-    <div class="pin-err" id="pinErr"></div>
+  <div class="lock-eye">Restricted Area</div>
+  <div class="lock-h">Enter<br><em>your PIN</em></div>
+  <div class="lock-s">Admin only &mdash; all actions are logged</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="numpad">
+    <button class="nk" onclick="nk('1')">1</button>
+    <button class="nk" onclick="nk('2')">2</button>
+    <button class="nk" onclick="nk('3')">3</button>
+    <button class="nk" onclick="nk('4')">4</button>
+    <button class="nk" onclick="nk('5')">5</button>
+    <button class="nk" onclick="nk('6')">6</button>
+    <button class="nk" onclick="nk('7')">7</button>
+    <button class="nk" onclick="nk('8')">8</button>
+    <button class="nk" onclick="nk('9')">9</button>
+    <button class="nk blank"></button>
+    <button class="nk" onclick="nk('0')">0</button>
+    <button class="nk del" onclick="nkDel()">&#9003;</button>
+  </div>
+  <div class="pin-err" id="pinErr"></div>
 </div>
 
-<!-- MAIN -->
-<div id="mainForm">
+<!-- ══════════════ MAIN FORM ══════════════ -->
+<div id="mainForm" class="up">
 
-    <div class="sl">① M-PESA Message</div>
-    <div class="pwrap">
+  <!-- ▓▓▓ CARD 1 — M-PESA Message ▓▓▓ -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-icon">📲</div>
+      <div>
+        <div class="card-title">M-PESA Message</div>
+        <div class="card-sub">Paste SMS &amp; auto-extract details</div>
+      </div>
+    </div>
+    <div class="card-b">
+      <div class="pwrap">
         <textarea class="pbox" id="msgBox" rows="4"
-            placeholder="Paste the forwarded M-PESA SMS here…&#10;&#10;e.g. UAKES4BCMP Confirmed. Ksh6,000.00 sent to ETICA CAPITAL LTD for account 308398M on 20/1/26 at 2:26 PM…"
-            oninput="chkDup()"></textarea>
-        <button class="pbtn" onclick="parseMsg()">Extract ✨</button>
-    </div>
-    <div class="dup-ban" id="dupBan">⛔ This M-PESA code was already logged — duplicate blocked.</div>
-    <div class="excard" id="excard">
-        <div class="exrow"><span class="exlbl">Code</span><span class="exval" id="exCode">—</span></div>
-        <div class="exrow"><span class="exlbl">Amount</span><span class="exval" id="exAmt">—</span></div>
-        <div class="exrow"><span class="exlbl">Date</span><span class="exval" id="exDate">—</span></div>
-        <div class="exrow"><span class="exlbl">Account ref</span><span class="exval" id="exAcct">—</span></div>
+          placeholder="Paste forwarded M-PESA SMS here&#10;&#10;e.g. UAKES4BCMP Confirmed. Ksh6,000.00 sent to ETICA CAPITAL LTD for account 308398M on 20/1/26 at 2:26 PM&#8230;"
+          oninput="chkDup()"></textarea>
+        <button class="pbtn" onclick="parseMsg()">Extract &#10022;</button>
+      </div>
+      <div class="dup-ban" id="dupBan">&#9940; Already logged &mdash; duplicate blocked.</div>
+      <div class="excard" id="excard">
+        <div class="exrow"><span class="exlbl">Code</span><span class="exval" id="exCode">&mdash;</span></div>
+        <div class="exrow"><span class="exlbl">Amount</span><span class="exval" id="exAmt">&mdash;</span></div>
+        <div class="exrow"><span class="exlbl">Date</span><span class="exval" id="exDate">&mdash;</span></div>
+        <div class="exrow"><span class="exlbl">Account ref</span><span class="exval" id="exAcct">&mdash;</span></div>
         <div class="exwarn" id="exWarn"></div>
+      </div>
     </div>
+  </div>
 
-    <div class="sl">② Payment Method</div>
-    <div class="mrow">
+  <!-- ▓▓▓ CARD 2 — Deposit Details + Submit ▓▓▓ -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-icon">📋</div>
+      <div>
+        <div class="card-title">Deposit Details</div>
+        <div class="card-sub">Complete sections 2 – 6 below</div>
+      </div>
+    </div>
+    <div class="card-b">
+
+      <!-- § 2 Payment Method -->
+      <div class="sl"><span class="sl-dot">2</span>Payment Method</div>
+      <div class="mrow">
         <button class="mbtn on" id="btnM" onclick="setMethod('MPESA')"><span class="mi">📱</span>M-PESA</button>
         <button class="mbtn"    id="btnB" onclick="setMethod('BANK')"><span class="mi">🏦</span>Bank</button>
-    </div>
+      </div>
 
-    <div class="sl">③ Received From</div>
-    <div class="ig">
+      <!-- § 3 Received From -->
+      <div class="sl"><span class="sl-dot">3</span>Received From</div>
+      <div class="ig">
         <span class="ii">👤</span>
         <select id="fromMember" onchange="onFrom()">
-            <option value="" disabled selected>Who made this deposit?</option>
-            <option>Tokyo</option><option>Berlin</option><option>Gandia</option>
-            <option>Denver</option><option>Helsinki</option><option>Oslo</option>
-            <option>Moscow</option><option>California</option><option>Lisbon</option>
-            <option>Stockholm</option><option>Paris</option><option>Marseille</option>
-            <option>Rio</option><option>Nairobi</option><option>Tel Aviv</option>
-            <option>Valencia</option><option>Havana</option><option>Manilla</option>
-            <option>Scofield</option><option>Bogota</option><option>Emirates</option>
-            <option>Dublin</option><option>Doha</option><option>Bern</option>
+          <option value="" disabled selected>Who made this deposit?</option>
+          <option>Tokyo</option><option>Berlin</option><option>Gandia</option><option>Denver</option><option>Helsinki</option><option>Oslo</option><option>Moscow</option><option>California</option><option>Lisbon</option><option>Stockholm</option><option>Paris</option><option>Marseille</option><option>Rio</option><option>Nairobi</option><option>Tel Aviv</option><option>Valencia</option><option>Havana</option><option>Manilla</option><option>Scofield</option><option>Bogota</option><option>Emirates</option><option>Dublin</option><option>Doha</option><option>Bern</option>
         </select>
-    </div>
+      </div>
 
-    <div class="sl">④ Amount, Date &amp; Code</div>
-    <div class="ig">
+      <!-- § 4 Amount / Date / Code -->
+      <div class="sl"><span class="sl-dot">4</span>Amount, Date &amp; Code</div>
+      <div class="ig">
         <span class="kpfx">KES</span>
         <input type="number" class="amt-in mono" id="totalAmt" placeholder="0" min="1" inputmode="decimal" oninput="updBal()">
-    </div>
-    <div class="ig">
+      </div>
+      <div class="ig">
         <span class="ii">📅</span>
         <input type="date" id="depDate">
-    </div>
-    <div class="ig">
+      </div>
+      <div class="ig">
         <span class="ii">🔑</span>
         <input type="text" class="code-in" id="refCode" placeholder="e.g. UAKES4BCMP" maxlength="20" autocapitalize="characters" autocomplete="off" oninput="onCode()">
-    </div>
+      </div>
 
-    <div class="sl">⑤ Credit To</div>
-    <div class="ctoggle">
-        <button class="ctbtn on" id="ctS" onclick="setCredit('single')">👤 Single Member</button>
+      <!-- § 5 Credit To -->
+      <div class="sl"><span class="sl-dot">5</span>Credit To</div>
+      <div class="ctoggle">
+        <button class="ctbtn on" id="ctS"  onclick="setCredit('single')">👤 Single Member</button>
         <button class="ctbtn"    id="ctSp" onclick="setCredit('split')">🔀 Split</button>
-    </div>
-
-    <div id="singDiv">
+      </div>
+      <div id="singDiv">
         <div class="ig">
-            <span class="ii">🎯</span>
-            <select id="creditMem">
-                <option value="" disabled selected>Member to credit</option>
-                <option>Tokyo</option><option>Berlin</option><option>Gandia</option>
-                <option>Denver</option><option>Helsinki</option><option>Oslo</option>
-                <option>Moscow</option><option>California</option><option>Lisbon</option>
-                <option>Stockholm</option><option>Paris</option><option>Marseille</option>
-                <option>Rio</option><option>Nairobi</option><option>Tel Aviv</option>
-                <option>Valencia</option><option>Havana</option><option>Manilla</option>
-                <option>Scofield</option><option>Bogota</option><option>Emirates</option>
-                <option>Dublin</option><option>Doha</option><option>Bern</option>
-            </select>
+          <span class="ii">🎯</span>
+          <select id="creditMem">
+            <option value="" disabled selected>Member to credit</option>
+            <option>Tokyo</option><option>Berlin</option><option>Gandia</option><option>Denver</option><option>Helsinki</option><option>Oslo</option><option>Moscow</option><option>California</option><option>Lisbon</option><option>Stockholm</option><option>Paris</option><option>Marseille</option><option>Rio</option><option>Nairobi</option><option>Tel Aviv</option><option>Valencia</option><option>Havana</option><option>Manilla</option><option>Scofield</option><option>Bogota</option><option>Emirates</option><option>Dublin</option><option>Doha</option><option>Bern</option>
+          </select>
         </div>
-    </div>
-
-    <div id="splitDiv" style="display:none">
+      </div>
+      <div id="splitDiv" style="display:none">
         <div id="splitRows"></div>
         <button class="addbtn" onclick="addRow()">＋ Add Member</button>
         <div class="balbar">
-            <span class="ballbl">Unallocated</span>
-            <span class="balval bund" id="balVal">—</span>
+          <span class="ballbl">Unallocated</span>
+          <span class="balval bund" id="balVal">&mdash;</span>
         </div>
+      </div>
+
+      <!-- § 6 Notes -->
+      <div class="sl"><span class="sl-dot">6</span>Notes <span style="color:var(--ink3);text-transform:none;letter-spacing:0;font-weight:500;font-size:.66rem;margin-left:2px">(optional)</span></div>
+      <div class="ig">
+        <textarea id="notes" placeholder="e.g. Second deposit this week, partial top-up&#8230;"></textarea>
+      </div>
+
+      <!-- GREEN SUBMIT PILL -->
+      <button class="subbtn" id="subBtn" onclick="triggerSubmit()">
+        <span id="subLbl">Log Deposit &nbsp;&#8594;</span>
+      </button>
+      <div class="stat" id="statBox"></div>
+
     </div>
+  </div>
 
-    <div class="sl">⑥ Notes <span style="color:rgba(240,240,248,.3);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
-    <div class="ig" style="margin-bottom:0">
-        <textarea id="notes" placeholder="e.g. Second deposit this week, partial top-up…"></textarea>
+  <!-- ▓▓▓ CARD 3 — Recent Entries ▓▓▓ -->
+  <div class="card">
+    <div class="log-hd">
+      <div class="log-title">Recent <em>Entries</em></div>
+      <div class="log-cnt" id="logCnt">0 this session</div>
     </div>
-
-    <button class="subbtn" id="subBtn" onclick="triggerSubmit()">
-        <span id="subLbl">Log Deposit</span>
-    </button>
-    <div class="stat" id="statBox"></div>
-
-    <div class="div"></div>
-    <div class="loghead">
-        <div class="logtitle">Recent Entries</div>
-        <div class="logcount" id="logCnt">0 this session</div>
+    <div class="log-b">
+      <div id="logList"></div>
+      <div class="noent" id="noEnt">No entries logged yet this session</div>
     </div>
-    <div id="logList"></div>
-    <div class="noent" id="noEnt">No entries logged yet this session</div>
+  </div>
 
-</div>
+</div><!-- /mainForm -->
 
 <script>
-// UI gate only — real security is server-side in Apps Script
-const ADMIN_PIN       = '1234';  // must match SERVER_PIN in Apps Script
+// ── CONFIG (unchanged from original) ──────────────────────────────
+const ADMIN_PIN       = '1234';
+const SERVER_PIN      = '4040';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqEfsYI_8AKAlYfuUyzoiYbLRYXTQJVYgVygEXysGlwE5cMwQVDcsdI_c9LyYJOLXy/exec';
 
-// Stable device token for audit trail & rate limiting
 const CLIENT_TOKEN = (()=>{
-    try {
-        let t = localStorage.getItem('lmf_token');
-        if (!t) { t = 'dev_' + Math.random().toString(36).slice(2,10) + '_' + Date.now(); localStorage.setItem('lmf_token',t); }
-        return t;
-    } catch(e) { return 'dev_' + Math.random().toString(36).slice(2,10); }
+  try { let t=localStorage.getItem('lmf_token'); if(!t){t='dev_'+Math.random().toString(36).slice(2,10)+'_'+Date.now();localStorage.setItem('lmf_token',t);} return t; }
+  catch(e){ return 'dev_'+Math.random().toString(36).slice(2,10); }
 })();
 const DEVICE_INFO = navigator.userAgent.slice(0,150);
 
-let method     = 'MPESA';
-let creditMode = 'single';
-let splitCnt   = 0;
-let log        = [];
-let usedCodes  = new Set();
-let pin        = '';
-let enteredPin = '';  // captured at login, sent with every submission
+let method='MPESA', creditMode='single', splitCnt=0, log=[], usedCodes=new Set(), pin='';
+const MEMBERS=['Tokyo','Berlin','Gandia','Denver','Helsinki','Oslo','Moscow','California','Lisbon','Stockholm','Paris','Marseille','Rio','Nairobi','Tel Aviv','Valencia','Havana','Manilla','Scofield','Bogota','Emirates','Dublin','Doha','Bern'];
 
-const MEMBERS = [
-    'Tokyo','Berlin','Gandia','Denver','Helsinki','Oslo','Moscow',
-    'California','Lisbon','Stockholm','Paris','Marseille','Rio','Nairobi',
-    'Tel Aviv','Valencia','Havana','Manilla','Scofield','Bogota',
-    'Emirates','Dublin','Doha','Bern'
-]; // 24 members — California & Lisbon are separate, Paris & Marseille are separate
+document.addEventListener('DOMContentLoaded',()=>{ setToday(); addRow(); addRow(); });
 
-document.addEventListener('DOMContentLoaded', () => {
-    setToday();
-    addRow(); addRow();
-    // Verify modal element exists
-    const mo = document.getElementById('confirmOverlay');
-    if (!mo) {
-        console.error('CRITICAL: confirmOverlay element not found in DOM');
-    } else {
-        console.log('✓ Modal ready');
-    }
-});
-
-function setToday() {
-    const d = new Date();
-    document.getElementById('depDate').value =
-        `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function setToday(){
+  const d=new Date();
+  document.getElementById('depDate').value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-/* ── NUMPAD ─────────────────────────────────────────────────── */
-function nk(d) {
-    if (pin.length >= 4) return;
-    pin += d;
-    dots();
-    if (pin.length === 4) setTimeout(checkPin, 130);
-}
-function nkDel() { pin = pin.slice(0,-1); dots(); }
-function dots() {
-    for (let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('on', i<pin.length);
-}
-function checkPin() {
-    if (pin === ADMIN_PIN) {
-        enteredPin = pin;  // store for server-side verification
-        document.getElementById('lockScreen').style.display='none';
-        document.getElementById('mainForm').style.display='block';
-    } else {
-        document.getElementById('pinErr').textContent='❌ Wrong PIN — try again';
-        pin=''; dots();
-        setTimeout(()=>document.getElementById('pinErr').textContent='', 2000);
-    }
+/* ── PIN NUMPAD ── */
+function nk(d){ if(pin.length>=4)return; pin+=d; dots(); if(pin.length===4)setTimeout(checkPin,130); }
+function nkDel(){ pin=pin.slice(0,-1); dots(); }
+function dots(){ for(let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('on',i<pin.length); }
+function checkPin(){
+  if(pin===ADMIN_PIN){
+    document.getElementById('lockScreen').style.display='none';
+    document.getElementById('mainForm').style.display='block';
+  } else {
+    document.getElementById('pinErr').textContent='Wrong PIN \u2014 try again';
+    pin=''; dots(); setTimeout(()=>document.getElementById('pinErr').textContent='',2000);
+  }
 }
 
-/* ── DUPLICATE CHECK ─────────────────────────────────────────── */
-function extractCode(text) {
-    const m = text.match(/^([A-Z0-9]{10})\s+Confirmed/i);
-    return m ? m[1].toUpperCase() : null;
-}
-function markDup(isDup) {
-    document.getElementById('dupBan').classList.toggle('show', isDup);
-    document.getElementById('msgBox').classList.toggle('dup', isDup);
-}
-function chkDup() {
-    const code = extractCode(document.getElementById('msgBox').value);
-    markDup(code ? usedCodes.has(code) : false);
-}
-function onCode() {
-    const el = document.getElementById('refCode');
-    const p  = el.selectionStart;
-    el.value = el.value.toUpperCase();
-    el.setSelectionRange(p,p);
-    const c = el.value.trim();
-    if (c.length===10) markDup(usedCodes.has(c));
-}
+/* ── DUPE CHECK ── */
+function extractCode(t){ const m=t.match(/^([A-Z0-9]{10})\s+Confirmed/i); return m?m[1].toUpperCase():null; }
+function markDup(d){ document.getElementById('dupBan').classList.toggle('show',d); document.getElementById('msgBox').classList.toggle('dup',d); }
+function chkDup(){ const c=extractCode(document.getElementById('msgBox').value); markDup(c?usedCodes.has(c):false); }
+function onCode(){ const el=document.getElementById('refCode'); const p=el.selectionStart; el.value=el.value.toUpperCase(); el.setSelectionRange(p,p); const c=el.value.trim(); if(c.length===10)markDup(usedCodes.has(c)); }
 
-/* ── M-PESA PARSER ───────────────────────────────────────────── */
-function parseMsg() {
-    const msg  = document.getElementById('msgBox').value.trim();
-    const warn = document.getElementById('exWarn');
-    warn.textContent = '';
-    if (!msg) { stat('err','Paste an M-PESA message first.'); return; }
-
-    const codeM = msg.match(/^([A-Z0-9]{10})\s+Confirmed/i);
-    const amtM  = msg.match(/Ksh([\d,]+(?:\.\d+)?)\s+sent/i);
-    const dateM = msg.match(/on\s+(\d{1,2})\/(\d{1,2})\/(\d{2,4})/i);
-    const acctM = msg.match(/for account\s+(\S+)/i);
-
-    if (!codeM && !amtM) { warn.textContent='⚠️ Cannot read message — check format.'; document.getElementById('excard').classList.add('show'); return; }
-
-    if (codeM) {
-        const code = codeM[1].toUpperCase();
-        if (usedCodes.has(code)) { markDup(true); return; }
-        document.getElementById('refCode').value     = code;
-        document.getElementById('exCode').textContent = code;
-    }
-    if (amtM) {
-        const amt = Math.round(parseFloat(amtM[1].replace(/,/g,'')));
-        document.getElementById('totalAmt').value    = amt;
-        document.getElementById('exAmt').textContent = 'KES '+amt.toLocaleString();
-        updBal();
-    }
-    if (dateM) {
-        let yr = parseInt(dateM[3]); if (yr<100) yr+=2000;
-        const iso = `${yr}-${String(dateM[2]).padStart(2,'0')}-${String(dateM[1]).padStart(2,'0')}`;
-        document.getElementById('depDate').value     = iso;
-        document.getElementById('exDate').textContent = new Date(iso).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'});
-    } else {
-        document.getElementById('exDate').textContent = 'Not found — using today';
-        warn.textContent = '⚠️ Date missing — confirm below.';
-    }
-    document.getElementById('exAcct').textContent = acctM ? acctM[1] : '—';
-    document.getElementById('excard').classList.add('show');
-    setMethod('MPESA');
-    setTimeout(()=>document.getElementById('fromMember').focus(), 200);
+/* ── M-PESA PARSER ── */
+function parseMsg(){
+  const msg=document.getElementById('msgBox').value.trim();
+  const warn=document.getElementById('exWarn'); warn.textContent='';
+  if(!msg){ stat('err','Paste an M-PESA message first.'); return; }
+  const codeM=msg.match(/^([A-Z0-9]{10})\s+Confirmed/i);
+  const amtM =msg.match(/Ksh([\d,]+(?:\.\d+)?)\s+sent/i);
+  const dateM=msg.match(/on\s+(\d{1,2})\/(\d{1,2})\/(\d{2,4})/i);
+  const acctM=msg.match(/for account\s+(\S+)/i);
+  if(!codeM&&!amtM){ warn.textContent='\u26a0\ufe0f Cannot read \u2014 check format.'; document.getElementById('excard').classList.add('show'); return; }
+  if(codeM){ const code=codeM[1].toUpperCase(); if(usedCodes.has(code)){ markDup(true); return; } document.getElementById('refCode').value=code; document.getElementById('exCode').textContent=code; }
+  if(amtM){ const amt=Math.round(parseFloat(amtM[1].replace(/,/g,''))); document.getElementById('totalAmt').value=amt; document.getElementById('exAmt').textContent='KES '+amt.toLocaleString(); updBal(); }
+  if(dateM){ let yr=parseInt(dateM[3]); if(yr<100)yr+=2000; const iso=`${yr}-${String(dateM[2]).padStart(2,'0')}-${String(dateM[1]).padStart(2,'0')}`; document.getElementById('depDate').value=iso; document.getElementById('exDate').textContent=new Date(iso).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'}); }
+  else { document.getElementById('exDate').textContent='Not found \u2014 using today'; warn.textContent='\u26a0\ufe0f Date missing \u2014 confirm below.'; }
+  document.getElementById('exAcct').textContent=acctM?acctM[1]:'—';
+  document.getElementById('excard').classList.add('show');
+  setMethod('MPESA');
+  setTimeout(()=>document.getElementById('fromMember').focus(),200);
 }
 
-/* ── AUTO-FILL CREDIT FROM SENDER ────────────────────────────── */
-function onFrom() {
-    const from = document.getElementById('fromMember').value;
-    if (!from) return;
-    // Auto-set credit member only if blank
-    const cm = document.getElementById('creditMem');
-    if (cm.value === '') cm.value = from;
-    // Auto-set first split row only if blank
-    const fs = document.querySelector('.s-sel');
-    if (fs && fs.value === '') fs.value = from;
+/* ── FORM CONTROLS ── */
+function onFrom(){ const f=document.getElementById('fromMember').value; if(!f)return; const cm=document.getElementById('creditMem'); if(cm.value==='')cm.value=f; const fs=document.querySelector('.s-sel'); if(fs&&fs.value==='')fs.value=f; }
+function setMethod(m){ method=m; document.getElementById('btnM').classList.toggle('on',m==='MPESA'); document.getElementById('btnB').classList.toggle('on',m==='BANK'); }
+function setCredit(mode){ creditMode=mode; document.getElementById('ctS').classList.toggle('on',mode==='single'); document.getElementById('ctSp').classList.toggle('on',mode==='split'); document.getElementById('singDiv').style.display=mode==='single'?'block':'none'; document.getElementById('splitDiv').style.display=mode==='split'?'block':'none'; updBal(); }
+
+/* ── SPLIT ROWS ── */
+function addRow(){
+  splitCnt++; const id='sr'+splitCnt; const div=document.createElement('div'); div.className='srow'; div.id=id;
+  div.innerHTML=`<div class="ssw"><span class="ii">👤</span><select class="s-sel" onchange="updBal()"><option value="" disabled selected>Member</option>${MEMBERS.map(m=>`<option>${m}</option>`).join('')}</select></div><div class="saw"><span class="kpfx">KES</span><input type="number" class="s-amt mono" placeholder="0" min="0" inputmode="decimal" oninput="updBal()"></div><button class="sdel" onclick="delRow('${id}')">✕</button>`;
+  document.getElementById('splitRows').appendChild(div); updBal();
+}
+function delRow(id){ const el=document.getElementById(id); if(el)el.remove(); updBal(); }
+function updBal(){
+  if(creditMode!=='split')return;
+  const total=parseFloat(document.getElementById('totalAmt').value)||0;
+  const alloc=Array.from(document.querySelectorAll('.s-amt')).reduce((s,i)=>s+(parseFloat(i.value)||0),0);
+  const rem=total-alloc; const el=document.getElementById('balVal');
+  el.className='balval '+(rem===0?'bok':rem<0?'bover':'bund');
+  el.textContent=(rem===0?'\u2705 ':'')+'KES '+Math.abs(rem).toLocaleString()+(rem>0?' remaining':rem<0?' OVER!':' balanced');
 }
 
-/* ── METHOD ──────────────────────────────────────────────────── */
-function setMethod(m) {
-    method = m;
-    document.getElementById('btnM').classList.toggle('on', m==='MPESA');
-    document.getElementById('btnB').classList.toggle('on', m==='BANK');
+/* ── SUBMIT ── */
+function triggerSubmit(){
+  handleSubmit().catch(function(err){ console.error(err); stat('err','\u274c Error: '+err.message); document.getElementById('subBtn').disabled=false; document.getElementById('subLbl').innerHTML='Log Deposit &nbsp;\u2192'; });
+}
+async function handleSubmit(){
+  const from=document.getElementById('fromMember').value;
+  const amt=parseFloat(document.getElementById('totalAmt').value);
+  const code=document.getElementById('refCode').value.trim().toUpperCase();
+  const date=document.getElementById('depDate').value;
+  const notes=document.getElementById('notes').value.trim();
+  if(!from) return stat('err','Select who made the deposit.');
+  if(!amt||amt<=0) return stat('err','Enter the deposit amount.');
+  if(!code) return stat('err','Enter the reference code.');
+  if(!date) return stat('err','Confirm the deposit date.');
+  if(usedCodes.has(code)) return stat('err','\u26d4 Code already logged this session.');
+  let credits=[];
+  if(creditMode==='single'){
+    const to=document.getElementById('creditMem').value; if(!to)return stat('err','Select a member to credit.'); credits=[{alias:to,amount:amt}];
+  } else {
+    document.querySelectorAll('.srow').forEach(r=>{ const a=r.querySelector('.s-sel').value; const v=parseFloat(r.querySelector('.s-amt').value)||0; if(a&&v>0)credits.push({alias:a,amount:v}); });
+    if(!credits.length)return stat('err','Add at least one member to the split.');
+    const tot=credits.reduce((s,c)=>s+c.amount,0);
+    if(Math.abs(tot-amt)>0.01)return stat('err',`Split total KES ${tot.toLocaleString()} \u2260 KES ${amt.toLocaleString()}.`);
+  }
+  const payload={timestamp:new Date().toISOString(),date,week:weekNum(new Date(date)),from,method,totalAmount:amt,refCode:code,notes,credits,isSplit:creditMode==='split',clientToken:CLIENT_TOKEN,deviceInfo:DEVICE_INFO};
+  openConfirm(payload);
 }
 
-/* ── CREDIT MODE ─────────────────────────────────────────────── */
-function setCredit(mode) {
-    creditMode = mode;
-    document.getElementById('ctS').classList.toggle('on',  mode==='single');
-    document.getElementById('ctSp').classList.toggle('on', mode==='split');
-    document.getElementById('singDiv').style.display  = mode==='single'?'block':'none';
-    document.getElementById('splitDiv').style.display = mode==='split'?'block':'none';
-    updBal();
+function done(p){
+  usedCodes.add(p.refCode);
+  const cd=p.isSplit?p.credits.map(c=>`${c.alias} KES ${c.amount.toLocaleString()}`).join(' \u00b7 '):p.credits[0].alias;
+  stat('ok',`\u2705 Logged!\n${p.refCode} \u00b7 KES ${p.totalAmount.toLocaleString()}\nFrom: ${p.from} \u2192 ${cd}`);
+  log.unshift(p); renderLog();
+  ['fromMember','totalAmt','refCode','notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('msgBox').value=''; document.getElementById('msgBox').classList.remove('dup');
+  document.getElementById('excard').classList.remove('show'); document.getElementById('dupBan').classList.remove('show');
+  document.getElementById('creditMem').value='';
+  document.querySelectorAll('.s-amt').forEach(i=>i.value=''); document.querySelectorAll('.s-sel').forEach(s=>s.selectedIndex=0);
+  updBal(); setToday();
+  document.getElementById('subBtn').disabled=false; document.getElementById('subLbl').innerHTML='Log Deposit &nbsp;\u2192';
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-/* ── SPLIT ROWS ──────────────────────────────────────────────── */
-function addRow() {
-    splitCnt++;
-    const id  = 'sr'+splitCnt;
-    const div = document.createElement('div');
-    div.className='srow'; div.id=id;
-    div.innerHTML=`
-        <div class="ssw"><span class="ii">👤</span>
-            <select class="s-sel" onchange="updBal()">
-                <option value="" disabled selected>Member</option>
-                ${MEMBERS.map(m=>`<option>${m}</option>`).join('')}
-            </select></div>
-        <div class="saw"><span class="kpfx">KES</span>
-            <input type="number" class="s-amt mono" placeholder="0" min="0" inputmode="decimal" oninput="updBal()">
-        </div>
-        <button class="sdel" onclick="delRow('${id}')">✕</button>`;
-    document.getElementById('splitRows').appendChild(div);
-    updBal();
-}
-function delRow(id) { const el=document.getElementById(id); if(el)el.remove(); updBal(); }
-
-/* ── BALANCE ─────────────────────────────────────────────────── */
-function updBal() {
-    if (creditMode!=='split') return;
-    const total  = parseFloat(document.getElementById('totalAmt').value)||0;
-    const alloc  = Array.from(document.querySelectorAll('.s-amt')).reduce((s,i)=>s+(parseFloat(i.value)||0),0);
-    const rem    = total - alloc;
-    const el     = document.getElementById('balVal');
-    el.className = 'balval '+(rem===0?'bok':rem<0?'bover':'bund');
-    el.textContent=(rem===0?'✅ ':'')+'KES '+Math.abs(rem).toLocaleString()+(rem>0?' remaining':rem<0?' OVER!':' balanced');
+function renderLog(){
+  const list=document.getElementById('logList'), none=document.getElementById('noEnt');
+  document.getElementById('logCnt').textContent=log.length+' this session';
+  if(!log.length){ none.style.display='block'; list.innerHTML=''; return; }
+  none.style.display='none';
+  list.innerHTML=log.slice(0,10).map(e=>{
+    const badge=e.isSplit?`<span class="badge bs">SPLIT</span>`:`<span class="badge bm">${e.method}</span>`;
+    const cr=e.credits.map(c=>`<span style="color:var(--ink2)">${c.alias}</span> <span class="mono" style="color:var(--gr);font-size:.72rem">+${c.amount.toLocaleString()}</span>`).join(' \u00b7 ');
+    return `<div class="loge"><div class="logt"><div class="loga">${e.from}${badge}</div><div class="logamt">KES ${e.totalAmount.toLocaleString()}</div></div><div class="logm">${e.date} \u00b7 ${e.refCode}<br>\u2192 ${cr}</div></div>`;
+  }).join('');
 }
 
-/* ── SUBMIT ──────────────────────────────────────────────────── */
-function triggerSubmit() {
-    handleSubmit().catch(function(err) {
-        console.error('Submit error:', err);
-        stat('err', '❌ Error: ' + err.message);
-        document.getElementById('subBtn').disabled = false;
-        document.getElementById('subLbl').textContent = 'Log Deposit';
-    });
+/* ── CONFIRM MODAL ── */
+let confirmPin='', pendingPayload=null;
+function openConfirm(payload){
+  pendingPayload=payload; confirmPin=''; updateModalDots();
+  document.getElementById('confirmErr').textContent='';
+  const creds=payload.isSplit?payload.credits.map(c=>c.alias+' KES '+c.amount.toLocaleString()).join(', '):payload.credits[0].alias+' \u00b7 KES '+payload.totalAmount.toLocaleString();
+  document.getElementById('confirmSub').textContent=creds;
+  document.getElementById('confirmOv').classList.add('show');
 }
-
-async function handleSubmit() {
-    const from  = document.getElementById('fromMember').value;
-    const amt   = parseFloat(document.getElementById('totalAmt').value);
-    const code  = document.getElementById('refCode').value.trim().toUpperCase();
-    const date  = document.getElementById('depDate').value;
-    const notes = document.getElementById('notes').value.trim();
-
-    if (!from)            return stat('err','Select who made the deposit.');
-    if (!amt||amt<=0)     return stat('err','Enter the deposit amount.');
-    if (!code)            return stat('err','Enter the reference code.');
-    if (!date)            return stat('err','Confirm the deposit date.');
-    if (usedCodes.has(code)) return stat('err','⛔ Code already logged this session.');
-
-    let credits=[];
-    if (creditMode==='single') {
-        const to=document.getElementById('creditMem').value;
-        if (!to) return stat('err','Select a member to credit.');
-        credits=[{alias:to,amount:amt}];
-    } else {
-        document.querySelectorAll('.srow').forEach(r=>{
-            const a=r.querySelector('.s-sel').value;
-            const v=parseFloat(r.querySelector('.s-amt').value)||0;
-            if(a&&v>0) credits.push({alias:a,amount:v});
-        });
-        if(!credits.length) return stat('err','Add at least one member to the split.');
-        const tot=credits.reduce((s,c)=>s+c.amount,0);
-        if(Math.abs(tot-amt)>0.01) return stat('err',`Split total KES ${tot.toLocaleString()} ≠ KES ${amt.toLocaleString()}.`);
-    }
-
-    // Build payload — PIN will be added by the confirm modal
-    const payload={
-        timestamp:new Date().toISOString(), date, week:weekNum(new Date(date)),
-        from, method, totalAmount:amt, refCode:code, notes, credits,
-        isSplit:creditMode==='split',
-        clientToken:CLIENT_TOKEN, deviceInfo:DEVICE_INFO
-    };
-
-    // Open confirm-PIN modal — actual submission fires from fireSubmit()
-    openConfirm(payload);
+function closeConfirm(){
+  document.getElementById('confirmOv').classList.remove('show');
+  pendingPayload=null; confirmPin=''; updateModalDots();
+  document.getElementById('subBtn').disabled=false;
+  document.getElementById('subLbl').innerHTML='Log Deposit &nbsp;\u2192';
+  const s=document.getElementById('statBox'); s.className='stat'; s.textContent='';
 }
-
-function done(p) {
-    usedCodes.add(p.refCode);
-    const cd=p.isSplit?p.credits.map(c=>`${c.alias} KES ${c.amount.toLocaleString()}`).join(' · '):p.credits[0].alias;
-    stat('ok',`✅ Logged!\n${p.refCode} · KES ${p.totalAmount.toLocaleString()}\nFrom: ${p.from} → ${cd}`);
-    log.unshift(p); renderLog();
-    // Reset
-    ['fromMember','totalAmt','refCode','notes'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('msgBox').value='';
-    document.getElementById('msgBox').classList.remove('dup');
-    document.getElementById('excard').classList.remove('show');
-    document.getElementById('dupBan').classList.remove('show');
-    document.getElementById('creditMem').value='';
-    document.querySelectorAll('.s-amt').forEach(i=>i.value='');
-    document.querySelectorAll('.s-sel').forEach(s=>s.selectedIndex=0);
-    updBal(); setToday();
-    document.getElementById('subBtn').disabled=false;
-    document.getElementById('subLbl').textContent='Log Deposit';
-    window.scrollTo({top:0,behavior:'smooth'});
+function mnk(d){ if(confirmPin.length>=4)return; confirmPin+=d; updateModalDots(); if(confirmPin.length===4)setTimeout(function(){ fireSubmit().catch(function(e){console.error(e);}); },130); }
+function mnkDel(){ confirmPin=confirmPin.slice(0,-1); updateModalDots(); }
+function updateModalDots(){ for(let i=0;i<4;i++) document.getElementById('md'+i).classList.toggle('on',i<confirmPin.length); }
+async function fireSubmit(){
+  if(confirmPin!==ADMIN_PIN){ document.getElementById('confirmErr').textContent='Wrong PIN \u2014 try again'; confirmPin=''; updateModalDots(); return; }
+  document.getElementById('confirmOv').classList.remove('show');
+  pendingPayload.pin=SERVER_PIN;
+  await sendPayload(pendingPayload);
 }
-
-function renderLog() {
-    const list=document.getElementById('logList'), none=document.getElementById('noEnt');
-    document.getElementById('logCnt').textContent=log.length+' this session';
-    if(!log.length){none.style.display='block';list.innerHTML='';return;}
-    none.style.display='none';
-    list.innerHTML=log.slice(0,10).map(e=>{
-        const badge=e.isSplit?`<span class="badge bs">SPLIT</span>`:`<span class="badge bm">${e.method}</span>`;
-        const cr=e.credits.map(c=>`<span style="color:var(--t2)">${c.alias}</span> <span class="mono" style="color:var(--accent);font-size:.78rem">+${c.amount.toLocaleString()}</span>`).join(' · ');
-        return `<div class="loge"><div class="logt"><div class="loga">${e.from}${badge}</div><div class="logamt">KES ${e.totalAmount.toLocaleString()}</div></div><div class="logm">${e.date} · ${e.refCode}<br>→ ${cr}</div></div>`;
-    }).join('');
-}
-
-
-/* ── CONFIRM PIN MODAL ───────────────────────────────────────── */
-let confirmPin   = '';
-let pendingPayload = null;
-
-function openConfirm(payload) {
-    pendingPayload = payload;
-    confirmPin = '';
-    updateModalDots();
-    document.getElementById('confirmErr').textContent = '';
-    // Show summary in subtitle
-    const creds = payload.isSplit
-        ? payload.credits.map(c => c.alias + ' KES ' + c.amount.toLocaleString()).join(', ')
-        : payload.credits[0].alias + ' · KES ' + payload.totalAmount.toLocaleString();
-    document.getElementById('confirmSub').textContent = creds;
-    document.getElementById('confirmOverlay').classList.add('show');
-}
-
-function closeConfirm() {
-    document.getElementById('confirmOverlay').classList.remove('show');
-    pendingPayload = null; confirmPin = '';
-    updateModalDots();
-    // Reset submit button
-    document.getElementById('subBtn').disabled = false;
-    document.getElementById('subLbl').textContent = 'Log Deposit';
-    const s = document.getElementById('statBox');
-    s.className = 'stat'; s.textContent = '';
-}
-
-function mnk(d) {
-    if (confirmPin.length >= 4) return;
-    confirmPin += d;
-    updateModalDots();
-    if (confirmPin.length === 4) setTimeout(function(){ fireSubmit().catch(function(e){ console.error(e); }); }, 130);
-}
-function mnkDel() { confirmPin = confirmPin.slice(0,-1); updateModalDots(); }
-function updateModalDots() {
-    for (let i=0;i<4;i++) document.getElementById('md'+i).classList.toggle('on', i<confirmPin.length);
-}
-
-async function fireSubmit() {
-    if (confirmPin !== ADMIN_PIN) {
-        document.getElementById('confirmErr').textContent = '❌ Wrong PIN — try again';
-        confirmPin = ''; updateModalDots();
-        return;
-    }
-    // PIN correct — close modal and send
-    document.getElementById('confirmOverlay').classList.remove('show');
-    pendingPayload.pin = confirmPin;
-    await sendPayload(pendingPayload);
-}
-
-async function sendPayload(payload) {
-    const btn = document.getElementById('subBtn');
-    const lbl = document.getElementById('subLbl');
-    btn.disabled = true;
-    lbl.innerHTML = '<div class="spin"></div> Logging…';
-    stat('wait', 'Sending to Google Sheets…');
-
+async function sendPayload(payload){
+  const btn=document.getElementById('subBtn'), lbl=document.getElementById('subLbl');
+  btn.disabled=true; lbl.innerHTML='<div class="spin"></div> Logging\u2026'; stat('wait','Sending to Google Sheets\u2026');
+  try {
     try {
-        if (APPS_SCRIPT_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-            try {
-                const resp = await fetch(APPS_SCRIPT_URL, {
-                    method:'POST',
-                    headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify(payload)
-                });
-                const result = await resp.json();
-                if (result.status === 'wrong_pin') {
-                    stat('err', '❌ Wrong PIN — ' + result.remaining + ' attempt' + (result.remaining===1?'':'s') + ' remaining.');
-                    btn.disabled=false; lbl.textContent='Log Deposit'; return;
-                }
-                if (result.status === 'locked') {
-                    stat('err', '🔒 ' + result.message);
-                    btn.disabled=false; lbl.textContent='Log Deposit'; return;
-                }
-                if (result.status === 'error') {
-                    stat('err', '❌ Server error: ' + result.message);
-                    btn.disabled=false; lbl.textContent='Log Deposit'; return;
-                }
-            } catch(corsErr) {
-                await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-            }
-        } else {
-            await new Promise(r=>setTimeout(r,1200));
-        }
-        done(payload);
-    } catch(e) {
-        stat('err','❌ Failed — check connection.\n'+e.message);
-        btn.disabled=false; lbl.textContent='Log Deposit';
+      const resp=await fetch(APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      const r=await resp.json();
+      if(r.status==='wrong_pin'){ stat('err','\u274c Wrong server PIN'); btn.disabled=false; lbl.innerHTML='Log Deposit &nbsp;\u2192'; return; }
+      if(r.status==='locked')   { stat('err','\ud83d\udd12 '+r.message); btn.disabled=false; lbl.innerHTML='Log Deposit &nbsp;\u2192'; return; }
+      if(r.status==='error')    { stat('err','\u274c Server error: '+r.message); btn.disabled=false; lbl.innerHTML='Log Deposit &nbsp;\u2192'; return; }
+    } catch(corsErr) {
+      await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     }
+    done(payload);
+  } catch(e) {
+    stat('err','\u274c Failed \u2014 check connection.\n'+e.message);
+    btn.disabled=false; lbl.innerHTML='Log Deposit &nbsp;\u2192';
+  }
 }
-
-function stat(type,msg){const el=document.getElementById('statBox');el.className='stat '+type;el.textContent=msg;}
-function weekNum(d){const u=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const dw=u.getUTCDay()||7;u.setUTCDate(u.getUTCDate()+4-dw);const y=new Date(Date.UTC(u.getUTCFullYear(),0,1));return 'W'+Math.ceil((((u-y)/86400000)+1)/7);}
+function stat(type,msg){ const el=document.getElementById('statBox'); el.className='stat '+type; el.textContent=msg; }
+function weekNum(d){ const u=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); const dw=u.getUTCDay()||7; u.setUTCDate(u.getUTCDate()+4-dw); const y=new Date(Date.UTC(u.getUTCFullYear(),0,1)); return 'W'+Math.ceil((((u-y)/86400000)+1)/7); }
 </script>
 
-<!-- CONFIRM PIN MODAL -->
-<div class="modal-overlay" id="confirmOverlay">
-    <div class="modal">
-        <div class="modal-icon">🔒</div>
-        <div class="modal-title">Confirm Deposit</div>
-        <div class="modal-sub" id="confirmSub">Enter PIN to confirm</div>
-        <div class="modal-dots">
-            <div class="modal-dot" id="md0"></div>
-            <div class="modal-dot" id="md1"></div>
-            <div class="modal-dot" id="md2"></div>
-            <div class="modal-dot" id="md3"></div>
-        </div>
-        <div class="modal-numpad">
-            <button class="mnk" onclick="mnk('1')">1</button>
-            <button class="mnk" onclick="mnk('2')">2</button>
-            <button class="mnk" onclick="mnk('3')">3</button>
-            <button class="mnk" onclick="mnk('4')">4</button>
-            <button class="mnk" onclick="mnk('5')">5</button>
-            <button class="mnk" onclick="mnk('6')">6</button>
-            <button class="mnk" onclick="mnk('7')">7</button>
-            <button class="mnk" onclick="mnk('8')">8</button>
-            <button class="mnk" onclick="mnk('9')">9</button>
-            <button class="mnk mblank"></button>
-            <button class="mnk" onclick="mnk('0')">0</button>
-            <button class="mnk mdel" onclick="mnkDel()">⌫</button>
-        </div>
-        <div class="modal-err" id="confirmErr"></div>
-        <button class="modal-cancel" onclick="closeConfirm()">✕ Cancel</button>
+<!-- CONFIRM MODAL -->
+<div class="modal-ov" id="confirmOv">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-eye">Confirm Action</div>
+    <div class="modal-title">Confirm<br><em>Deposit</em></div>
+    <div class="modal-sub" id="confirmSub">Enter PIN to authorise</div>
+    <div class="modal-dots">
+      <div class="modal-dot" id="md0"></div>
+      <div class="modal-dot" id="md1"></div>
+      <div class="modal-dot" id="md2"></div>
+      <div class="modal-dot" id="md3"></div>
     </div>
+    <div class="modal-npad">
+      <button class="mnk" onclick="mnk('1')">1</button>
+      <button class="mnk" onclick="mnk('2')">2</button>
+      <button class="mnk" onclick="mnk('3')">3</button>
+      <button class="mnk" onclick="mnk('4')">4</button>
+      <button class="mnk" onclick="mnk('5')">5</button>
+      <button class="mnk" onclick="mnk('6')">6</button>
+      <button class="mnk" onclick="mnk('7')">7</button>
+      <button class="mnk" onclick="mnk('8')">8</button>
+      <button class="mnk" onclick="mnk('9')">9</button>
+      <button class="mnk mblank"></button>
+      <button class="mnk" onclick="mnk('0')">0</button>
+      <button class="mnk mdel" onclick="mnkDel()">&#9003;</button>
+    </div>
+    <div class="modal-err" id="confirmErr"></div>
+    <button class="modal-cancel" onclick="closeConfirm()">✕ Cancel</button>
+  </div>
 </div>
 </body>
 </html>
