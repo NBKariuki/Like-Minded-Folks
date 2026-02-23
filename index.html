@@ -42,9 +42,9 @@ button,select,input{touch-action:manipulation;font-family:inherit;}
 [data-theme=light] .knob{transform:translateX(24px);}
 [data-theme=light] .sw{background:var(--acl);border-color:var(--ac);}
 
-.greet{padding:18px 20px 6px;}
-.greet-time{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:500;line-height:1.4;color:var(--t2);}
-.greet-inspo{font-size:.82rem;color:var(--t2);margin-top:6px;line-height:1.5;}
+.greet{padding:22px 20px 10px;}
+.greet-line{font-size:.84rem;font-weight:500;line-height:1.4;color:var(--t1);letter-spacing:.01em;}
+
 
 .tabs{padding:0 16px;margin-top:16px;display:flex;gap:0;border-bottom:2px solid var(--br2);position:sticky;top:0;z-index:50;background:var(--bg);align-items:flex-end;}
 .tab{flex:1;text-align:center;padding:10px 8px 11px;background:var(--ibg);border:1px solid var(--br2);border-bottom:none;border-radius:10px 10px 0 0;color:var(--t3);font-size:.82rem;font-weight:700;cursor:pointer;position:relative;white-space:nowrap;transition:all .2s;margin-right:2px;top:2px;}
@@ -60,31 +60,28 @@ button,select,input{touch-action:manipulation;font-family:inherit;}
 .hero-sub{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:.78rem;color:var(--t2);}
 .hero-pill{background:var(--acl);color:var(--ac);padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:700;border:1px solid rgba(0,200,122,.2);}
 
-.blobzone{position:relative;margin-top:16px;padding:0 0 24px 20px;min-height:360px;overflow:hidden;}
+.blobzone{position:relative;margin-top:12px;padding-bottom:24px;overflow:visible;}
 .blobzone::before{content:'';position:absolute;width:200px;height:200px;border-radius:50%;filter:blur(40px);background:rgba(0,200,122,.18);bottom:-20px;right:-30px;pointer-events:none;z-index:0;}
 .blobzone::after{content:'';position:absolute;width:160px;height:160px;border-radius:50%;filter:blur(40px);background:rgba(59,130,246,.15);bottom:60px;left:-20px;pointer-events:none;z-index:0;}
-.blob3{position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(139,92,246,.12);filter:blur(35px);bottom:0;right:80px;pointer-events:none;z-index:0;}
-.scards{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-end;padding-right:0;}
-.sc{border-radius:20px 0 0 20px;padding:22px 22px;display:flex;align-items:center;gap:14px;box-shadow:var(--sh);cursor:pointer;position:relative;transition:transform .2s;}
+.blob3{position:absolute;width:160px;height:160px;border-radius:50%;background:rgba(139,92,246,.10);filter:blur(45px);bottom:40px;left:10px;pointer-events:none;z-index:0;}
+.scards{position:relative;z-index:1;margin-left:20px;padding-top:152px;}
+.sc{position:absolute;right:0;border-radius:20px 0 0 20px;padding:22px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 28px rgba(0,0,0,.30);cursor:pointer;transition:transform .15s;}
 .sc:active{transform:scale(.97);}
-.sc1{background:linear-gradient(135deg,#1e6ef0,#06c0f0);position:relative;z-index:1;width:82%;margin-bottom:-16px;border-radius:20px 0 0 20px;align-self:flex-end;margin-right:0;}
-.sc2{background:linear-gradient(135deg,#00b87a,#22d9a0);position:relative;z-index:2;width:91%;margin-bottom:-16px;border-radius:20px 0 0 20px;align-self:flex-end;margin-right:0;}
-.sc3{background:linear-gradient(135deg,#6ee7f7,#a8f0df);z-index:3;padding-top:22px;flex-direction:column;align-items:flex-start;gap:0;cursor:default;width:100%;border-radius:20px 0 0 20px;align-self:flex-end;margin-right:0;}
-[data-theme=dark] .sc3{background:linear-gradient(135deg,#1a4a5e,#1a5e4a);}
+.sc1{background:linear-gradient(135deg,#1e6ef0,#06c0f0);width:76%;top:0;z-index:1;}
+.sc2{background:linear-gradient(135deg,#00b87a,#22d9a0);width:88%;top:76px;z-index:2;}
+.sc3{background:linear-gradient(135deg,#0a3d2e,#0d5c42);width:100%;position:relative;z-index:3;display:flex;flex-direction:column;align-items:flex-start;gap:0;cursor:default;padding:22px 20px 28px;border:1px solid rgba(0,200,122,.15);}
 .sc-ico{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
 .sc-lbl{font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:700;color:#fff;flex:1;}
 .sc-arr{color:rgba(255,255,255,.7);}
-.sc3 .sc-lbl{color:#0a2a22;}
-[data-theme=dark] .sc3 .sc-lbl{color:#d4f7ee;}
-.sc3-head{display:flex;align-items:center;gap:14px;padding:0 0 10px;}
-.c3nums{width:100%;}
+.sc3 .sc-lbl{color:#ffffff;}
+
+.sc3-head{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.c3nums{width:100%;margin-top:4px;}
 .c3row{display:flex;align-items:baseline;gap:8px;margin-bottom:10px;}
 .c3row:last-child{margin-bottom:0;}
-.c3n{font-family:'Sora',sans-serif;font-size:1.6rem;font-weight:800;color:#0a2a22;}
-.c3n.big{font-size:2rem;}
-[data-theme=dark] .c3n{color:#d4f7ee;}
-.c3l{font-size:.72rem;font-weight:600;color:rgba(10,42,34,.65);line-height:1.3;}
-[data-theme=dark] .c3l{color:rgba(212,247,238,.65);}
+.c3n{font-family:'Sora',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;line-height:1;}
+.c3n.big{font-size:2.2rem;color:#00e887;}
+.c3l{font-size:.73rem;font-weight:600;color:rgba(255,255,255,.58);line-height:1.3;}
 
 .inner{padding:0 20px;animation:up .25s ease;}
 .back-btn{display:flex;align-items:center;gap:8px;padding:14px 0 10px;color:var(--t2);font-size:.88rem;font-weight:600;cursor:pointer;background:transparent;border:none;}
@@ -221,12 +218,12 @@ const INSPIRATIONS = [
   "Your commitment is an investment in yourself.",
 ];
 
-function greeting() {
+function greetLine() {
   const h = new Date().getHours();
-  return h < 12 ? 'Good morning,' : h < 17 ? 'Good afternoon,' : 'Good evening,';
-}
-function inspo() {
-  return INSPIRATIONS[Math.floor(Date.now()/(1000*60*60*3)) % INSPIRATIONS.length];
+  const time = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  const quotes = INSPIRATIONS;
+  const quote = quotes[Math.floor(Date.now()/(1000*60*60*3)) % quotes.length];
+  return `${time} — ${quote}`;
 }
 function curMonth() { return MONTHS[new Date().getMonth()]; }
 
@@ -751,8 +748,7 @@ function App() {
 
       {/* GREETING */}
       <div className="greet">
-        <div className="greet-time">{greeting()}</div>
-        <div className="greet-inspo">{inspo()}</div>
+        <div className="greet-line">{greetLine()}</div>
       </div>
 
       {/* TABS */}
@@ -783,18 +779,18 @@ function App() {
                 <div className="blob3"/>
                 <div className="scards">
                   <div className="sc sc1" onClick={openContrib}>
-                    <div className="sc-ico">&#128737;</div>
+                    <div className="sc-ico">&#128200;</div>
                     <div className="sc-lbl">View Group Contributions</div>
                     <div className="sc-arr">&#8599;</div>
                   </div>
                   <div className="sc sc2" onClick={() => setAllView(true)}>
-                    <div className="sc-ico">&#8652;</div>
+                    <div className="sc-ico">&#128176;</div>
                     <div className="sc-lbl">View Group Saving &amp; Interest</div>
                     <div className="sc-arr">&#8594;</div>
                   </div>
                   <div className="sc sc3">
                     <div className="sc3-head">
-                      <div className="sc-ico" style={{background:'rgba(10,42,34,.15)'}}>&#10227;</div>
+                      <div className="sc-ico" style={{background:'rgba(0,200,122,.22)'}}>&#9878;</div>
                       <div className="sc-lbl">Group Balance</div>
                     </div>
                     <div className="c3nums">
@@ -913,7 +909,7 @@ function App() {
                   A/C No: <strong>0180 28395 1027</strong><br/>
                   Reference: <strong>308398M</strong>
                 </div>
-                <div className="dep-w">&#9888;&#65039; Always use <strong>308398M</strong> as Reference / Remarks.</div>
+                <div className="dep-w">&#9888;&#65039; Always indicate <strong>308398M</strong> on the Reference / Remarks section.</div>
               </div>
             </div>
           </div>
@@ -925,7 +921,7 @@ function App() {
                 <li>Minimum contribution: <strong>KES 4,000/month</strong></li>
                 <li>Interest only on months with full minimum</li>
                 <li>Withdrawals in December (before Week 3)</li>
-                <li>Fund: <strong>Etica MMF</strong> &mdash; 12% APY (1% monthly)</li>
+                <li>Fund: <strong>Etica MMF</strong></li>
                 <li>Maximum members: <strong>15</strong></li>
               </ul>
             </div>
