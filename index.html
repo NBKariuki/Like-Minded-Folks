@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
@@ -13,151 +13,258 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-:root{--ac:#00c87a;--acl:rgba(0,200,122,.13);--bl:#3b82f6;--bll:rgba(59,130,246,.13);--gd:#f59e0b;--gdl:rgba(245,158,11,.13);--rd:#ef4444;--tr:.25s ease;}
-[data-theme=dark]{--bg:#0d0f14;--card:#181c26;--card2:#1e2232;--br:rgba(255,255,255,.07);--br2:rgba(255,255,255,.14);--t1:#eef0f8;--t2:rgba(238,240,248,.6);--t3:rgba(238,240,248,.32);--sh:0 4px 24px rgba(0,0,0,.45);--shl:0 8px 40px rgba(0,0,0,.55);--ibg:rgba(255,255,255,.05);--swbg:rgba(255,255,255,.1);}
-[data-theme=light]{--bg:#f0f4f2;--card:#fff;--card2:#f7faf8;--br:rgba(0,0,0,.07);--br2:rgba(0,0,0,.13);--t1:#111827;--t2:rgba(17,24,39,.6);--t3:rgba(17,24,39,.35);--sh:0 4px 24px rgba(0,0,0,.08);--shl:0 8px 40px rgba(0,0,0,.13);--ibg:rgba(0,0,0,.04);--swbg:rgba(0,0,0,.1);}
+:root {
+  /* ── Apple HIG Dynamic Type scale (rem-based so system font size is respected) ──
+     Base: 1rem = 16px (browser default). User bumping system font size to 20px
+     makes 1rem = 20px automatically — every size below scales with it.
+     
+     Scale mapped to Apple HIG text styles:
+     --t-largetitle  → 34pt  Large Title   (hero numbers, major displays)
+     --t-title1      → 28pt  Title 1       (section heroes)
+     --t-title2      → 22pt  Title 2       (card titles, alias name)
+     --t-title3      → 20pt  Title 3       (inner titles)
+     --t-headline    → 17pt  Headline      (primary labels, bold body)
+     --t-body        → 17pt  Body          (standard readable text)
+     --t-callout     → 16pt  Callout       (supporting body text)
+     --t-subhead     → 15pt  Subheadline   (secondary labels)
+     --t-footnote    → 13pt  Footnote      (metadata, timestamps)
+     --t-caption1    → 12pt  Caption 1     (table headers, tags)
+     --t-caption2    → 11pt  Caption 2     (smallest labels)
+  */
+  --t-largetitle: 2.125rem;   /* 34pt */
+  --t-title1:     1.75rem;    /* 28pt */
+  --t-title2:     1.375rem;   /* 22pt */
+  --t-title3:     1.25rem;    /* 20pt */
+  --t-headline:   1.0625rem;  /* 17pt — same size as body, but bold */
+  --t-body:       1.0625rem;  /* 17pt */
+  --t-callout:    1rem;       /* 16pt */
+  --t-subhead:    0.9375rem;  /* 15pt */
+  --t-footnote:   0.8125rem;  /* 13pt */
+  --t-caption1:   0.75rem;    /* 12pt */
+  --t-caption2:   0.6875rem;  /* 11pt */
+
+  /* Accent & semantic colours — same in both modes */
+  --ac:  #00c87a;
+  --acl: rgba(0,200,122,.13);
+  --bl:  #3b82f6;
+  --bll: rgba(59,130,246,.13);
+  --gd:  #f59e0b;
+  --gdl: rgba(245,158,11,.13);
+  --rd:  #ef4444;
+  --tr:  .25s ease;
+}
+
+/* ── DARK MODE — follows system preference automatically (Apple HIG) ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:   #0d0f14;
+    --card: #181c26;
+    --card2:#1e2232;
+    --br:   rgba(255,255,255,.07);
+    --br2:  rgba(255,255,255,.14);
+    --t1:   #eef0f8;
+    --t2:   rgba(238,240,248,.6);
+    --t3:   rgba(238,240,248,.32);
+    --sh:   0 4px 24px rgba(0,0,0,.45);
+    --shl:  0 8px 40px rgba(0,0,0,.55);
+    --ibg:  rgba(255,255,255,.05);
+    --swbg: rgba(255,255,255,.1);
+  }
+}
+
+/* ── LIGHT MODE — follows system preference automatically (Apple HIG) ── */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:   #f0f4f2;
+    --card: #fff;
+    --card2:#f7faf8;
+    --br:   rgba(0,0,0,.07);
+    --br2:  rgba(0,0,0,.13);
+    --t1:   #111827;
+    --t2:   rgba(17,24,39,.6);
+    --t3:   rgba(17,24,39,.35);
+    --sh:   0 4px 24px rgba(0,0,0,.08);
+    --shl:  0 8px 40px rgba(0,0,0,.13);
+    --ibg:  rgba(0,0,0,.04);
+    --swbg: rgba(0,0,0,.1);
+  }
+}
+
+/* ── MANUAL OVERRIDE — user can force light/dark via data-theme attribute ──
+   This lets us keep the toggle as a secondary override without it being
+   the primary mechanism. System preference always wins unless overridden. */
+[data-theme=dark] {
+  --bg:#0d0f14;--card:#181c26;--card2:#1e2232;
+  --br:rgba(255,255,255,.07);--br2:rgba(255,255,255,.14);
+  --t1:#eef0f8;--t2:rgba(238,240,248,.6);--t3:rgba(238,240,248,.32);
+  --sh:0 4px 24px rgba(0,0,0,.45);--shl:0 8px 40px rgba(0,0,0,.55);
+  --ibg:rgba(255,255,255,.05);--swbg:rgba(255,255,255,.1);
+}
+[data-theme=light] {
+  --bg:#f0f4f2;--card:#fff;--card2:#f7faf8;
+  --br:rgba(0,0,0,.07);--br2:rgba(0,0,0,.13);
+  --t1:#111827;--t2:rgba(17,24,39,.6);--t3:rgba(17,24,39,.35);
+  --sh:0 4px 24px rgba(0,0,0,.08);--shl:0 8px 40px rgba(0,0,0,.13);
+  --ibg:rgba(0,0,0,.04);--swbg:rgba(0,0,0,.1);
+}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+/* Setting font-size:100% means 1rem = user's system font size preference.
+   If user has set "Larger Text" in iOS Settings → Accessibility, this respects it. */
+html{font-size:100%;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100svh;overscroll-behavior:none;transition:background var(--tr),color var(--tr);}
 button,select,input{touch-action:manipulation;font-family:inherit;}
 
 .pw-screen{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:24px;}
 .pw-card{background:var(--card);border:1px solid var(--br2);border-radius:28px;padding:40px 32px;width:100%;max-width:360px;box-shadow:var(--shl);display:flex;flex-direction:column;align-items:center;gap:6px;}
-.pw-title{font-family:'Sora',sans-serif;font-size:1.5rem;font-weight:800;margin-top:6px;}
-.pw-sub{font-size:.82rem;color:var(--t3);margin-bottom:16px;text-align:center;}
-.pw-inp{width:100%;padding:13px 16px;background:var(--ibg);border:1px solid var(--br2);border-radius:14px;color:var(--t1);font-size:1rem;outline:none;transition:border-color .2s;}
+.pw-title{font-family:'Sora',sans-serif;font-size:var(--t-title2);font-weight:800;margin-top:6px;}
+.pw-sub{font-size:var(--t-footnote);color:var(--t3);margin-bottom:16px;text-align:center;}
+.pw-inp{width:100%;padding:13px 16px;background:var(--ibg);border:1px solid var(--br2);border-radius:14px;color:var(--t1);font-size:var(--t-callout);outline:none;transition:border-color .2s;}
 .pw-inp:focus{border-color:var(--ac);}
 .pw-inp.err{border-color:var(--rd);}
-.pw-err{color:var(--rd);font-size:.78rem;min-height:18px;align-self:flex-start;}
-.pw-btn{width:100%;padding:14px;background:var(--ac);color:#fff;border:none;border-radius:14px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:4px;}
-.pw-help{font-size:.74rem;color:var(--t3);text-align:center;margin-top:8px;}
+.pw-err{color:var(--rd);font-size:var(--t-footnote);min-height:18px;align-self:flex-start;}
+.pw-btn{width:100%;padding:14px;background:var(--ac);color:#fff;border:none;border-radius:14px;font-size:var(--t-callout);font-weight:700;cursor:pointer;margin-top:4px;}
+.pw-help{font-size:var(--t-caption1);color:var(--t3);text-align:center;margin-top:8px;}
 
 .shell{max-width:430px;margin:0 auto;min-height:100svh;display:flex;flex-direction:column;overflow-x:hidden;}
 .hdr{padding:20px 20px 0;}
 .hdr-row{display:flex;justify-content:space-between;align-items:flex-start;}
-.eyebrow{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ac);}
-.title{font-family:'Sora',sans-serif;font-size:1.75rem;font-weight:800;letter-spacing:-.02em;}
-.subtitle{font-size:.8rem;color:var(--t2);margin-top:2px;}
+.eyebrow{font-size:var(--t-caption2);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ac);}
+.title{font-family:'Sora',sans-serif;font-size:var(--t-title1);font-weight:800;letter-spacing:-.02em;}
+.subtitle{font-size:var(--t-footnote);color:var(--t2);margin-top:2px;}
 .sw{width:52px;height:28px;border-radius:20px;background:var(--swbg);border:1px solid var(--br2);cursor:pointer;display:flex;align-items:center;padding:3px;flex-shrink:0;transition:background .25s;}
-.knob{width:22px;height:22px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:.75rem;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:transform .25s;}
+.knob{width:22px;height:22px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:var(--t-caption1);box-shadow:0 2px 6px rgba(0,0,0,.25);transition:transform .25s;}
 [data-theme=light] .knob{transform:translateX(24px);}
 [data-theme=light] .sw{background:var(--acl);border-color:var(--ac);}
 
 .greet{padding:22px 20px 10px;}
-.greet-line{font-size:.84rem;font-weight:500;line-height:1.4;color:var(--t1);letter-spacing:.01em;}
+.greet-line{font-size:var(--t-subhead);font-weight:500;line-height:1.4;color:var(--t1);letter-spacing:.01em;}
 
 
-.tabs{padding:0 16px;margin-top:16px;display:flex;gap:0;border-bottom:2px solid var(--br2);position:sticky;top:0;z-index:50;background:var(--bg);align-items:flex-end;}
-.tab{flex:1;text-align:center;padding:10px 8px 11px;background:var(--ibg);border:1px solid var(--br2);border-bottom:none;border-radius:10px 10px 0 0;color:var(--t3);font-size:.82rem;font-weight:700;cursor:pointer;position:relative;white-space:nowrap;transition:all .2s;margin-right:2px;top:2px;}
-.tab.on{color:#fff;border-color:var(--br2);border-bottom:2px solid transparent;margin-bottom:-2px;}.tab-ov.on{background:#00c87a;border-color:#00c87a;}.tab-bl.on{background:#3b82f6;border-color:#3b82f6;}.tab-mo.on{background:#8b5cf6;border-color:#8b5cf6;}
+/* ── Pill Nav ── */
+.nav-wrap{padding:14px 16px 0;position:sticky;top:0;z-index:50;background:var(--bg);}
+.nav-track{display:flex;gap:4px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:50px;padding:4px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+.tab{flex:1;text-align:center;padding:9px 6px;border-radius:50px;color:var(--t3);font-size:var(--t-footnote);font-weight:700;cursor:pointer;white-space:nowrap;transition:all .22s;border:none;background:transparent;letter-spacing:.01em;}
+.tab-ov.on{background:#00c87a;color:#001a0e;box-shadow:0 2px 12px rgba(0,200,122,.35);}
+.tab-bl.on{background:#3b82f6;color:#fff;box-shadow:0 2px 12px rgba(59,130,246,.35);}
+.tab-mo.on{background:#8b5cf6;color:#fff;box-shadow:0 2px 12px rgba(139,92,246,.35);}
 
 
 .panel{display:none;padding-bottom:80px;}
 .panel.on{display:block;animation:up .3s ease;}
 
-.hero{padding:24px 20px 8px;}
-.hero-lbl{font-size:.78rem;color:var(--t2);margin-bottom:4px;font-weight:500;}
-.hero-num{font-family:'Sora',sans-serif;font-size:3rem;font-weight:800;line-height:1;letter-spacing:-.03em;}
-.hero-sub{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:.78rem;color:var(--t2);}
-.hero-pill{background:var(--acl);color:var(--ac);padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:700;border:1px solid rgba(0,200,122,.2);}
+.hero{padding:28px 20px 10px;text-align:center;}
+.hero-lbl{font-size:var(--t-caption1);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:8px;}
+.hero-num{font-family:'Sora',sans-serif;font-size:var(--t-largetitle);font-weight:800;line-height:1;letter-spacing:-.04em;color:var(--t1);}
+.hero-sub{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;font-size:var(--t-footnote);color:var(--t3);}
+.hero-pill{background:rgba(0,200,122,.12);color:#00e5a0;padding:4px 12px;border-radius:20px;font-size:var(--t-caption1);font-weight:700;border:1px solid rgba(0,229,160,.25);letter-spacing:.02em;}
 
-.blobzone{position:relative;margin-top:12px;padding-bottom:24px;overflow:visible;}
-.blobzone::before{content:'';position:absolute;width:200px;height:200px;border-radius:50%;filter:blur(40px);background:rgba(0,200,122,.18);bottom:-20px;right:-30px;pointer-events:none;z-index:0;}
-.blobzone::after{content:'';position:absolute;width:160px;height:160px;border-radius:50%;filter:blur(40px);background:rgba(59,130,246,.15);bottom:60px;left:-20px;pointer-events:none;z-index:0;}
-.blob3{position:absolute;width:160px;height:160px;border-radius:50%;background:rgba(139,92,246,.10);filter:blur(45px);bottom:40px;left:10px;pointer-events:none;z-index:0;}
-.scards{position:relative;z-index:1;margin-left:20px;padding-top:152px;}
-.sc{position:absolute;right:0;border-radius:20px 0 0 20px;padding:22px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 28px rgba(0,0,0,.30);cursor:pointer;transition:transform .15s;}
-.sc:active{transform:scale(.97);}
-.sc1{background:linear-gradient(135deg,#1e6ef0,#06c0f0);width:76%;top:0;z-index:1;}
-.sc2{background:linear-gradient(135deg,#00b87a,#22d9a0);width:88%;top:76px;z-index:2;}
-.sc3{background:linear-gradient(135deg,#0a3d2e,#0d5c42);width:100%;position:relative;z-index:3;display:flex;flex-direction:column;align-items:flex-start;gap:0;cursor:default;padding:22px 20px 28px;border:1px solid rgba(0,200,122,.15);}
-.sc-ico{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
-.sc-lbl{font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:700;color:#fff;flex:1;}
-.sc-arr{color:rgba(255,255,255,.7);}
-.sc3 .sc-lbl{color:#ffffff;}
+/* ── Quick-action glass cards (side by side) ── */
+.qarow{display:flex;gap:10px;padding:14px 16px 0;}
+.qac{flex:1;border-radius:18px;padding:16px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:transform .15s,opacity .15s;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  box-shadow:0 2px 16px rgba(0,0,0,.2);}
+.qac:active{transform:scale(.96);opacity:.85;}
+.qac-ico{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:var(--t-headline);}
+.qac-lbl{font-family:'Sora',sans-serif;font-size:var(--t-footnote);font-weight:700;color:rgba(238,240,248,.8);line-height:1.3;text-align:center;}
+.qac-arr{font-size:var(--t-caption1);color:rgba(238,240,248,.3);}
+/* subtle tint per card */
+.qac1{border-color:rgba(91,163,246,.2);}
+.qac1 .qac-ico{background:rgba(59,130,246,.1);border-color:rgba(91,163,246,.2);}
+.qac2{border-color:rgba(0,200,122,.2);}
+.qac2 .qac-ico{background:rgba(0,200,122,.1);border-color:rgba(0,200,122,.2);}
 
-.sc3-head{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
-.c3nums{width:100%;margin-top:4px;}
-.c3row{display:flex;align-items:baseline;gap:8px;margin-bottom:10px;}
-.c3row:last-child{margin-bottom:0;}
-.c3n{font-family:'Sora',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;line-height:1;}
-.c3n.big{font-size:2.2rem;color:#00e887;}
-.c3l{font-size:.73rem;font-weight:600;color:rgba(255,255,255,.58);line-height:1.3;}
+/* ── Group Performance card ── */
+.perf-card{margin:14px 16px 0;border-radius:22px;padding:20px 18px 24px;
+  background:#0f1410;border:1px solid rgba(0,200,122,.14);
+  box-shadow:0 4px 24px rgba(0,0,0,.4);}
+.perf-head{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:18px;}
+.perf-ico{width:36px;height:36px;border-radius:10px;background:rgba(0,200,122,.09);border:1px solid rgba(0,200,122,.2);display:flex;align-items:center;justify-content:center;font-size:var(--t-headline);}
+.perf-title{font-family:'Sora',sans-serif;font-size:var(--t-subhead);font-weight:700;color:rgba(238,240,248,.6);text-align:center;}
+.perf-nums{display:flex;flex-direction:column;gap:14px;}
+.perf-row{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.perf-n{font-family:'Sora',sans-serif;font-weight:800;line-height:1;letter-spacing:-.02em;text-align:center;}
+.perf-n.int{font-size:var(--t-title2);color:rgba(238,240,248,.75);}
+.perf-n.bal{font-size:var(--t-title1);color:#00e5a0;letter-spacing:-.03em;text-shadow:0 0 28px rgba(0,229,160,.3);}
+.perf-lbl{font-size:var(--t-caption2);font-weight:600;color:rgba(238,240,248,.28);text-transform:uppercase;letter-spacing:.08em;text-align:center;}
+.perf-div{height:1px;background:rgba(255,255,255,.06);margin:0 4px;}
 
 .inner{padding:0 20px;animation:up .25s ease;}
-.back-btn{display:flex;align-items:center;gap:8px;padding:14px 0 10px;color:var(--t2);font-size:.88rem;font-weight:600;cursor:pointer;background:transparent;border:none;}
-.inner-title{font-family:'Sora',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:14px;}
+.back-btn{display:flex;align-items:center;gap:8px;padding:14px 0 10px;color:var(--t2);font-size:var(--t-subhead);font-weight:600;cursor:pointer;background:transparent;border:none;}
+.inner-title{font-family:'Sora',sans-serif;font-size:var(--t-title3);font-weight:800;margin-bottom:14px;}
 .ccrd{background:var(--card);border:1px solid var(--br);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:var(--sh);}
-.clbl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:2px;}
-.csub{font-size:.72rem;color:var(--t3);margin-bottom:10px;}
+.clbl{font-size:var(--t-caption1);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:2px;}
+.csub{font-size:var(--t-caption1);color:var(--t3);margin-bottom:10px;}
 
 .mtbl-wrap{background:var(--card);border:1px solid var(--br);border-radius:20px;overflow:hidden;box-shadow:var(--sh);margin-bottom:12px;}
-.mtbl{width:100%;border-collapse:collapse;font-size:.75rem;table-layout:fixed;}
+.mtbl{width:100%;border-collapse:collapse;font-size:var(--t-caption1);table-layout:fixed;}
 .mtbl thead{background:var(--card2);}
-.mtbl th{padding:7px 5px;text-align:right;color:var(--t3);font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--br);white-space:nowrap;overflow:hidden;}
+.mtbl th{padding:7px 5px;text-align:right;color:var(--t3);font-size:var(--t-caption2);font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--br);white-space:nowrap;overflow:hidden;}
 .mtbl th.tl{text-align:left;}
 .mtbl td{padding:7px 5px;text-align:right;border-bottom:1px solid var(--br);color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .mtbl td.tl{text-align:left;}
 .mtbl tbody tr:last-child td{border-bottom:none;}
 .mtbl .tot td{background:var(--card2);color:var(--t1);font-weight:700;border-top:1px solid var(--br2);border-bottom:none;}
-.nm{font-family:'JetBrains Mono',monospace;font-size:.7rem;}
+.nm{font-family:'JetBrains Mono',monospace;font-size:var(--t-caption1);}
 .ac{color:var(--ac)!important;font-weight:700!important;}
 .tcell{display:flex;align-items:center;justify-content:flex-end;gap:5px;}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.dts{font-size:.65rem;color:var(--t3);text-align:center;padding:8px 0;}
+.dts{font-size:var(--t-caption2);color:var(--t3);text-align:center;padding:8px 0;}
 
 .bpad{padding:16px 20px 0;}
 .mscroll{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:16px;}
 .mscroll::-webkit-scrollbar{display:none;}
-.mpill{padding:7px 14px;border-radius:20px;border:1px solid var(--br2);background:transparent;color:var(--t3);font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s;}
+.mpill{padding:7px 14px;border-radius:20px;border:1px solid var(--br2);background:transparent;color:var(--t3);font-size:var(--t-footnote);font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s;}
 .mpill.on{background:var(--ac);color:#fff;border-color:var(--ac);}
 .acrd{background:var(--card);border:1px solid var(--br2);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:var(--sh);}
-.albl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:8px;}
-.asel{width:100%;padding:12px 14px;background:var(--ibg);border:1px solid var(--br2);border-radius:14px;color:var(--t1);font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='rgba(150,150,170,.6)' d='M0 0l6 8 6-8z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
+.albl{font-size:var(--t-caption2);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:8px;}
+.asel{width:100%;padding:12px 14px;background:var(--ibg);border:1px solid var(--br2);border-radius:14px;color:var(--t1);font-family:'DM Sans',sans-serif;font-size:var(--t-subhead);font-weight:600;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='rgba(150,150,170,.6)' d='M0 0l6 8 6-8z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
 .asel:focus{border-color:var(--ac);}
 .asel option{background:var(--card);}
 .scrd{background:var(--card);border:1px solid var(--br);border-radius:20px;padding:20px;margin-bottom:14px;box-shadow:var(--sh);}
-.s-alias{font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:2px;}
-.s-month{font-size:.78rem;color:var(--t3);margin-bottom:18px;}
+.s-alias{font-family:'Sora',sans-serif;font-size:var(--t-title2);font-weight:800;margin-bottom:2px;}
+.s-month{font-size:var(--t-footnote);color:var(--t3);margin-bottom:18px;}
 .srow{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--br);}
 .srow:last-child{border-bottom:none;padding-bottom:0;}
-.slbl{font-size:.88rem;color:var(--t2);}
-.sval{font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:600;color:var(--t1);}
+.slbl{font-size:var(--t-subhead);color:var(--t2);}
+.sval{font-family:'JetBrains Mono',monospace;font-size:var(--t-subhead);font-weight:600;color:var(--t1);}
 .sval.bl{color:var(--bl);}
 .sval.gr{color:var(--ac);}
-.sval.hero{font-size:1.5rem;color:var(--ac);font-family:'Sora',sans-serif;font-weight:800;}
-.slbl.big{font-size:.95rem;font-weight:700;color:var(--t1);}
-.hint{font-size:.62rem;color:var(--gd);margin-top:2px;}
-.sts{font-size:.65rem;color:var(--t3);text-align:right;margin-top:10px;}
+.sval.hero{font-size:var(--t-title2);color:var(--ac);font-family:'Sora',sans-serif;font-weight:800;}
+.slbl.big{font-size:var(--t-subhead);font-weight:700;color:var(--t1);}
+.hint{font-size:var(--t-caption2);color:var(--gd);margin-top:2px;}
+.sts{font-size:var(--t-caption2);color:var(--t3);text-align:right;margin-top:10px;}
 .wcrd{background:var(--gdl);border:1px solid rgba(245,158,11,.2);border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;gap:12px;}
-.wtitle{font-size:.8rem;font-weight:700;color:var(--gd);margin-bottom:3px;}
-.wbody{font-size:.78rem;color:var(--t2);line-height:1.5;}
+.wtitle{font-size:var(--t-footnote);font-weight:700;color:var(--gd);margin-bottom:3px;}
+.wbody{font-size:var(--t-footnote);color:var(--t2);line-height:1.5;}
 .mcrd{background:var(--card);border:1px solid var(--br);border-radius:20px;padding:16px;margin-bottom:14px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--sh);}
 .mico{font-size:1.4rem;flex-shrink:0;}
-.mtxt{font-size:.84rem;color:var(--t2);line-height:1.6;}
-.empty{text-align:center;padding:40px 20px;color:var(--t3);font-size:.88rem;}
+.mtxt{font-size:var(--t-subhead);color:var(--t2);line-height:1.6;}
+.empty{text-align:center;padding:40px 20px;color:var(--t3);font-size:var(--t-subhead);}
 
 .morepad{padding:16px 20px 0;display:flex;flex-direction:column;gap:12px;}
 .morecrd{background:var(--card);border:1px solid var(--br);border-radius:20px;overflow:hidden;box-shadow:var(--sh);}
-.morehead{padding:13px 16px;border-bottom:1px solid var(--br);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ac);}
+.morehead{padding:13px 16px;border-bottom:1px solid var(--br);font-size:var(--t-caption1);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ac);}
 .morebody{padding:14px 16px;}
 .dep{background:var(--ibg);border:1px solid var(--br);border-radius:14px;padding:12px;margin-bottom:8px;}
 .dep:last-child{margin-bottom:0;}
-.dep-t{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--bl);margin-bottom:6px;}
-.dep-i{font-size:.82rem;color:var(--t2);line-height:1.7;}
+.dep-t{font-size:var(--t-caption1);font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--bl);margin-bottom:6px;}
+.dep-i{font-size:var(--t-footnote);color:var(--t2);line-height:1.7;}
 .dep-i strong{color:var(--t1);font-family:'JetBrains Mono',monospace;font-size:.82rem;}
-.dep-w{margin-top:8px;padding:8px 10px;background:var(--gdl);border:1px solid rgba(245,158,11,.2);border-radius:8px;font-size:.74rem;color:var(--gd);line-height:1.4;}
+.dep-w{margin-top:8px;padding:8px 10px;background:var(--gdl);border:1px solid rgba(245,158,11,.2);border-radius:8px;font-size:var(--t-caption1);color:var(--gd);line-height:1.4;}
 .rlist{list-style:none;}
-.rlist li{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--br);font-size:.84rem;color:var(--t2);line-height:1.5;}
+.rlist li{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--br);font-size:var(--t-subhead);color:var(--t2);line-height:1.5;}
 .rlist li:last-child{border-bottom:none;}
 .rlist li::before{content:'—';color:var(--ac);font-weight:700;flex-shrink:0;}
 .rlist strong{color:var(--t1);}
-.pdf-pw{font-size:.68rem;color:var(--gd);margin-bottom:8px;text-align:right;}
+.pdf-pw{font-size:var(--t-caption2);color:var(--gd);margin-bottom:8px;text-align:right;}
 .ssel{width:100%;padding:11px 13px;background:var(--acl);color:var(--ac);border:1px solid rgba(0,200,122,.22);border-radius:14px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;}
 .ssel option{background:var(--card);color:var(--t1);}
-.priv{margin:16px 20px 0;padding:12px 14px;background:var(--gdl);border:1px solid rgba(245,158,11,.18);border-radius:14px;font-size:.78rem;color:var(--t2);line-height:1.5;text-align:center;}
+.priv{margin:16px 20px 0;padding:12px 14px;background:var(--gdl);border:1px solid rgba(245,158,11,.18);border-radius:14px;font-size:var(--t-footnote);color:var(--t2);line-height:1.5;text-align:center;}
 .priv strong{color:var(--t1);}
 
-.lscreen{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--t3);font-size:.88rem;}
+.lscreen{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--t3);font-size:var(--t-subhead);}
 .spin{width:32px;height:32px;border:3px solid var(--br2);border-top-color:var(--ac);border-radius:50%;animation:rot .7s linear infinite;}
 @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 @keyframes rot{to{transform:rotate(360deg)}}
@@ -585,7 +692,12 @@ function AllMembers({month, rows, ts, data, theme, onBack}) {
 // ─── MAIN APP ──────────────────────────────────────────────────────────────
 function App() {
   const [auth,    setAuth2]    = useState(() => !!getAuth());
-  const [theme,   setTheme]    = useState(() => localStorage.getItem('mmf_theme')||'dark');
+  const [theme, setTheme] = useState(() => {
+    // Check for manual override first; otherwise follow system
+    const saved = localStorage.getItem('mmf_theme');
+    if (saved) return saved;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
   const [data,    setData]     = useState(null);
   const [loading, setLoading]  = useState(true);
   const [error,   setError]    = useState(null);
@@ -740,7 +852,12 @@ function App() {
             <div className="title">Like-Minded Folks</div>
             <div className="subtitle">Contributions, interest &amp; projections</div>
           </div>
-          <button className="sw" onClick={() => setTheme(t=>t==='dark'?'light':'dark')} aria-label="theme">
+          <button className="sw" onClick={() => {
+              const next = theme==='dark'?'light':'dark';
+              setTheme(next);
+              // Store override; user is intentionally overriding system setting
+              localStorage.setItem('mmf_theme', next);
+            }} aria-label={`Switch to ${theme==='dark'?'light':'dark'} mode`} title="Override display mode">
             <div className="knob">{theme==='dark'?'☀️':'🌙'}</div>
           </button>
         </div>
@@ -751,14 +868,16 @@ function App() {
         <div className="greet-line">{greetLine()}</div>
       </div>
 
-      {/* TABS */}
-      <div className="tabs">
-        {[['overview','Overview','tab-ov'],['balance','My Balance','tab-bl'],['more','More+','tab-mo']].map(([id,lbl,cls]) => (
-          <button key={id} className={`tab ${cls}${tab===id?' on':''}`}
-            onClick={() => { setTab(id); setAllView(false); }}>
-            {lbl}
-          </button>
-        ))}
+      {/* PILL NAV */}
+      <div className="nav-wrap">
+        <div className="nav-track">
+          {[['overview','Overview','tab-ov'],['balance','My Balance','tab-bl'],['more','More+','tab-mo']].map(([id,lbl,cls]) => (
+            <button key={id} className={`tab ${cls}${tab===id?' on':''}`}
+              onClick={() => { setTab(id); setAllView(false); }}>
+              {lbl}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ══ OVERVIEW ══ */}
@@ -768,41 +887,42 @@ function App() {
           : <>
               <div className="hero">
                 <div className="hero-lbl">Group Contributions to Date &middot; Jan &ndash; {month}</div>
-                <div className="hero-num">{st ? f0(st.cumC) : '—'}</div>
+                <div className="hero-num">{st ? f2(st.cumC) : '—'}</div>
                 <div className="hero-sub">
                   <span style={{color:'var(--t3)'}}>This month:</span>
-                  <span className="hero-pill">&#8593; KES {st ? f0(st.mTopups) : '0'}</span>
+                  <span className="hero-pill">&#8593; KES {st ? f2(st.mTopups) : '0.00'}</span>
                 </div>
               </div>
 
-              <div className="blobzone">
-                <div className="blob3"/>
-                <div className="scards">
-                  <div className="sc sc1" onClick={openContrib}>
-                    <div className="sc-ico">&#128200;</div>
-                    <div className="sc-lbl">View Group Contributions</div>
-                    <div className="sc-arr">&#8599;</div>
+              {/* Quick-action glass cards — side by side */}
+              <div className="qarow">
+                <div className="qac qac1" onClick={openContrib}>
+                  <div className="qac-ico">&#128200;</div>
+                  <div className="qac-lbl">View Group Contributions</div>
+                  <div className="qac-arr">&#8599;</div>
+                </div>
+                <div className="qac qac2" onClick={() => setAllView(true)}>
+                  <div className="qac-ico">&#128176;</div>
+                  <div className="qac-lbl">View Group Saving &amp; Interest</div>
+                  <div className="qac-arr">&#8594;</div>
+                </div>
+              </div>
+
+              {/* Group Performance card */}
+              <div className="perf-card">
+                <div className="perf-head">
+                  <div className="perf-ico">&#9878;</div>
+                  <div className="perf-title">Group Performance</div>
+                </div>
+                <div className="perf-nums">
+                  <div className="perf-row">
+                    <div className="perf-n int">{st ? f2(st.cumI) : '—'}</div>
+                    <div className="perf-lbl">Interest Earned</div>
                   </div>
-                  <div className="sc sc2" onClick={() => setAllView(true)}>
-                    <div className="sc-ico">&#128176;</div>
-                    <div className="sc-lbl">View Group Saving &amp; Interest</div>
-                    <div className="sc-arr">&#8594;</div>
-                  </div>
-                  <div className="sc sc3">
-                    <div className="sc3-head">
-                      <div className="sc-ico" style={{background:'rgba(0,200,122,.22)'}}>&#9878;</div>
-                      <div className="sc-lbl">Group Balance</div>
-                    </div>
-                    <div className="c3nums">
-                      <div className="c3row">
-                        <div className="c3n">{st ? f2(st.cumI) : '—'}</div>
-                        <div className="c3l">Interest Earned</div>
-                      </div>
-                      <div className="c3row">
-                        <div className="c3n big">{st ? f2(st.totBal) : '—'}</div>
-                        <div className="c3l">Total Group Balance</div>
-                      </div>
-                    </div>
+                  <div className="perf-div"/>
+                  <div className="perf-row">
+                    <div className="perf-n bal">{st ? f2(st.totBal) : '—'}</div>
+                    <div className="perf-lbl">Total Group Balance</div>
                   </div>
                 </div>
               </div>
