@@ -107,6 +107,85 @@
   --sh:0 4px 24px rgba(0,0,0,.08);--shl:0 8px 40px rgba(0,0,0,.13);
   --ibg:rgba(0,0,0,.04);--swbg:rgba(0,0,0,.1);
 }
+
+/* ══════════════════════════════════════════════════════
+   LIGHT MODE COMPONENT OVERRIDES
+   All components below use hardcoded rgba values tuned
+   for dark backgrounds — these rules correct them for light.
+   ══════════════════════════════════════════════════════ */
+@media (prefers-color-scheme: light) {
+  /* Pill nav track — dark glass → light frosted */
+  .nav-track {
+    background: rgba(0,0,0,.05);
+    border-color: rgba(0,0,0,.1);
+  }
+  /* Active tab text colours already fine via CSS vars;
+     just ensure the inactive pill text is readable */
+  .tab { color: rgba(17,24,39,.45); }
+
+  /* Hero pill — green stays but darkened for legibility */
+  .hero-pill { color: #009958; border-color: rgba(0,153,88,.3); background: rgba(0,153,88,.1); }
+
+  /* Glass action cards — white base instead of white-on-dark */
+  .qac {
+    background: rgba(255,255,255,.7);
+    border-color: rgba(0,0,0,.08);
+    box-shadow: 0 2px 16px rgba(0,0,0,.07);
+  }
+  .qac-ico {
+    background: rgba(0,0,0,.05);
+    border-color: rgba(0,0,0,.08);
+  }
+  .qac-lbl { color: rgba(17,24,39,.75); }
+  .qac-arr  { color: rgba(17,24,39,.3); }
+
+  /* Card 1 — blue tint on light */
+  .qac1 { background: rgba(59,130,246,.07); border-color: rgba(59,130,246,.18); }
+  .qac1 .qac-ico { background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.2); }
+  .qac1 .qac-lbl { color: #1d4ed8; }
+
+  /* Card 2 — green tint on light */
+  .qac2 { background: rgba(0,160,100,.07); border-color: rgba(0,160,100,.18); }
+  .qac2 .qac-ico { background: rgba(0,160,100,.1); border-color: rgba(0,160,100,.2); }
+  .qac2 .qac-lbl { color: #047857; }
+
+  /* Group Performance card */
+  .perf-card {
+    background: #fff;
+    border-color: rgba(0,160,100,.15);
+    box-shadow: 0 4px 24px rgba(0,0,0,.07);
+  }
+  .perf-ico  { background: rgba(0,160,100,.08); border-color: rgba(0,160,100,.18); }
+  .perf-title{ color: rgba(17,24,39,.55); }
+  .perf-n.int{ color: rgba(17,24,39,.8); }
+  .perf-n.bal{ color: #009958; text-shadow: 0 0 20px rgba(0,153,88,.2); }
+  .perf-lbl  { color: rgba(17,24,39,.35); }
+  .perf-div  { background: rgba(0,0,0,.07); }
+}
+
+/* Same overrides for manual data-theme=light toggle */
+[data-theme=light] .nav-track {
+  background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.1);
+}
+[data-theme=light] .tab { color: rgba(17,24,39,.45); }
+[data-theme=light] .hero-pill { color:#009958; border-color:rgba(0,153,88,.3); background:rgba(0,153,88,.1); }
+[data-theme=light] .qac { background:rgba(255,255,255,.7); border-color:rgba(0,0,0,.08); box-shadow:0 2px 16px rgba(0,0,0,.07); }
+[data-theme=light] .qac-ico { background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.08); }
+[data-theme=light] .qac-lbl { color:rgba(17,24,39,.75); }
+[data-theme=light] .qac-arr  { color:rgba(17,24,39,.3); }
+[data-theme=light] .qac1 { background:rgba(59,130,246,.07); border-color:rgba(59,130,246,.18); }
+[data-theme=light] .qac1 .qac-ico { background:rgba(59,130,246,.1); border-color:rgba(59,130,246,.2); }
+[data-theme=light] .qac1 .qac-lbl { color:#1d4ed8; }
+[data-theme=light] .qac2 { background:rgba(0,160,100,.07); border-color:rgba(0,160,100,.18); }
+[data-theme=light] .qac2 .qac-ico { background:rgba(0,160,100,.1); border-color:rgba(0,160,100,.2); }
+[data-theme=light] .qac2 .qac-lbl { color:#047857; }
+[data-theme=light] .perf-card { background:#fff; border-color:rgba(0,160,100,.15); box-shadow:0 4px 24px rgba(0,0,0,.07); }
+[data-theme=light] .perf-ico  { background:rgba(0,160,100,.08); border-color:rgba(0,160,100,.18); }
+[data-theme=light] .perf-title{ color:rgba(17,24,39,.55); }
+[data-theme=light] .perf-n.int{ color:rgba(17,24,39,.8); }
+[data-theme=light] .perf-n.bal{ color:#009958; text-shadow:0 0 20px rgba(0,153,88,.2); }
+[data-theme=light] .perf-lbl  { color:rgba(17,24,39,.35); }
+[data-theme=light] .perf-div  { background:rgba(0,0,0,.07); }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 /* Setting font-size:100% means 1rem = user's system font size preference.
    If user has set "Larger Text" in iOS Settings → Accessibility, this respects it. */
