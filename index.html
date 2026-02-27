@@ -350,6 +350,46 @@ button,select,input{touch-action:manipulation;font-family:inherit;}
 @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 @keyframes rot{to{transform:rotate(360deg)}}
 @keyframes shk{0%,100%{transform:none}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+
+/* ── Custom dropdown wrapper (alias + statements) ── */
+.cdrop{position:relative;width:100%;}
+.cdrop-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;border:none;text-align:left;}
+.cdrop-btn.asel-btn{padding:12px 14px;background:var(--ibg);border:1px solid var(--br2);border-radius:14px;color:var(--t1);font-family:'DM Sans',sans-serif;font-size:var(--t-subhead);font-weight:600;}
+.cdrop-btn.asel-btn:focus-visible{outline:2px solid var(--ac);}
+.cdrop-btn.ssel-btn{padding:11px 13px;background:var(--acl);border:1px solid rgba(0,200,122,.22);border-radius:14px;color:var(--ac);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;}
+.cdrop-btn.ssel-btn:focus-visible{outline:2px solid var(--ac);}
+.cdrop-arrow{flex-shrink:0;transition:transform .2s;font-size:.65rem;opacity:.55;}
+.cdrop-arrow.open{transform:rotate(180deg);}
+.cdrop-list{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--card);border:1px solid var(--br2);border-radius:16px;z-index:999;max-height:260px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.28);padding:6px;animation:up .15s ease;}
+.cdrop-item{padding:10px 13px;border-radius:10px;font-size:var(--t-subhead);font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .1s;}
+.cdrop-item:hover{background:var(--ibg);}
+.cdrop-item.sel{color:var(--ac);font-weight:700;background:var(--acl);}
+.cdrop-item .chk{font-size:.7rem;flex-shrink:0;}
+.pdf-msg{margin-top:10px;padding:11px 13px;background:var(--gdl);border:1px solid rgba(245,158,11,.3);border-radius:12px;font-size:var(--t-footnote);color:var(--gd);line-height:1.5;}
+
+/* ── Statements month-picker modal ── */
+.modal-overlay{position:fixed;inset:0;z-index:1200;display:flex;align-items:flex-end;justify-content:center;padding:0 0 20px;}
+.modal-blur{position:fixed;inset:0;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);background:rgba(0,0,0,.45);z-index:1199;}
+.modal-sheet{position:relative;z-index:1201;width:100%;max-width:480px;background:var(--card);border:1px solid var(--br2);border-radius:24px 24px 16px 16px;padding:0 0 12px;box-shadow:0 24px 60px rgba(0,0,0,.5);animation:up .2s ease;}
+.modal-handle{width:36px;height:4px;background:var(--br2);border-radius:4px;margin:10px auto 0;}
+.modal-title{padding:14px 20px 10px;font-size:var(--t-caption1);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ac);}
+.modal-item{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;font-size:var(--t-body);font-weight:600;color:var(--t1);cursor:pointer;border-bottom:1px solid var(--br);transition:background .1s;}
+.modal-item:last-child{border-bottom:none;}
+.modal-item:hover,.modal-item:active{background:var(--ibg);}
+.modal-cancel{display:block;width:calc(100% - 32px);margin:10px 16px 0;padding:14px;background:var(--ibg);border:1px solid var(--br2);border-radius:14px;font-size:var(--t-body);font-weight:700;color:var(--t3);cursor:pointer;text-align:center;}
+
+/* ── Alias picker modal grid ── */
+.modal-sheet.alias-sheet{max-height:82svh;display:flex;flex-direction:column;}
+.alias-grid-wrap{overflow-y:auto;flex:1;padding:4px 12px 0;}
+.alias-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-bottom:8px;}
+.alias-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:16px;background:var(--ibg);border:1px solid var(--br);cursor:pointer;transition:all .15s;text-align:center;}
+.alias-cell:active{transform:scale(.95);}
+.alias-cell.sel{background:var(--acl);border-color:var(--ac);}
+.alias-cell-ico{font-size:1.6rem;line-height:1;}
+.alias-cell-lbl{font-size:var(--t-footnote);font-weight:700;color:var(--t1);line-height:1.2;}
+.alias-cell.sel .alias-cell-lbl{color:var(--ac);}
+.alias-sel-display{display:flex;align-items:center;gap:8px;}
+.alias-sel-ico{font-size:1.1rem;}
 </style>
 </head>
 <body>
@@ -363,6 +403,71 @@ const MEMBERS = [
   'Tel Aviv','Valencia','Havana','Manilla','Scofield','Bogota',
   'Emirates','Dublin','Doha','Bern'
 ];
+
+const CITY_ICON = {
+  Tokyo:      '🗼', Berlin:    '🐻', Gandia:    '🏖️',
+  Denver:     '🏔️', Helsinki:  '🇫🇮', Oslo:      '🫎',
+  Moscow:     '🏛️', California:'🌴', Lisbon:    '🛸',
+  Stockholm:  '👑', Paris:     '🗽', Marseille: '⚓',
+  Rio:        '🌊', Nairobi:   '🦁', 'Tel Aviv': '✡️',
+  Valencia:   '🍊', Havana:    '🎺', Manilla:   '🌺',
+  Scofield:   '🔑', Bogota:    '☁️', Emirates:  '🌇',
+  Dublin:     '🍀', Doha:      '🌙', Bern:      '🐻‍❄️'
+};
+
+const CITY_COLOR = {
+  Tokyo:      'rgba(239,68,68,.15)',
+  Berlin:     'rgba(168,85,247,.15)',
+  Gandia:     'rgba(245,158,11,.15)',
+  Denver:     'rgba(59,130,246,.15)',
+  Helsinki:   'rgba(20,184,166,.15)',
+  Oslo:       'rgba(16,185,129,.15)',
+  Moscow:     'rgba(99,102,241,.15)',
+  California: 'rgba(251,146,60,.15)',
+  Lisbon:     'rgba(236,72,153,.15)',
+  Stockholm:  'rgba(234,179,8,.15)',
+  Paris:      'rgba(59,130,246,.15)',
+  Marseille:  'rgba(14,165,233,.15)',
+  Rio:        'rgba(6,182,212,.15)',
+  Nairobi:    'rgba(132,204,22,.15)',
+  'Tel Aviv': 'rgba(168,85,247,.15)',
+  Valencia:   'rgba(249,115,22,.15)',
+  Havana:     'rgba(239,68,68,.15)',
+  Manilla:    'rgba(236,72,153,.15)',
+  Scofield:   'rgba(100,116,139,.15)',
+  Bogota:     'rgba(20,184,166,.15)',
+  Emirates:   'rgba(234,179,8,.15)',
+  Dublin:     'rgba(34,197,94,.15)',
+  Doha:       'rgba(99,102,241,.15)',
+  Bern:       'rgba(14,165,233,.15)'
+};
+
+const CITY_BORDER = {
+  Tokyo:      'rgba(239,68,68,.3)',
+  Berlin:     'rgba(168,85,247,.3)',
+  Gandia:     'rgba(245,158,11,.3)',
+  Denver:     'rgba(59,130,246,.3)',
+  Helsinki:   'rgba(20,184,166,.3)',
+  Oslo:       'rgba(16,185,129,.3)',
+  Moscow:     'rgba(99,102,241,.3)',
+  California: 'rgba(251,146,60,.3)',
+  Lisbon:     'rgba(236,72,153,.3)',
+  Stockholm:  'rgba(234,179,8,.3)',
+  Paris:      'rgba(59,130,246,.3)',
+  Marseille:  'rgba(14,165,233,.3)',
+  Rio:        'rgba(6,182,212,.3)',
+  Nairobi:    'rgba(132,204,22,.3)',
+  'Tel Aviv': 'rgba(168,85,247,.3)',
+  Valencia:   'rgba(249,115,22,.3)',
+  Havana:     'rgba(239,68,68,.3)',
+  Manilla:    'rgba(236,72,153,.3)',
+  Scofield:   'rgba(100,116,139,.3)',
+  Bogota:     'rgba(20,184,166,.3)',
+  Emirates:   'rgba(234,179,8,.3)',
+  Dublin:     'rgba(34,197,94,.3)',
+  Doha:       'rgba(99,102,241,.3)',
+  Bern:       'rgba(14,165,233,.3)'
+};
 const MONTHS = ['January','February','March','April','May','June',
   'July','August','September','October','November','December'];
 
@@ -788,6 +893,7 @@ function App() {
   const [allView, setAllView]  = useState(false);
   const [ts,      setTs]       = useState(null);
   const [pdfMsg,  setPdfMsg]   = useState(null);
+  const [openDrop, setOpenDrop] = useState(null); // 'alias' | 'stmt' | null
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -795,6 +901,17 @@ function App() {
   }, [theme]);
 
   useEffect(() => { if (auth) load(); }, [auth]);
+
+  useEffect(() => {
+    if (!openDrop) return;
+    const handler = e => {
+      const id = 'drop-' + (openDrop === 'alias' ? 'alias' : 'stmt');
+      const el = document.getElementById(id);
+      if (el && !el.contains(e.target)) setOpenDrop(null);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [openDrop]);
 
   const load = async () => {
     try {
@@ -1027,11 +1144,47 @@ function App() {
 
           <div className="acrd">
             <div className="albl">Who are you?</div>
-            <select className="asel" value={alias} onChange={e => setAlias(e.target.value)}>
-              <option value="" disabled>Select your alias&hellip;</option>
-              {MEMBERS.map(a => <option key={a} value={a}>{a}</option>)}
-            </select>
+            <button className="cdrop-btn asel-btn" style={{width:'100%'}} onClick={() => setOpenDrop('alias')}>
+              {alias
+                ? <span className="alias-sel-display">
+                    <span className="alias-sel-ico">{CITY_ICON[alias]}</span>
+                    <span style={{color:'var(--t1)'}}>{alias}</span>
+                  </span>
+                : <span style={{color:'var(--t3)'}}>Select your alias&hellip;</span>
+              }
+              <span style={{fontSize:'.65rem',opacity:.55}}>&#9660;</span>
+            </button>
           </div>
+
+          {/* ALIAS MODAL */}
+          {openDrop === 'alias' && (
+            <>
+              <div className="modal-blur" onClick={() => setOpenDrop(null)} />
+              <div className="modal-overlay" onClick={() => setOpenDrop(null)}>
+                <div className="modal-sheet alias-sheet" onClick={e => e.stopPropagation()}>
+                  <div className="modal-handle" />
+                  <div className="modal-title">&#128100; Who are you?</div>
+                  <div className="alias-grid-wrap">
+                    <div className="alias-grid">
+                      {MEMBERS.map(a => (
+                        <div key={a}
+                          className={'alias-cell' + (alias === a ? ' sel' : '')}
+                          style={{
+                            background: alias === a ? 'var(--acl)' : CITY_COLOR[a],
+                            borderColor: alias === a ? 'var(--ac)'  : CITY_BORDER[a]
+                          }}
+                          onClick={() => { setAlias(a); setOpenDrop(null); }}>
+                          <span className="alias-cell-ico">{CITY_ICON[a]}</span>
+                          <span className="alias-cell-lbl">{a}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <button className="modal-cancel" onClick={() => setOpenDrop(null)}>Cancel</button>
+                </div>
+              </div>
+            </>
+          )}
 
           {alias ? <>
             <div className="scrd">
@@ -1133,38 +1286,52 @@ function App() {
             <div className="morehead">&#128196; Etica Monthly Statements</div>
             <div className="morebody">
               <div className="pdf-pw">PDF Password: 308398</div>
-              <select className="ssel" onChange={e => {
-                if (!e.target.value) return;
-                const m = e.target.value;
-                const base = window.location.href.split('/').slice(0, -1).join('/');
-                const url  = base + '/' + m + '_2026_Statement.pdf';
-                e.target.value = '';
-                fetch(url, {method:'HEAD'})
-                  .then(r => {
-                    if (r.ok) {
-                      window.open(url, '_blank');
-                      setPdfMsg(null);
-                    } else {
-                      const msgs = [
-                        'The ' + m + ' statement is still being prepared. Check back soon!',
-                        m + ' numbers are being finalised. Almost ready!'
-                      ];
-                      setPdfMsg(msgs[Math.floor(Math.random()*msgs.length)]);
-                      setTimeout(() => setPdfMsg(null), 7000);
-                    }
-                  })
-                  .catch(() => { window.open(url, '_blank'); });
-              }}>
-                <option value="">&#128229; Select Month to Download</option>
-                {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
-              {pdfMsg && (
-                <div style={{marginTop:'10px',padding:'11px 13px',background:'rgba(255,193,7,0.12)',border:'1px solid rgba(255,193,7,0.35)',borderRadius:'12px',fontSize:'0.82rem',lineHeight:'1.5',color:'rgba(255,230,120,0.95)'}}>
-                  ⏳ {pdfMsg}
-                </div>
-              )}
+              <button className="cdrop-btn ssel-btn" style={{width:'100%'}} onClick={() => setOpenDrop('stmt')}>
+                <span>&#128229; Select Month to Download</span>
+                <span style={{fontSize:'.65rem',opacity:.55}}>&#9660;</span>
+              </button>
+              {pdfMsg && <div className="pdf-msg">⏳ {pdfMsg}</div>}
             </div>
           </div>
+
+          {/* STATEMENTS MODAL */}
+          {openDrop === 'stmt' && (
+            <>
+              <div className="modal-blur" onClick={() => setOpenDrop(null)} />
+              <div className="modal-overlay" onClick={() => setOpenDrop(null)}>
+                <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+                  <div className="modal-handle" />
+                  <div className="modal-title">&#128196; Select a Statement</div>
+                  {MONTHS.map(m => (
+                    <div key={m} className="modal-item" onClick={() => {
+                      setOpenDrop(null);
+                      const base = window.location.href.split('/').slice(0, -1).join('/');
+                      const url  = base + '/' + m + '_2026_Statement.pdf';
+                      fetch(url, {method:'HEAD'})
+                        .then(r => {
+                          if (r.ok) {
+                            window.open(url, '_blank');
+                            setPdfMsg(null);
+                          } else {
+                            const msgs = [
+                              'The ' + m + ' statement is still being prepared. Check back soon!',
+                              m + ' numbers are being finalised. Almost ready!'
+                            ];
+                            setPdfMsg(msgs[Math.floor(Math.random()*msgs.length)]);
+                            setTimeout(() => setPdfMsg(null), 7000);
+                          }
+                        })
+                        .catch(() => { window.open(url, '_blank'); });
+                    }}>
+                      <span>{m}</span>
+                      <span style={{fontSize:'1rem'}}>&#128229;</span>
+                    </div>
+                  ))}
+                  <button className="modal-cancel" onClick={() => setOpenDrop(null)}>Cancel</button>
+                </div>
+              </div>
+            </>
+          )}
 
         </div>
       </div>
