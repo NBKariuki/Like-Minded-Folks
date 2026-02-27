@@ -397,12 +397,21 @@ button,select,input{touch-action:manipulation;font-family:inherit;}
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
 
-const MEMBERS = [
+// ── FALLBACK member list (used only if Members sheet tab fails to load) ──
+const FALLBACK_MEMBERS = [
   'Tokyo','Berlin','Gandia','Denver','Helsinki','Oslo','Moscow',
   'California','Lisbon','Stockholm','Paris','Marseille','Rio','Nairobi',
   'Tel Aviv','Valencia','Havana','Manilla','Scofield','Bogota',
   'Emirates','Dublin','Doha','Bern'
 ];
+const FALLBACK_PAIRS = {
+  'California':'Lisbon','Lisbon':'California',
+  'Paris':'Marseille','Marseille':'Paris'
+};
+
+// Members tab URL (encoded) — sheet column layout:
+//   A: Alias   B: Icon (emoji)   C: PairWith (optional)
+const MEMBERS_URL = atob('aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlFmUWRCVmwwMWN4c0lvR25mSkxsdEdEdU9rSVZERnFqLXJOZzNLd0ZWWjgtR0diVXFrMURTc19DVmF5Z2lzamFMaGczMGcxZ2p6SXNkQy9wdWI/Z2lkPTE4MDc5MjY5NzMmc2luZ2xlPXRydWUmb3V0cHV0PWNzdg==');
 
 const CITY_ICON = {
   Tokyo:      '🗼', Berlin:    '🐻', Gandia:    '🏖️',
@@ -496,10 +505,8 @@ const WARN_START_DAY       = 10;
 const PASSWORD             = 'LikeMinded2026';
 const AUTH_DAYS            = 30;
 const CUR_YEAR             = new Date().getFullYear();
-const PAIRS = {
-  'California':'Lisbon','Lisbon':'California',
-  'Paris':'Marseille','Marseille':'Paris'
-};
+// Default icon/colour lookups — extended automatically for new members via sheet
+// New member? Just add their row to the Members tab. Icon/colour defaults apply if not in these maps.
 
 const INSPIRATIONS = [
   "Small, consistent steps build extraordinary wealth.",
@@ -776,7 +783,7 @@ function MemberChart({alias, data, month, theme}) {
 }
 
 // ─── GROUP CHART ───────────────────────────────────────────────────────────
-function GroupChart({data, month, theme}) {
+function GroupChart({data, month, theme, members}) {
   const ref = useRef(null), inst = useRef(null);
   useEffect(() => {
     if (!ref.current || !data) return;
@@ -787,7 +794,7 @@ function GroupChart({data, month, theme}) {
     const tots=[], bals=[];
     for (let i=0; i<=idx; i++) {
       let t=0,b=0;
-      MEMBERS.forEach(a => { t+=data[MONTHS[i]]?.[a]?.topups||0; b+=data[MONTHS[i]]?.[a]?.closingBalance||0; });
+      members.forEach(a => { t+=data[MONTHS[i]]?.[a]?.topups||0; b+=data[MONTHS[i]]?.[a]?.closingBalance||0; });
       tots.push(t); bals.push(b); total+=t;
     }
     const avg  = (idx+1)>0 ? total/(idx+1) : 0;
@@ -819,7 +826,7 @@ function GroupChart({data, month, theme}) {
 }
 
 // ─── ALL MEMBERS VIEW ──────────────────────────────────────────────────────
-function AllMembers({month, rows, ts, data, theme, onBack}) {
+function AllMembers({month, rows, ts, data, theme, onBack, members}) {
   const tO=rows.reduce((s,r)=>s+r.openingBalance,0);
   const tT=rows.reduce((s,r)=>s+r.topups,0);
   const tI=rows.reduce((s,r)=>s+r.interest,0);
@@ -832,7 +839,7 @@ function AllMembers({month, rows, ts, data, theme, onBack}) {
       <div className="ccrd">
         <div className="clbl">Group Monthly Totals &amp; Projection</div>
         <div className="csub"><span style={{color:'#00c87a'}}>&#9646;</span> Monthly &nbsp;&middot;&nbsp; <span style={{color:'#3b82f6'}}>&#8213;</span> Projected</div>
-        <GroupChart data={data} month={month} theme={theme} />
+        <GroupChart data={data} month={month} theme={theme} members={members} />
       </div>
       <div className="mtbl-wrap">
         <table className="mtbl">
@@ -893,7 +900,12 @@ function App() {
   const [allView, setAllView]  = useState(false);
   const [ts,      setTs]       = useState(null);
   const [pdfMsg,  setPdfMsg]   = useState(null);
-  const [openDrop, setOpenDrop] = useState(null); // 'alias' | 'stmt' | null
+  const [openDrop, setOpenDrop] = useState(null);
+  const [members,  setMembers]  = useState(FALLBACK_MEMBERS);
+  const [pairs,    setPairs]    = useState(FALLBACK_PAIRS);
+  const [cityIcon, setCityIcon] = useState(CITY_ICON);
+  const [cityColor,setCityColor]= useState(CITY_COLOR);
+  const [cityBorder,setCityBorder]=useState(CITY_BORDER);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -916,6 +928,81 @@ function App() {
   const load = async () => {
     try {
       setLoading(true); setError(null);
+
+      // ── Step 1: fetch Members tab ──────────────────────────────────────────
+      let liveMembers = FALLBACK_MEMBERS;
+      let livePairs   = FALLBACK_PAIRS;
+      let liveIcon    = {...CITY_ICON};
+      let liveColor   = {...CITY_COLOR};
+      let liveBorder  = {...CITY_BORDER};
+
+      // Rotating colour palette for new members not yet in the hardcoded maps
+      const PALETTE = [
+        ['rgba(239,68,68,.15)','rgba(239,68,68,.3)'],
+        ['rgba(168,85,247,.15)','rgba(168,85,247,.3)'],
+        ['rgba(245,158,11,.15)','rgba(245,158,11,.3)'],
+        ['rgba(59,130,246,.15)','rgba(59,130,246,.3)'],
+        ['rgba(20,184,166,.15)','rgba(20,184,166,.3)'],
+        ['rgba(16,185,129,.15)','rgba(16,185,129,.3)'],
+        ['rgba(99,102,241,.15)','rgba(99,102,241,.3)'],
+        ['rgba(251,146,60,.15)','rgba(251,146,60,.3)'],
+        ['rgba(236,72,153,.15)','rgba(236,72,153,.3)'],
+        ['rgba(234,179,8,.15)','rgba(234,179,8,.3)'],
+      ];
+
+      try {
+        const mr   = await fetch(MEMBERS_URL + '&_=' + Date.now(), {cache:'no-store'});
+        const mtxt = await mr.text();
+        const mlines = mtxt.split('\n').filter(l => l.trim());
+        if (mlines.length < 2) throw new Error('Empty members sheet');
+
+        // Detect column positions from header row (case-insensitive)
+        const headers = parseRow(mlines[0]).map(h => h.trim().toLowerCase().replace(/"/g,''));
+        const colAlias  = headers.findIndex(h => h.includes('alias') || h.includes('name'));
+        const colIcon   = headers.findIndex(h => h.includes('icon') || h.includes('emoji'));
+        const colPair   = headers.findIndex(h => h.includes('pair') || h.includes('partner'));
+        // Default to positional (A=0,B=1,C=2) if headers not recognised
+        const iA = colAlias  >= 0 ? colAlias  : 0;
+        const iI = colIcon   >= 0 ? colIcon   : 1;
+        const iP = colPair   >= 0 ? colPair   : 2;
+
+        const parsed = [];
+        const parsedPairs = {};
+        mlines.slice(1).forEach((line, idx) => {
+          const cols  = parseRow(line);
+          const name  = cols[iA]?.trim().replace(/"/g,'');
+          const icon  = cols[iI]?.trim().replace(/"/g,'').trim() || '';
+          const pair  = cols[iP]?.trim().replace(/"/g,'') || '';
+          if (!name) return;
+          parsed.push(name);
+          if (pair) { parsedPairs[name] = pair; }
+          // Colour: use hardcoded if exists, otherwise assign from palette
+          if (!liveColor[name]) {
+            const [bg, br] = PALETTE[idx % PALETTE.length];
+            liveColor[name]  = bg;
+            liveBorder[name] = br;
+          }
+          // Icon: sheet ALWAYS wins — only fall back to hardcoded if sheet cell is blank
+          const cleanIcon = icon.replace(/"/g,'').trim();
+          liveIcon[name] = cleanIcon || CITY_ICON[name] || '👤';
+        });
+        if (parsed.length > 0) {
+          liveMembers = parsed;
+          livePairs   = parsedPairs;
+          console.log('✅ Members loaded from sheet:', parsed.length, 'members');
+          console.log('📍 Icons from sheet:', Object.fromEntries(parsed.map(n => [n, liveIcon[n]])));
+          setMembers(parsed);
+          setPairs(parsedPairs);
+          setCityIcon(liveIcon);
+          setCityColor(liveColor);
+          setCityBorder(liveBorder);
+        }
+      } catch(e) {
+        // Members tab fetch failed — silently use fallback, site still works
+        console.warn('Members tab fetch failed, using fallback list:', e);
+      }
+
+      // ── Step 2: fetch month data using live member list ────────────────────
       const parsed = {};
       const res = await Promise.all(MONTHS.map(async m => {
         const url  = MONTH_URLS[m];
@@ -927,7 +1014,7 @@ function App() {
         for (let i=3; i<ls.length; i++) {
           const cols  = parseRow(ls[i]);
           const name  = cols[0]?.trim().replace(/"/g,'');
-          if (name && MEMBERS.includes(name)) {
+          if (name && liveMembers.includes(name)) {
             const n = s => parseFloat((s||'').replace(/["',\s]/g,''))||0;
             md[name] = {
               openingBalance: n(cols[1]),
@@ -949,7 +1036,7 @@ function App() {
 
   const getRows = useCallback(m => {
     if (!data) return [];
-    return MEMBERS.map(a => ({alias:a,...(data[m]?.[a]||{openingBalance:0,topups:0,interest:0,daysActive:0,closingBalance:0})}))
+    return members.map(a => ({alias:a,...(data[m]?.[a]||{openingBalance:0,topups:0,interest:0,daysActive:0,closingBalance:0})}))
       .sort((a,b)=>b.closingBalance-a.closingBalance);
   }, [data]);
 
@@ -992,7 +1079,7 @@ function App() {
   const cm      = curMonth();
   const today   = new Date().getDate();
   const md      = data?.[month]?.[alias]||{openingBalance:0,topups:0,interest:0,daysActive:0,closingBalance:0};
-  const partner = PAIRS[alias];
+  const partner = pairs[alias];
   const f2 = n => n.toLocaleString('en-KE',{minimumFractionDigits:2,maximumFractionDigits:2});
   const f0 = n => n.toLocaleString('en-KE',{maximumFractionDigits:0});
 
@@ -1027,7 +1114,7 @@ function App() {
       if (i===idx) { hist.currentMonthTopup=m2.topups||0; hist.currentInterest=m2.interest||0; hist.closingBalance=m2.closingBalance||0; hist.daysActive=m2.daysActive||0; }
       if (i===idx-1) hist.previousMonthTopup=m2.topups||0;
     }
-    const allMD=MEMBERS.map(a=>({alias:a,closingBalance:data[month]?.[a]?.closingBalance||0}));
+    const allMD=members.map(a=>({alias:a,closingBalance:data[month]?.[a]?.closingBalance||0}));
     const arch=calculateMemberArchetype(hist,allMD,month);
     motiv=formatArchetypeMessage(arch,hist,allMD,month);
   }
@@ -1082,7 +1169,7 @@ function App() {
       {/* ══ OVERVIEW ══ */}
       <div className={`panel${tab==='overview'?' on':''}`}>
         {allView
-          ? <AllMembers month={month} rows={getRows(month)} ts={ts} data={data} theme={theme} onBack={() => setAllView(false)} />
+          ? <AllMembers month={month} rows={getRows(month)} ts={ts} data={data} theme={theme} onBack={() => setAllView(false)} members={members} />
           : <>
               <div className="hero">
                 <div className="hero-lbl">Group Contributions to Date &middot; Jan &ndash; {month}</div>
@@ -1147,7 +1234,7 @@ function App() {
             <button className="cdrop-btn asel-btn" style={{width:'100%'}} onClick={() => setOpenDrop('alias')}>
               {alias
                 ? <span className="alias-sel-display">
-                    <span className="alias-sel-ico">{CITY_ICON[alias]}</span>
+                    <span className="alias-sel-ico">{cityIcon[alias]}</span>
                     <span style={{color:'var(--t1)'}}>{alias}</span>
                   </span>
                 : <span style={{color:'var(--t3)'}}>Select your alias&hellip;</span>
@@ -1166,15 +1253,15 @@ function App() {
                   <div className="modal-title">&#128100; Who are you?</div>
                   <div className="alias-grid-wrap">
                     <div className="alias-grid">
-                      {MEMBERS.map(a => (
+                      {members.map(a => (
                         <div key={a}
                           className={'alias-cell' + (alias === a ? ' sel' : '')}
                           style={{
-                            background: alias === a ? 'var(--acl)' : CITY_COLOR[a],
-                            borderColor: alias === a ? 'var(--ac)'  : CITY_BORDER[a]
+                            background: alias === a ? 'var(--acl)' : cityColor[a] || 'var(--ibg)',
+                            borderColor: alias === a ? 'var(--ac)'  : cityBorder[a] || 'var(--br)'
                           }}
                           onClick={() => { setAlias(a); setOpenDrop(null); }}>
-                          <span className="alias-cell-ico">{CITY_ICON[a]}</span>
+                          <span className="alias-cell-ico">{cityIcon[a] || '👤'}</span>
                           <span className="alias-cell-lbl">{a}</span>
                         </div>
                       ))}
