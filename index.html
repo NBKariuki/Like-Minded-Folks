@@ -787,6 +787,7 @@ function App() {
   const [alias,   setAlias]    = useState('');
   const [allView, setAllView]  = useState(false);
   const [ts,      setTs]       = useState(null);
+  const [pdfMsg,  setPdfMsg]   = useState(null);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -1135,13 +1136,33 @@ function App() {
               <select className="ssel" onChange={e => {
                 if (!e.target.value) return;
                 const m = e.target.value;
-                alert(['The '+m+' statement is still being prepared. Check back soon!',
-                       m+' numbers are being finalised. Almost ready!'][Math.floor(Math.random()*2)]);
-                e.target.value='';
+                const base = window.location.href.split('/').slice(0, -1).join('/');
+                const url  = base + '/' + m + '_2026_Statement.pdf';
+                e.target.value = '';
+                fetch(url, {method:'HEAD'})
+                  .then(r => {
+                    if (r.ok) {
+                      window.open(url, '_blank');
+                      setPdfMsg(null);
+                    } else {
+                      const msgs = [
+                        'The ' + m + ' statement is still being prepared. Check back soon!',
+                        m + ' numbers are being finalised. Almost ready!'
+                      ];
+                      setPdfMsg(msgs[Math.floor(Math.random()*msgs.length)]);
+                      setTimeout(() => setPdfMsg(null), 7000);
+                    }
+                  })
+                  .catch(() => { window.open(url, '_blank'); });
               }}>
                 <option value="">&#128229; Select Month to Download</option>
                 {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
+              {pdfMsg && (
+                <div style={{marginTop:'10px',padding:'11px 13px',background:'rgba(255,193,7,0.12)',border:'1px solid rgba(255,193,7,0.35)',borderRadius:'12px',fontSize:'0.82rem',lineHeight:'1.5',color:'rgba(255,230,120,0.95)'}}>
+                  ⏳ {pdfMsg}
+                </div>
+              )}
             </div>
           </div>
 
