@@ -399,7 +399,6 @@ textarea { resize:none; padding-left:11px; font-size:.82rem; line-height:1.6; mi
         <span class="ii">👤</span>
         <select id="fromMember" onchange="onFrom()">
           <option value="" disabled selected>Who made this deposit?</option>
-          <option>Tokyo</option><option>Berlin</option><option>Gandia</option><option>Denver</option><option>Helsinki</option><option>Oslo</option><option>Moscow</option><option>California</option><option>Lisbon</option><option>Stockholm</option><option>Paris</option><option>Marseille</option><option>Rio</option><option>Nairobi</option><option>Tel Aviv</option><option>Valencia</option><option>Havana</option><option>Manilla</option><option>Scofield</option><option>Bogota</option><option>Emirates</option><option>Dublin</option><option>Doha</option><option>Bern</option>
         </select>
       </div>
 
@@ -429,7 +428,6 @@ textarea { resize:none; padding-left:11px; font-size:.82rem; line-height:1.6; mi
           <span class="ii">🎯</span>
           <select id="creditMem">
             <option value="" disabled selected>Member to credit</option>
-            <option>Tokyo</option><option>Berlin</option><option>Gandia</option><option>Denver</option><option>Helsinki</option><option>Oslo</option><option>Moscow</option><option>California</option><option>Lisbon</option><option>Stockholm</option><option>Paris</option><option>Marseille</option><option>Rio</option><option>Nairobi</option><option>Tel Aviv</option><option>Valencia</option><option>Havana</option><option>Manilla</option><option>Scofield</option><option>Bogota</option><option>Emirates</option><option>Dublin</option><option>Doha</option><option>Bern</option>
           </select>
         </div>
       </div>
@@ -486,9 +484,51 @@ const CLIENT_TOKEN = (()=>{
 const DEVICE_INFO = navigator.userAgent.slice(0,150);
 
 let method='MPESA', creditMode='single', splitCnt=0, log=[], usedCodes=new Set(), pin='';
-const MEMBERS=['Tokyo','Berlin','Gandia','Denver','Helsinki','Oslo','Moscow','California','Lisbon','Stockholm','Paris','Marseille','Rio','Nairobi','Tel Aviv','Valencia','Havana','Manilla','Scofield','Bogota','Emirates','Dublin','Doha','Bern'];
 
-document.addEventListener('DOMContentLoaded',()=>{ setToday(); addRow(); addRow(); });
+// Fallback list — used only if Members sheet is unreachable
+const FALLBACK_MEMBERS=['Tokyo','Berlin','Gandia','Denver','Helsinki','Oslo','Moscow','California','Lisbon','Stockholm','Paris','Marseille','Rio','Nairobi','Tel Aviv','Valencia','Havana','Manilla','Scofield','Bogota','Emirates','Dublin','Doha','Bern'];
+
+let MEMBERS = FALLBACK_MEMBERS; // will be replaced by sheet data
+
+const MEMBERS_URL = atob('aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/b3V0cHV0PWNzdiZzaGVldD1NZW1iZXJz');
+
+function populateSelects(list) {
+  const opts = list.map(m => `<option value="${m}">${m}</option>`).join('');
+  const addTo = id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    // Keep the placeholder, replace the rest
+    el.innerHTML = el.querySelector('option[disabled]').outerHTML + opts;
+  };
+  addTo('fromMember');
+  addTo('creditMem');
+  // Re-render any existing split rows with updated list
+  document.querySelectorAll('.s-sel').forEach(sel => {
+    const cur = sel.value;
+    sel.innerHTML = `<option value="" disabled selected>Member</option>` + opts;
+    if (cur) sel.value = cur;
+  });
+}
+
+async function loadMembers() {
+  try {
+    const res  = await fetch(MEMBERS_URL + '&_=' + Date.now(), {cache:'no-store'});
+    const text = await res.text();
+    const lines = text.split('\n').filter(l => l.trim());
+    if (lines.length < 2) throw new Error('Empty');
+    // Detect Alias column from header (col A = index 0 by default)
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g,'').toLowerCase());
+    const col = headers.findIndex(h => h.includes('alias') || h.includes('name'));
+    const iA  = col >= 0 ? col : 0;
+    const parsed = lines.slice(1).map(l => l.split(',')[iA]?.trim().replace(/"/g,'')).filter(Boolean);
+    if (parsed.length > 0) MEMBERS = parsed;
+  } catch(e) {
+    console.warn('Members sheet fetch failed, using fallback:', e);
+  }
+  populateSelects(MEMBERS);
+}
+
+document.addEventListener('DOMContentLoaded', () => { setToday(); loadMembers().then(() => { addRow(); addRow(); }); });
 
 function setToday(){
   const d=new Date();
