@@ -1623,7 +1623,7 @@ function App() {
                     <div key={m} className="modal-item" onClick={() => {
                       setOpenDrop(null);
                       const base = window.location.href.split('/').slice(0, -1).join('/');
-                      const url  = base + '/' + m + '_2026_Statement.pdf';
+                      const url  = base + '/' + m + '_' + CUR_YEAR + '_Statement.pdf';
                       fetch(url, {method:'HEAD'})
                         .then(r => {
                           if (r.ok) {
