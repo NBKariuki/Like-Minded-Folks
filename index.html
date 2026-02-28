@@ -378,6 +378,37 @@ button,select,input{touch-action:manipulation;font-family:inherit;}
 .modal-item:hover,.modal-item:active{background:var(--ibg);}
 .modal-cancel{display:block;width:calc(100% - 32px);margin:10px 16px 0;padding:14px;background:var(--ibg);border:1px solid var(--br2);border-radius:14px;font-size:var(--t-body);font-weight:700;color:var(--t3);cursor:pointer;text-align:center;}
 
+/* ── Withdrawal window ── */
+.wdraw-banner{margin:0 16px 14px;border-radius:20px;overflow:hidden;border:1px solid rgba(0,200,122,.25);}
+.wdraw-banner.soon{border-color:rgba(245,158,11,.3);}
+.wdraw-banner.closed{border-color:rgba(239,68,68,.25);}
+.wdraw-bhead{padding:12px 16px;display:flex;align-items:center;gap:10px;background:rgba(0,200,122,.08);}
+.wdraw-banner.soon .wdraw-bhead{background:rgba(245,158,11,.08);}
+.wdraw-banner.closed .wdraw-bhead{background:rgba(239,68,68,.07);}
+.wdraw-bico{font-size:1.3rem;flex-shrink:0;}
+.wdraw-btxt{flex:1;}
+.wdraw-btitle{font-size:var(--t-footnote);font-weight:700;color:var(--ac);margin-bottom:1px;}
+.wdraw-banner.soon .wdraw-btitle{color:var(--gd);}
+.wdraw-banner.closed .wdraw-btitle{color:var(--rd);}
+.wdraw-bsub{font-size:var(--t-caption2);color:var(--t3);}
+.wdraw-bbadge{font-size:var(--t-caption2);font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(0,200,122,.15);color:var(--ac);border:1px solid rgba(0,200,122,.3);}
+.wdraw-banner.soon .wdraw-bbadge{background:rgba(245,158,11,.13);color:var(--gd);border-color:rgba(245,158,11,.3);}
+.wdraw-banner.closed .wdraw-bbadge{background:rgba(239,68,68,.1);color:var(--rd);border-color:rgba(239,68,68,.25);}
+
+.wdraw-crd{background:var(--card);border:1px solid rgba(0,200,122,.25);border-radius:20px;margin-bottom:14px;overflow:hidden;box-shadow:var(--sh);}
+.wdraw-crd.closed{border-color:rgba(239,68,68,.2);}
+.wdraw-chead{padding:14px 16px 12px;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:8px;}
+.wdraw-ctitle{font-size:var(--t-caption1);font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ac);}
+.wdraw-crd.closed .wdraw-ctitle{color:var(--rd);}
+.wdraw-cbody{padding:16px;}
+.wdraw-amount{font-family:'JetBrains Mono',monospace;font-size:var(--t-title2);font-weight:700;color:var(--ac);margin-bottom:4px;}
+.wdraw-amtlbl{font-size:var(--t-caption2);color:var(--t3);margin-bottom:16px;}
+.wdraw-note{font-size:var(--t-footnote);color:var(--t2);line-height:1.6;padding:10px 12px;background:var(--acl);border-radius:12px;margin-bottom:14px;}
+.wdraw-crd.closed .wdraw-note{background:rgba(239,68,68,.07);}
+.wdraw-btn{width:100%;padding:14px;background:var(--ac);color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:var(--t-subhead);font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;}
+.wdraw-btn:active{opacity:.8;}
+.wdraw-btn.disabled{background:var(--ibg);color:var(--t3);cursor:default;border:1px solid var(--br2);}
+
 /* ── Alias picker modal grid ── */
 .modal-sheet.alias-sheet{max-height:82svh;display:flex;flex-direction:column;}
 .alias-grid-wrap{overflow-y:auto;flex:1;padding:4px 12px 0;}
@@ -505,6 +536,12 @@ const WARN_START_DAY       = 10;
 const PASSWORD             = 'LikeMinded2026';
 const AUTH_DAYS            = 30;
 const CUR_YEAR             = new Date().getFullYear();
+
+// December withdrawal window — opens Dec 5, closes end of Week 3 (Dec 21)
+const WITHDRAWAL_MONTH     = 11;   // 0-indexed: December
+const WITHDRAWAL_OPEN_DAY  = 5;
+const WITHDRAWAL_CLOSE_DAY = 21;
+const ADMIN_WHATSAPP       = '254700000000'; // ← replace with your number (no + or spaces)
 // Default icon/colour lookups — extended automatically for new members via sheet
 // New member? Just add their row to the Members tab. Icon/colour defaults apply if not in these maps.
 
@@ -517,6 +554,17 @@ const INSPIRATIONS = [
   "Consistency is the most underrated financial strategy.",
   "Your commitment is an investment in yourself.",
 ];
+
+// Returns withdrawal window state: { state: 'off'|'open'|'closed' }
+function withdrawalWindow() {
+  const now   = new Date();
+  const month = now.getMonth();
+  const day   = now.getDate();
+  if (month !== WITHDRAWAL_MONTH) return { state: 'off' };
+  if (day < WITHDRAWAL_OPEN_DAY)  return { state: 'off' };
+  if (day <= WITHDRAWAL_CLOSE_DAY) return { state: 'open', daysLeft: WITHDRAWAL_CLOSE_DAY - day + 1 };
+  return { state: 'closed' };
+}
 
 function greetLine() {
   const h = new Date().getHours();
@@ -906,6 +954,11 @@ function App() {
   const [cityIcon, setCityIcon] = useState(CITY_ICON);
   const [cityColor,setCityColor]= useState(CITY_COLOR);
   const [cityBorder,setCityBorder]=useState(CITY_BORDER);
+  const [wdrawAmt, setWdrawAmt] = useState('');
+  const [wdrawReqs,setWdrawReqs]= useState(() => {
+    try { return JSON.parse(localStorage.getItem('mmf_wdraw_'+CUR_YEAR)||'{}'); }
+    catch(e) { return {}; }
+  });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -1078,6 +1131,8 @@ function App() {
   const st      = stats();
   const cm      = curMonth();
   const today   = new Date().getDate();
+  const wdraw   = withdrawalWindow();
+  const decData = data?.['December'];
   const md      = data?.[month]?.[alias]||{openingBalance:0,topups:0,interest:0,daysActive:0,closingBalance:0};
   const partner = pairs[alias];
   const f2 = n => n.toLocaleString('en-KE',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -1179,6 +1234,28 @@ function App() {
                   <span className="hero-pill">&#8593; KES {st ? f2(st.mTopups) : '0.00'}</span>
                 </div>
               </div>
+
+              {/* Withdrawal window banner — shown from Dec 5 */}
+              {wdraw.state !== 'off' && (
+                <div className={'wdraw-banner ' + wdraw.state} style={{margin:'0 0 14px'}}>
+                  <div className="wdraw-bhead">
+                    <span className="wdraw-bico">{wdraw.state === 'open' ? '🏦' : '🔒'}</span>
+                    <div className="wdraw-btxt">
+                      <div className="wdraw-btitle">
+                        {wdraw.state === 'open'   ? 'Withdrawal Window is Open!' : 'Withdrawal Window Closed'}
+                      </div>
+                      <div className="wdraw-bsub">
+                        {wdraw.state === 'open'
+                          ? `Go to My Balance tab to request your withdrawal. ${wdraw.daysLeft} day${wdraw.daysLeft!==1?'s':''} left — closes 21 Dec.`
+                          : 'The window closed on 21 Dec. See you next December!'}
+                      </div>
+                    </div>
+                    {wdraw.state === 'open' && (
+                      <span className="wdraw-bbadge">{wdraw.daysLeft}d left</span>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Quick-action glass cards — side by side */}
               <div className="qarow">
@@ -1309,20 +1386,137 @@ function App() {
               </div>
             )}
 
-            <div className="ccrd">
-              <div className="clbl">Contributions &amp; Balance Growth</div>
-              <div className="csub">
-                <span style={{color:'#00c87a'}}>&#9646;</span> Top-ups &nbsp;
-                <span style={{color:'#00c87a'}}>&#9135;</span> Balance &nbsp;
-                <span style={{color:'#3b82f6'}}>&#8213;</span> Projected
-              </div>
-              <MemberChart alias={alias} data={data} month={month} theme={theme} />
-            </div>
+            {wdraw.state === 'open' ? (
+              /* ── DECEMBER: hide chart, show withdrawal form ── */
+              (() => {
+                const decBal = decData?.[alias]?.closingBalance || 0;
+                const reqAmt = parseFloat(wdrawAmt) || 0;
+                const remaining = decBal - reqAmt;
+                const existing = wdrawReqs[alias];
 
-            <div className="mcrd">
-              <div className="mico">{motiv.icon}</div>
-              <div className="mtxt">{motiv.text}</div>
-            </div>
+                const submitWithdrawal = () => {
+                  if (!reqAmt || reqAmt <= 0) return;
+                  if (reqAmt > decBal) return;
+                  const req = {
+                    alias,
+                    balance:   decBal,
+                    amount:    reqAmt,
+                    remaining: remaining,
+                    date:      new Date().toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'}),
+                    time:      new Date().toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit',hour12:true}),
+                    year:      CUR_YEAR
+                  };
+                  const updated = {...wdrawReqs, [alias]: req};
+                  setWdrawReqs(updated);
+                  localStorage.setItem('mmf_wdraw_'+CUR_YEAR, JSON.stringify(updated));
+                  setWdrawAmt('');
+                };
+
+                return (
+                  <div className="wdraw-crd">
+                    <div className="wdraw-chead">
+                      <span style={{fontSize:'1.1rem'}}>🏦</span>
+                      <span className="wdraw-ctitle">Request Withdrawal</span>
+                      <span className="wdraw-bbadge" style={{marginLeft:'auto'}}>{wdraw.daysLeft}d left</span>
+                    </div>
+                    <div className="wdraw-cbody">
+
+                      {existing ? (
+                        /* Already submitted */
+                        <>
+                          <div style={{textAlign:'center',padding:'8px 0 16px'}}>
+                            <div style={{fontSize:'2rem',marginBottom:6}}>✅</div>
+                            <div style={{fontSize:'var(--t-subhead)',fontWeight:700,color:'var(--ac)',marginBottom:4}}>Withdrawal Requested</div>
+                            <div style={{fontSize:'var(--t-caption1)',color:'var(--t3)'}}>Submitted {existing.date} at {existing.time}</div>
+                          </div>
+                          <div className="srow">
+                            <span className="slbl">December Balance</span>
+                            <span className="sval">{f2(existing.balance)}</span>
+                          </div>
+                          <div className="srow">
+                            <span className="slbl">Amount Requested</span>
+                            <span className="sval gr">{f2(existing.amount)}</span>
+                          </div>
+                          <div className="srow" style={{borderBottom:'none'}}>
+                            <span className="slbl big">Balance After</span>
+                            <span className="sval hero">{f2(existing.remaining)}</span>
+                          </div>
+                          <div className="wdraw-note" style={{marginTop:14}}>
+                            Your request has been recorded. The admin will process it before 21 Dec.
+                          </div>
+                          <button className="wdraw-btn" style={{background:'var(--ibg)',color:'var(--t3)',border:'1px solid var(--br2)',marginTop:4}}
+                            onClick={() => {
+                              const updated = {...wdrawReqs};
+                              delete updated[alias];
+                              setWdrawReqs(updated);
+                              localStorage.setItem('mmf_wdraw_'+CUR_YEAR, JSON.stringify(updated));
+                            }}>
+                            ✏️ Edit Request
+                          </button>
+                        </>
+                      ) : (
+                        /* Withdrawal form */
+                        <>
+                          <div className="srow">
+                            <span className="slbl big">December Balance</span>
+                            <span className="sval hero">{decBal > 0 ? f2(decBal) : '—'}</span>
+                          </div>
+                          <div style={{margin:'14px 0 6px',fontSize:'var(--t-caption2)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.07em',color:'var(--t3)'}}>Amount to Withdraw</div>
+                          <div style={{position:'relative',marginBottom:12}}>
+                            <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',fontSize:'var(--t-footnote)',fontWeight:700,color:'var(--t3)'}}>KES</span>
+                            <input
+                              type="number"
+                              value={wdrawAmt}
+                              onChange={e => setWdrawAmt(e.target.value)}
+                              placeholder="0"
+                              min="0"
+                              max={decBal}
+                              inputMode="decimal"
+                              style={{width:'100%',padding:'12px 12px 12px 44px',background:'var(--ibg)',border:'1px solid '+(reqAmt>decBal?'var(--rd)':'var(--br2)'),borderRadius:12,color:'var(--t1)',fontFamily:"'JetBrains Mono',monospace",fontSize:'var(--t-subhead)',fontWeight:600,outline:'none'}}
+                            />
+                          </div>
+                          <div className="srow" style={{borderBottom:'none',paddingBottom:0}}>
+                            <span className="slbl big">Balance After</span>
+                            <span className="sval hero" style={{color: remaining < 0 ? 'var(--rd)' : 'var(--ac)'}}>
+                              {reqAmt > 0 ? f2(Math.max(remaining,0)) : '—'}
+                            </span>
+                          </div>
+                          {reqAmt > decBal && (
+                            <div style={{fontSize:'var(--t-caption2)',color:'var(--rd)',marginTop:6}}>
+                              ⚠️ Amount exceeds your balance
+                            </div>
+                          )}
+                          <button
+                            className={'wdraw-btn' + (!reqAmt || reqAmt <= 0 || reqAmt > decBal ? ' disabled' : '')}
+                            style={{marginTop:16}}
+                            onClick={submitWithdrawal}
+                          >
+                            🏦 Submit Withdrawal Request
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()
+            ) : (
+              /* Normal months — show chart and motivational card */
+              <>
+                <div className="ccrd">
+                  <div className="clbl">Contributions &amp; Balance Growth</div>
+                  <div className="csub">
+                    <span style={{color:'#00c87a'}}>&#9646;</span> Top-ups &nbsp;
+                    <span style={{color:'#00c87a'}}>&#9135;</span> Balance &nbsp;
+                    <span style={{color:'#3b82f6'}}>&#8213;</span> Projected
+                  </div>
+                  <MemberChart alias={alias} data={data} month={month} theme={theme} />
+                </div>
+                <div className="mcrd">
+                  <div className="mico">{motiv.icon}</div>
+                  <div className="mtxt">{motiv.text}</div>
+                </div>
+              </>
+            )}
           </> : (
             <div className="empty">
               <div style={{fontSize:'2rem',marginBottom:10}}>&#128070;</div>
@@ -1362,7 +1556,7 @@ function App() {
               <ul className="rlist">
                 <li>Minimum contribution: <strong>KES 4,000/month</strong></li>
                 <li>Interest only on months with full minimum</li>
-                <li>Withdrawals in December (before Week 3)</li>
+                <li>Withdrawals in December — window open 5–21 Dec</li>
                 <li>Fund: <strong>Etica MMF</strong></li>
                 <li>Maximum members: <strong>15</strong></li>
               </ul>
@@ -1380,6 +1574,42 @@ function App() {
               {pdfMsg && <div className="pdf-msg">⏳ {pdfMsg}</div>}
             </div>
           </div>
+
+          {/* Withdrawal Statement — shown in Dec if a request exists for the selected alias */}
+          {alias && wdrawReqs[alias] && (() => {
+            const r = wdrawReqs[alias];
+            return (
+              <div className="morecrd" style={{borderColor:'rgba(0,200,122,.25)'}}>
+                <div className="morehead" style={{color:'var(--ac)'}}>🏦 Withdrawal Statement {CUR_YEAR}</div>
+                <div className="morebody">
+                  <div style={{fontSize:'var(--t-caption2)',color:'var(--t3)',marginBottom:12}}>
+                    Submitted {r.date} at {r.time}
+                  </div>
+                  <div className="srow">
+                    <span className="slbl">Member</span>
+                    <span className="sval" style={{display:'flex',alignItems:'center',gap:6}}>
+                      <span>{cityIcon[r.alias]||'👤'}</span>{r.alias}
+                    </span>
+                  </div>
+                  <div className="srow">
+                    <span className="slbl">December Balance</span>
+                    <span className="sval">{f2(r.balance)}</span>
+                  </div>
+                  <div className="srow">
+                    <span className="slbl">Amount Requested</span>
+                    <span className="sval gr">{f2(r.amount)}</span>
+                  </div>
+                  <div className="srow" style={{borderBottom:'none'}}>
+                    <span className="slbl big">Balance After Withdrawal</span>
+                    <span className="sval hero">{f2(r.remaining)}</span>
+                  </div>
+                  <div style={{marginTop:12,padding:'10px 12px',background:'var(--acl)',borderRadius:12,fontSize:'var(--t-caption2)',color:'var(--t2)',lineHeight:1.6}}>
+                    ℹ️ This is your withdrawal request record. The admin will confirm processing separately.
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* STATEMENTS MODAL */}
           {openDrop === 'stmt' && (
