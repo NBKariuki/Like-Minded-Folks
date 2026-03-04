@@ -1,590 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LMF Contribution/Deposit Tracker</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            font-size: 12px;
-            line-height: 1.3;
-            overflow: hidden;
-            background: #fff;
-        }
-        
-        #loading {
-            padding: 20px;
-            text-align: center;
-            color: #666;
-        }
-        
-        #error {
-            padding: 20px;
-            color: #d32f2f;
-            display: none;
-        }
-        
-        .table-container {
-            width: 100vw;
-            height: calc(100vh - 120px);
-            overflow: auto;
-        }
-        
-        /* Scroll instruction text */
-        .scroll-instruction {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0, 66, 62, 0.95), rgba(0, 66, 62, 0.85));
-            color: white;
-            text-align: center;
-            padding: 12px 15px;
-            font-size: 12px;
-            font-weight: 500;
-            z-index: 100;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .scroll-instruction::before {
-            content: '←';
-            font-size: 16px;
-            animation: slideLeft 1.5s ease-in-out infinite;
-        }
-        
-        .scroll-instruction::after {
-            content: '→';
-            font-size: 16px;
-            animation: slideRight 1.5s ease-in-out infinite;
-        }
-        
-        @keyframes slideLeft {
-            0%, 100% { transform: translateX(0); opacity: 1; }
-            50% { transform: translateX(-5px); opacity: 0.5; }
-        }
-        
-        @keyframes slideRight {
-            0%, 100% { transform: translateX(0); opacity: 1; }
-            50% { transform: translateX(5px); opacity: 0.5; }
-        }
-        
-        table {
-            border-collapse: collapse;
-            width: max-content;
-            font-size: 11px;
-        }
-        
-        th, td {
-            padding: 4px 3px;
-            text-align: center;
-            border: 0.5px solid #d0d0d0;
-            white-space: nowrap;
-            font-size: 11px;
-        }
-        
-        /* Increase font size for data rows (tbody) */
-        tbody td {
-            font-size: 13px;
-        }
-        
-        /* First three columns - frozen and compact with distinct coloring */
-        th:nth-child(1),
-        td:nth-child(1) {
-            position: sticky;
-            left: 0;
-            background: #e3f2fd;
-            z-index: 5;
-            text-align: left;
-            width: auto;
-            min-width: 30px;
-            max-width: 5vw;
-            font-size: 11px;
-            padding: 4px 3px;
-            border-right: 2px solid #90caf9;
-        }
-        
-        /* Increase font size for tbody cells in column 1 */
-        tbody td:nth-child(1) {
-            font-size: 13px;
-        }
-        
-        th:nth-child(2),
-        td:nth-child(2) {
-            position: sticky;
-            left: var(--col1-width, 5vw);
-            background: #e3f2fd;
-            z-index: 5;
-            text-align: left;
-            width: auto;
-            min-width: 80px;
-            max-width: 16vw;
-            font-size: 11px;
-            padding: 4px 3px;
-            white-space: normal;
-            word-wrap: break-word;
-            line-height: 1.3;
-        }
-        
-        /* Increase font size for tbody cells in column 2 */
-        tbody td:nth-child(2) {
-            font-size: 13px;
-        }
-        
-        th:nth-child(3),
-        td:nth-child(3) {
-            position: sticky;
-            left: var(--col2-width, 21vw);
-            background: #e3f2fd;
-            z-index: 5;
-            text-align: right;
-            width: auto;
-            min-width: 80px;
-            max-width: calc(33.33vw - var(--col1-width, 5vw) - var(--col2-width, 21vw) + 5vw + 16vw);
-            font-size: 11px;
-            font-weight: bold;
-            padding: 4px 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            border-right: 2px solid #90caf9;
-        }
-        
-        /* Increase font size for tbody cells in column 3 */
-        tbody td:nth-child(3) {
-            font-size: 13px;
-        }
-        
-        /* Header rows sticky */
-        thead tr th {
-            position: sticky;
-            background: #f5f5f5;
-            font-weight: 600;
-            z-index: 10;
-        }
-        
-        /* First three column headers higher z-index */
-        thead tr th:nth-child(1),
-        thead tr th:nth-child(2),
-        thead tr th:nth-child(3) {
-            z-index: 15;
-            background: #e3f2fd;
-        }
-        
-        /* Row 1 - Week numbers */
-        thead tr:nth-child(1) th {
-            top: 0;
-            font-size: 10px;
-            padding: 4px 3px;
-        }
-        
-        /* Row 2 - Months (merged cells) */
-        thead tr:nth-child(2) th {
-            top: 24px;
-            font-size: 10px;
-            font-weight: 600;
-            padding: 4px 3px;
-        }
-        
-        /* Row 3 - Dates with wrapping */
-        thead tr:nth-child(3) th {
-            top: 48px;
-            white-space: normal;
-            word-wrap: break-word;
-            font-size: 10px;
-            line-height: 1.2;
-            padding: 4px 2px;
-            height: 36px;
-            vertical-align: middle;
-            background: #00423e !important;
-            color: white;
-        }
-        
-        /* Date row - first three columns also get the color */
-        thead tr:nth-child(3) th:nth-child(1),
-        thead tr:nth-child(3) th:nth-child(2),
-        thead tr:nth-child(3) th:nth-child(3) {
-            background: #00423e !important;
-        }
-        
-        /* Banded rows - alternating colors */
-        tbody tr:nth-child(even) td {
-            background-color: #dce6f1;
-        }
-        
-        tbody tr:nth-child(odd) td {
-            background-color: #f9f9f9;
-        }
-        
-        /* Apply banded colors to frozen columns too */
-        tbody tr:nth-child(even) td:nth-child(1),
-        tbody tr:nth-child(even) td:nth-child(2),
-        tbody tr:nth-child(even) td:nth-child(3) {
-            background-color: #bbdefb;
-        }
-        
-        tbody tr:nth-child(odd) td:nth-child(1),
-        tbody tr:nth-child(odd) td:nth-child(2),
-        tbody tr:nth-child(odd) td:nth-child(3) {
-            background-color: #e3f2fd;
-        }
-        
-        /* Number alignment and formatting */
-        td.number {
-            text-align: right;
-            font-variant-numeric: tabular-nums;
-        }
-        
-        /* TOTAL row styling */
-        tbody tr.total-row td {
-            background: #002351 !important;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-        }
-        
-        /* Compact data columns */
-        th:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(3)),
-        td:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(3)) {
-            min-width: 50px;
-            max-width: 65px;
-            font-size: 11px;
-            padding: 4px 3px;
-        }
-        
-        /* Increase font size for tbody data cells */
-        tbody td:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(3)) {
-            font-size: 13px;
-        }
-        
-        /* Loading spinner */
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Header title */
-        .page-header {
-            text-align: center;
-            padding: 15px;
-            background: #00423e;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            position: sticky;
-            top: 0;
-            z-index: 20;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d0f14">
+<title>LMF · Contribution Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ac:  #00c87a;
+  --acl: rgba(0,200,122,.13);
+  --rd:  #ef4444;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:        #0d0f14;
+    --card:      #181c26;
+    --br:        rgba(255,255,255,.07);
+    --br2:       rgba(255,255,255,.14);
+    --t1:        #eef0f8;
+    --t2:        rgba(238,240,248,.6);
+    --t3:        rgba(238,240,248,.32);
+    --row-even:  rgba(255,255,255,.03);
+    --row-odd:   transparent;
+    --hdr-bg:    #0d1f1a;
+    --hdr-sub:   #121d19;
+    --freeze-bg: #181c26;
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:        #f0f4f2;
+    --card:      #fff;
+    --br:        rgba(0,0,0,.07);
+    --br2:       rgba(0,0,0,.13);
+    --t1:        #111827;
+    --t2:        rgba(17,24,39,.6);
+    --t3:        rgba(17,24,39,.35);
+    --row-even:  rgba(0,0,0,.025);
+    --row-odd:   transparent;
+    --hdr-bg:    #0d1f1a;
+    --hdr-sub:   #0f231e;
+    --freeze-bg: #fff;
+  }
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'DM Sans',system-ui,sans-serif;overscroll-behavior:none;}
+
+/* PAGE HEADER */
+.page-hdr{position:sticky;top:0;z-index:50;background:var(--hdr-bg);border-bottom:1px solid rgba(0,200,122,.2);padding:0 16px;height:48px;display:flex;align-items:center;gap:10px;}
+.hdr-dot{width:8px;height:8px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px rgba(0,200,122,.5);flex-shrink:0;}
+.hdr-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--ac);}
+.hdr-meta{font-size:.62rem;color:rgba(238,240,248,.35);margin-left:auto;}
+
+/* LOADING / ERROR */
+.lscreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:calc(100vh - 48px);gap:12px;color:var(--t3);font-size:.85rem;}
+.spin{width:28px;height:28px;border:2.5px solid var(--br2);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* SCROLL WRAPPER */
+.tbl-wrap{width:100vw;height:calc(100vh - 48px);overflow:auto;-webkit-overflow-scrolling:touch;}
+.tbl-wrap::-webkit-scrollbar{width:5px;height:5px;}
+.tbl-wrap::-webkit-scrollbar-thumb{background:var(--br2);border-radius:3px;}
+.tbl-wrap::-webkit-scrollbar-corner{background:transparent;}
+
+/* TABLE */
+table{border-collapse:separate;border-spacing:0;width:max-content;}
+
+th,td{padding:5px 7px;white-space:nowrap;border-bottom:1px solid var(--br);border-right:1px solid var(--br);}
+
+/* THEAD */
+thead th{position:sticky;background:var(--hdr-sub);color:var(--t3);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;text-align:center;z-index:20;}
+thead tr:nth-child(1) th{top:0;height:22px;}
+thead tr:nth-child(2) th{top:22px;height:22px;color:var(--ac);font-size:9px;font-weight:800;}
+thead tr:nth-child(3) th{top:44px;height:34px;background:rgba(0,200,122,.1) !important;color:var(--ac);font-size:9px;white-space:normal;word-wrap:break-word;line-height:1.25;vertical-align:middle;min-width:50px;max-width:58px;}
+
+/* FROZEN cols — JS sets left + width */
+.cf{position:sticky;z-index:10;}
+thead .cf{z-index:30;background:var(--hdr-sub) !important;}
+thead tr:nth-child(3) .cf{background:rgba(0,200,122,.1) !important;color:var(--ac);}
+
+/* Col 1 number */
+.c1{text-align:center;font-size:10px;color:var(--t3);font-weight:600;min-width:26px;}
+/* Col 2 name */
+.c2{text-align:left;font-weight:600;font-size:12px;min-width:88px;white-space:normal;word-break:break-word;line-height:1.3;}
+th.c2{font-size:9px;color:var(--t2);}
+/* Col 3 total — accent mono */
+.c3{text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;color:var(--ac);min-width:70px;}
+th.c3{font-size:9px;}
+/* Right border emphasis on frozen section */
+.c3{border-right:2px solid rgba(0,200,122,.22) !important;}
+
+/* DATA CELLS */
+td.num{text-align:right;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);padding:5px 5px;}
+td.num-on{color:var(--t1);font-weight:600;font-size:11px;}
+
+/* BANDING */
+tbody tr:nth-child(even) td{background:var(--row-even);}
+tbody tr:nth-child(odd)  td{background:var(--row-odd);}
+/* Frozen col banding — overlay technique */
+tbody tr:nth-child(even) .cf{background:var(--freeze-bg);}
+tbody tr:nth-child(odd)  .cf{background:var(--freeze-bg);}
+tbody tr:nth-child(even) .cf::before{content:'';position:absolute;inset:0;background:var(--row-even);pointer-events:none;z-index:-1;}
+.cf{position:sticky;} /* ensure position:sticky is set for ::before to work */
+
+/* TOTAL ROW */
+tr.total-row td{background:rgba(0,200,122,.1) !important;color:var(--ac) !important;font-weight:800 !important;font-family:'JetBrains Mono',monospace;font-size:10px !important;border-top:2px solid rgba(0,200,122,.25) !important;}
+tr.total-row td.c2{font-family:'DM Sans',sans-serif;font-size:11px !important;text-transform:uppercase;letter-spacing:.05em;}
+</style>
 </head>
 <body>
-    <div class="page-header">LMF Contribution/Deposit Tracker</div>
-    <div id="loading">
-        <div class="spinner"></div>
-        <p>Loading data...</p>
-    </div>
-    <div id="error"></div>
-    <div id="tableContainer" class="table-container" style="display: none;"></div>
-    <div class="scroll-instruction" id="scrollInstruction" style="display: none;">
-        Swipe left or right to view all weeks
-    </div>
 
-    <script>
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfQdBVl01cxsIoGnfJLltGDuOkIVDFqj-rNg3KwFVZ8-GGbUqk1DSs_CVaygisjaLhg30g1gjzIsdC/pub?gid=2079453016&single=true&output=csv';
-        
-        function parseCSV(text) {
-            const lines = [];
-            let currentLine = [];
-            let currentField = '';
-            let inQuotes = false;
-            
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-                const nextChar = text[i + 1];
-                
-                if (char === '"') {
-                    if (inQuotes && nextChar === '"') {
-                        currentField += '"';
-                        i++;
-                    } else {
-                        inQuotes = !inQuotes;
-                    }
-                } else if (char === ',' && !inQuotes) {
-                    currentLine.push(currentField);
-                    currentField = '';
-                } else if ((char === '\n' || char === '\r') && !inQuotes) {
-                    if (currentField || currentLine.length > 0) {
-                        currentLine.push(currentField);
-                        lines.push(currentLine);
-                        currentLine = [];
-                        currentField = '';
-                    }
-                    if (char === '\r' && nextChar === '\n') {
-                        i++;
-                    }
-                } else {
-                    currentField += char;
-                }
-            }
-            
-            if (currentField || currentLine.length > 0) {
-                currentLine.push(currentField);
-                lines.push(currentLine);
-            }
-            
-            return lines;
-        }
-        
-        function isNumeric(value) {
-            if (!value || value.trim() === '') return false;
-            const num = value.replace(/,/g, '');
-            return !isNaN(num) && !isNaN(parseFloat(num));
-        }
-        
-        function formatNumber(value) {
-            const num = parseFloat(value.replace(/,/g, ''));
-            if (isNaN(num)) return value;
-            return Math.round(num).toLocaleString('en-US');
-        }
-        
-        function createTable(data) {
-            if (!data || data.length < 5) {
-                throw new Error('Not enough data found');
-            }
-            
-            // Skip first 4 rows
-            // Row 5 (index 4) = Week numbers
-            // Row 6 (index 5) = Months
-            // Row 7 (index 6) = Dates
-            const weekRow = data[4];
-            const monthRow = data[5];
-            const dateRow = data[6];
-            const dataRows = data.slice(7).filter(row => row.some(cell => cell && cell.trim()));
-            
-            const table = document.createElement('table');
-            const thead = document.createElement('thead');
-            const tbody = document.createElement('tbody');
-            
-            // Create week number row
-            const weekTr = document.createElement('tr');
-            // Add blank cells for first three columns
-            const blankWeek1 = document.createElement('th');
-            const blankWeek2 = document.createElement('th');
-            const blankWeek3 = document.createElement('th');
-            blankWeek3.textContent = 'WEEK NO.';
-            blankWeek3.style.color = 'black';
-            blankWeek3.style.fontWeight = 'bold';
-            weekTr.appendChild(blankWeek1);
-            weekTr.appendChild(blankWeek2);
-            weekTr.appendChild(blankWeek3);
-            
-            for (let i = 3; i < weekRow.length; i++) {
-                const th = document.createElement('th');
-                th.textContent = weekRow[i] || '';
-                weekTr.appendChild(th);
-            }
-            thead.appendChild(weekTr);
-            
-            // Create month row with merged cells
-            const monthTr = document.createElement('tr');
-            // Add blank cells for first three columns
-            const blankMonth1 = document.createElement('th');
-            const blankMonth2 = document.createElement('th');
-            const blankMonth3 = document.createElement('th');
-            blankMonth3.textContent = 'MONTH';
-            blankMonth3.style.color = 'black';
-            blankMonth3.style.fontWeight = 'bold';
-            monthTr.appendChild(blankMonth1);
-            monthTr.appendChild(blankMonth2);
-            monthTr.appendChild(blankMonth3);
-            
-            // Track merged month cells
-            let i = 3;
-            while (i < monthRow.length) {
-                const monthValue = monthRow[i] || '';
-                let colspan = 1;
-                
-                // Count consecutive cells with same month
-                while (i + colspan < monthRow.length && monthRow[i + colspan] === monthValue) {
-                    colspan++;
-                }
-                
-                const th = document.createElement('th');
-                th.textContent = monthValue;
-                if (colspan > 1) {
-                    th.setAttribute('colspan', colspan);
-                }
-                monthTr.appendChild(th);
-                
-                i += colspan;
-            }
-            thead.appendChild(monthTr);
-            
-            // Create date row
-            const dateTr = document.createElement('tr');
-            // Add blank cells for first three columns
-            const blankDate1 = document.createElement('th');
-            const blankDate2 = document.createElement('th');
-            const blankDate3 = document.createElement('th');
-            blankDate3.textContent = 'TOTAL';
-            blankDate3.style.color = 'white';
-            blankDate3.style.fontWeight = 'bold';
-            dateTr.appendChild(blankDate1);
-            dateTr.appendChild(blankDate2);
-            dateTr.appendChild(blankDate3);
-            
-            for (let i = 3; i < dateRow.length; i++) {
-                const th = document.createElement('th');
-                th.textContent = dateRow[i] || '';
-                dateTr.appendChild(th);
-            }
-            thead.appendChild(dateTr);
-            
-            // Create data rows
-            dataRows.forEach(row => {
-                const tr = document.createElement('tr');
-                
-                // Check if this is a TOTAL row (look for "TOTAL" in first or second column)
-                const isTotal = (row[0] && row[0].toUpperCase().includes('TOTAL')) || 
-                               (row[1] && row[1].toUpperCase().includes('TOTAL'));
-                if (isTotal) {
-                    tr.classList.add('total-row');
-                }
-                
-                for (let i = 0; i < Math.max(row.length, weekRow.length); i++) {
-                    const td = document.createElement('td');
-                    let value = row[i] || '';
-                    
-                    // Column 1 - text only
-                    if (i === 0) {
-                        td.textContent = value;
-                    } 
-                    // Column 2 - text with wrapping after "/"
-                    else if (i === 1) {
-                        if (value.includes('/')) {
-                            value = value.replace('/', '/\n');
-                        }
-                        td.textContent = value;
-                        td.style.whiteSpace = 'pre-line';
-                    }
-                    // Column 3 - numbers with commas, no decimals, bold, right-aligned
-                    else if (i === 2) {
-                        if (isNumeric(value)) {
-                            td.textContent = formatNumber(value);
-                        } else {
-                            td.textContent = value;
-                        }
-                        // Right-aligned and bold (already styled in CSS)
-                    }
-                    // Other columns - check if numeric
-                    else {
-                        if (isNumeric(value)) {
-                            td.textContent = formatNumber(value);
-                            td.classList.add('number');
-                        } else {
-                            td.textContent = value;
-                        }
-                    }
-                    
-                    tr.appendChild(td);
-                }
-                tbody.appendChild(tr);
-            });
-            
-            table.appendChild(thead);
-            table.appendChild(tbody);
-            
-            const container = document.getElementById('tableContainer');
-            container.innerHTML = '';
-            container.appendChild(table);
-            container.style.display = 'block';
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('scrollInstruction').style.display = 'flex';
-            
-            // Calculate dynamic widths for first three columns
-            setTimeout(() => {
-                const col1Cells = table.querySelectorAll('td:nth-child(1), th:nth-child(1)');
-                const col2Cells = table.querySelectorAll('td:nth-child(2), th:nth-child(2)');
-                const col3Cells = table.querySelectorAll('td:nth-child(3), th:nth-child(3)');
-                
-                let maxCol1 = 0;
-                let maxCol2 = 0;
-                let maxCol3 = 0;
-                
-                col1Cells.forEach(cell => maxCol1 = Math.max(maxCol1, cell.scrollWidth));
-                col2Cells.forEach(cell => maxCol2 = Math.max(maxCol2, cell.scrollWidth));
-                col3Cells.forEach(cell => maxCol3 = Math.max(maxCol3, cell.scrollWidth));
-                
-                // Add some padding
-                maxCol1 += 8;
-                maxCol2 += 8;
-                maxCol3 += 8;
-                
-                // Ensure total doesn't exceed 33.33vw
-                const maxTotal = window.innerWidth * 0.3333;
-                const total = maxCol1 + maxCol2 + maxCol3;
-                
-                if (total > maxTotal) {
-                    const scale = maxTotal / total;
-                    maxCol1 *= scale;
-                    maxCol2 *= scale;
-                    maxCol3 *= scale;
-                }
-                
-                // Set the widths
-                col1Cells.forEach(cell => cell.style.width = maxCol1 + 'px');
-                col2Cells.forEach(cell => {
-                    cell.style.width = maxCol2 + 'px';
-                    cell.style.left = maxCol1 + 'px';
-                });
-                col3Cells.forEach(cell => {
-                    cell.style.width = maxCol3 + 'px';
-                    cell.style.left = (maxCol1 + maxCol2) + 'px';
-                });
-            }, 100);
-        }
-        
-        async function loadData() {
-            try {
-                const response = await fetch(CSV_URL);
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-                }
-                
-                const text = await response.text();
-                const data = parseCSV(text);
-                createTable(data);
-            } catch (error) {
-                console.error('Error loading data:', error);
-                document.getElementById('loading').style.display = 'none';
-                const errorDiv = document.getElementById('error');
-                errorDiv.textContent = `Error loading data: ${error.message}. Pull down to refresh.`;
-                errorDiv.style.display = 'block';
-            }
-        }
-        
-        // Load data on page load
-        loadData();
-    </script>
+<div class="page-hdr">
+  <div class="hdr-dot"></div>
+  <div class="hdr-title">LMF · Contribution Tracker</div>
+  <div class="hdr-meta" id="hdrMeta">Loading…</div>
+</div>
+
+<div id="loading" class="lscreen">
+  <div class="spin"></div>
+  <div>Loading contributions…</div>
+</div>
+
+<div id="error" class="lscreen" style="display:none;">
+  <div style="font-size:1.4rem">⚠️</div>
+  <div id="errMsg" style="color:var(--rd);text-align:center;padding:0 28px;font-size:.8rem;"></div>
+</div>
+
+<div id="tblWrap" class="tbl-wrap" style="display:none;"></div>
+
+<script>
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfQdBVl01cxsIoGnfJLltGDuOkIVDFqj-rNg3KwFVZ8-GGbUqk1DSs_CVaygisjaLhg30g1gjzIsdC/pub?gid=2079453016&single=true&output=csv';
+
+function parseCSV(text) {
+  const lines = []; let row = [], f = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], n = text[i+1];
+    if (c==='"') { if (q&&n==='"'){f+='"';i++;} else q=!q; }
+    else if (c===','&&!q) { row.push(f); f=''; }
+    else if ((c==='\n'||c==='\r')&&!q) {
+      if (f||row.length){row.push(f);lines.push(row);row=[];f='';}
+      if (c==='\r'&&n==='\n') i++;
+    } else f+=c;
+  }
+  if (f||row.length){row.push(f);lines.push(row);}
+  return lines;
+}
+
+const isNum = v => v && v.trim() && !isNaN(parseFloat(v.replace(/,/g,'')));
+const fmt   = v => { const n=parseFloat(v.replace(/,/g,'')); return isNaN(n)?v:Math.round(n).toLocaleString('en-KE'); };
+
+function build(data) {
+  if (!data||data.length<8) throw new Error('Insufficient data rows');
+  const weekRow  = data[4];
+  const monthRow = data[5];
+  const dateRow  = data[6];
+  const dataRows = data.slice(7).filter(r=>r.some(c=>c&&c.trim()));
+
+  const tbl   = document.createElement('table');
+  const thead = document.createElement('thead');
+  const tbody = document.createElement('tbody');
+
+  function freezeTh(txt, colCls) {
+    const th = document.createElement('th');
+    th.textContent = txt;
+    th.className = 'cf ' + colCls;
+    return th;
+  }
+
+  // ── Row 1: Week numbers
+  const rW = document.createElement('tr');
+  rW.append(freezeTh('', 'c1'), freezeTh('MEMBER','c2'), freezeTh('TOTAL','c3'));
+  for (let i=3;i<weekRow.length;i++){const th=document.createElement('th');th.textContent=weekRow[i]||'';rW.appendChild(th);}
+  thead.appendChild(rW);
+
+  // ── Row 2: Months
+  const rM = document.createElement('tr');
+  rM.append(freezeTh('','c1'), freezeTh('','c2'), freezeTh('','c3'));
+  let mi=3;
+  while(mi<monthRow.length){
+    const val=monthRow[mi]||''; let span=1;
+    while(mi+span<monthRow.length&&monthRow[mi+span]===val) span++;
+    const th=document.createElement('th');
+    th.textContent=val; if(span>1)th.setAttribute('colspan',span);
+    rM.appendChild(th); mi+=span;
+  }
+  thead.appendChild(rM);
+
+  // ── Row 3: Dates
+  const rD = document.createElement('tr');
+  rD.append(freezeTh('#','c1'), freezeTh('ALIAS','c2'), freezeTh('TOTAL','c3'));
+  for(let i=3;i<dateRow.length;i++){const th=document.createElement('th');th.textContent=dateRow[i]||'';rD.appendChild(th);}
+  thead.appendChild(rD);
+
+  tbl.appendChild(thead);
+
+  // ── Data rows
+  dataRows.forEach(row => {
+    const tr = document.createElement('tr');
+    const isTotal = (row[0]||'').toUpperCase().includes('TOTAL')||(row[1]||'').toUpperCase().includes('TOTAL');
+    if (isTotal) tr.classList.add('total-row');
+
+    const maxC = Math.max(row.length, weekRow.length);
+    for (let i=0;i<maxC;i++){
+      const td = document.createElement('td');
+      const val = (row[i]||'').trim();
+      if (i===0) {
+        td.className='cf c1'; td.textContent=val;
+      } else if (i===1) {
+        td.className='cf c2';
+        td.textContent = val.includes('/')?val.replace('/','/ '):val;
+      } else if (i===2) {
+        td.className='cf c3';
+        td.textContent = isNum(val)?fmt(val):val;
+      } else {
+        const active = isNum(val)&&parseFloat(val.replace(/,/g,''))>0;
+        td.className = active?'num num-on':'num';
+        td.textContent = isNum(val)?fmt(val):val;
+      }
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  });
+
+  tbl.appendChild(tbody);
+
+  const wrap = document.getElementById('tblWrap');
+  wrap.innerHTML=''; wrap.appendChild(tbl); wrap.style.display='block';
+  document.getElementById('loading').style.display='none';
+
+  // ── Fix frozen column left positions after paint
+  requestAnimationFrame(()=>setTimeout(()=>{
+    let w1=0,w2=0,w3=0;
+    tbl.querySelectorAll('tr').forEach(tr=>{
+      const cells=[...tr.children];
+      if(cells[0]) w1=Math.max(w1,cells[0].offsetWidth);
+      if(cells[1]) w2=Math.max(w2,cells[1].offsetWidth);
+      if(cells[2]) w3=Math.max(w3,cells[2].offsetWidth);
+    });
+    tbl.querySelectorAll('.c1').forEach(c=>{c.style.left='0px';c.style.width=w1+'px';});
+    tbl.querySelectorAll('.c2').forEach(c=>{c.style.left=w1+'px';c.style.width=w2+'px';});
+    tbl.querySelectorAll('.c3').forEach(c=>{c.style.left=(w1+w2)+'px';c.style.width=w3+'px';});
+
+    const memberCount = dataRows.filter(r=>!(r[1]||'').toUpperCase().includes('TOTAL')).length;
+    const weekCount   = weekRow.filter(w=>w&&w.trim()).length;
+    document.getElementById('hdrMeta').textContent = memberCount+' members · '+weekCount+' weeks';
+  },100));
+}
+
+async function load() {
+  try {
+    const res = await fetch(CSV_URL+'&_='+Date.now(),{cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    build(parseCSV(await res.text()));
+  } catch(e) {
+    document.getElementById('loading').style.display='none';
+    document.getElementById('errMsg').textContent='Could not load: '+e.message;
+    document.getElementById('error').style.display='flex';
+  }
+}
+
+load();
+</script>
 </body>
 </html>
