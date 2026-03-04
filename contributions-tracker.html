@@ -8,47 +8,28 @@
 <title>LMF · Contribution Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --ac:  #00c87a;
-  --acl: rgba(0,200,122,.13);
-  --rd:  #ef4444;
-}
+:root { --ac:#00c87a; --rd:#ef4444; }
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg:           #0d0f14;
-    --card:         #181c26;
-    --br:           rgba(255,255,255,.07);
-    --br2:          rgba(255,255,255,.14);
-    --t1:           #eef0f8;
-    --t2:           rgba(238,240,248,.6);
-    --t3:           rgba(238,240,248,.32);
-    --row-even:     rgba(255,255,255,.04);
-    --row-odd:      transparent;
-    --hdr-bg:       #0d1f1a;
-    --hdr-sub:      #121d19;
-    --freeze-bg:    #0e1c16;
-    --freeze-even:  #0a1810;
-    --freeze-odd:   #0e1c16;
-    --freeze-shd:   4px 0 14px rgba(0,0,0,.6);
+    --bg:#0d0f14; --br:rgba(255,255,255,.07); --br2:rgba(255,255,255,.14);
+    --t1:#eef0f8; --t2:rgba(238,240,248,.6); --t3:rgba(238,240,248,.32);
+    --row-even:rgba(255,255,255,.04); --row-odd:transparent;
+    --hdr-bg:#0b1a15; --hdr-sub:#0f211a;
+    --fz-odd:#0d1f18; --fz-even:#0a1912;
+    --fz-border:rgba(0,200,122,.35);
+    --shadow-color:rgba(0,0,0,.55);
   }
 }
 @media (prefers-color-scheme: light) {
   :root {
-    --bg:           #f0f4f2;
-    --card:         #fff;
-    --br:           rgba(0,0,0,.07);
-    --br2:          rgba(0,0,0,.13);
-    --t1:           #111827;
-    --t2:           rgba(17,24,39,.6);
-    --t3:           rgba(17,24,39,.35);
-    --row-even:     rgba(0,0,0,.03);
-    --row-odd:      transparent;
-    --hdr-bg:       #0d1f1a;
-    --hdr-sub:      #0f231e;
-    --freeze-bg:    #dff0e8;
-    --freeze-even:  #d4eade;
-    --freeze-odd:   #dff0e8;
-    --freeze-shd:   4px 0 14px rgba(0,0,0,.1);
+    --bg:#f0f4f2; --br:rgba(0,0,0,.07); --br2:rgba(0,0,0,.13);
+    --t1:#111827; --t2:rgba(17,24,39,.6); --t3:rgba(17,24,39,.35);
+    --row-even:rgba(0,0,0,.03); --row-odd:transparent;
+    --hdr-bg:#0b1a15; --hdr-sub:#0f211a;
+    --fz-odd:#e2f2ea; --fz-even:#d6ecdf;
+    --fz-border:rgba(0,150,90,.4);
+    --shadow-color:rgba(0,0,0,.15);
   }
 }
 
@@ -56,86 +37,89 @@
 html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'DM Sans',system-ui,sans-serif;overscroll-behavior:none;}
 
 /* PAGE HEADER */
-.page-hdr{position:sticky;top:0;z-index:50;background:var(--hdr-bg);border-bottom:1px solid rgba(0,200,122,.2);padding:0 16px;height:48px;display:flex;align-items:center;gap:10px;}
+.page-hdr{position:sticky;top:0;z-index:50;background:var(--hdr-bg);border-bottom:1px solid rgba(0,200,122,.2);padding:0 16px;height:48px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .hdr-dot{width:8px;height:8px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px rgba(0,200,122,.5);flex-shrink:0;}
 .hdr-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--ac);}
 .hdr-meta{font-size:.62rem;color:rgba(238,240,248,.35);margin-left:auto;}
 
 /* LOADING / ERROR */
-.lscreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:calc(100vh - 48px);gap:12px;color:var(--t3);font-size:.85rem;}
+.lscreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:calc(100dvh - 48px);gap:12px;color:var(--t3);font-size:.85rem;}
 .spin{width:28px;height:28px;border:2.5px solid var(--br2);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
 /* SCROLL WRAPPER */
-.tbl-wrap{width:100vw;height:calc(100vh - 48px);height:calc(100dvh - 48px);overflow:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,8px);}
+.tbl-wrap{
+  position:relative;
+  width:100vw;
+  height:calc(100vh - 48px);
+  height:calc(100dvh - 48px);
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:env(safe-area-inset-bottom,8px);
+}
 .tbl-wrap::-webkit-scrollbar{width:5px;height:5px;}
 .tbl-wrap::-webkit-scrollbar-thumb{background:var(--br2);border-radius:3px;}
 .tbl-wrap::-webkit-scrollbar-corner{background:transparent;}
 
+/* SHADOW OVERLAY — sticky div injected by JS, sits right of col3 */
+.freeze-shadow {
+  position: sticky;
+  left: 0;           /* JS sets this to w1+w2+w3 */
+  top: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 40;
+  float: left;       /* pulls it out of table flow */
+}
+.freeze-shadow::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: -9999px;
+  left: 0;
+  width: 20px;
+  height: 99999px;
+  background: linear-gradient(to right, var(--shadow-color) 0%, transparent 100%);
+}
+
 /* TABLE */
 table{border-collapse:separate;border-spacing:0;width:max-content;}
-
-th,td{padding:5px 7px;white-space:nowrap;border-bottom:1px solid var(--br);border-right:1px solid var(--br);}
+th,td{padding:5px 8px;white-space:nowrap;border-bottom:1px solid var(--br);border-right:1px solid var(--br);}
 
 /* THEAD */
 thead th{position:sticky;background:var(--hdr-sub);color:var(--t3);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;text-align:center;z-index:20;}
 thead tr:nth-child(1) th{top:0;height:22px;}
-thead tr:nth-child(2) th{top:22px;height:22px;color:var(--ac);font-size:9px;font-weight:800;}
-thead tr:nth-child(3) th{top:44px;height:34px;background:rgba(0,200,122,.1) !important;color:var(--ac);font-size:9px;white-space:normal;word-wrap:break-word;line-height:1.25;vertical-align:middle;min-width:50px;max-width:58px;}
+thead tr:nth-child(2) th{top:22px;height:22px;color:var(--ac);font-weight:800;}
+thead tr:nth-child(3) th{top:44px;height:34px;background:rgba(0,200,122,.1) !important;color:var(--ac);white-space:normal;word-wrap:break-word;line-height:1.25;vertical-align:middle;min-width:50px;max-width:58px;}
 
-/* FROZEN cols — JS sets left + width */
-.cf{position:sticky;z-index:10;background:var(--freeze-odd);}
+/* FROZEN COLS */
+.cf{position:sticky;z-index:10;background:var(--fz-odd);}
 thead .cf{z-index:30;background:var(--hdr-sub) !important;}
-thead tr:nth-child(3) .cf{background:rgba(0,200,122,.15) !important;color:var(--ac);}
+thead tr:nth-child(3) .cf{background:rgba(0,200,122,.12) !important;color:var(--ac);}
 
-/* Col 1 number */
-.c1{text-align:center;font-size:10px;color:var(--t2);font-weight:700;min-width:26px;}
-/* Col 2 name */
+/* Col styling */
+.c1{text-align:center;font-size:10px;color:var(--t3);font-weight:600;min-width:26px;}
 .c2{text-align:left;font-weight:700;font-size:12px;min-width:88px;white-space:normal;word-break:break-word;line-height:1.3;}
-th.c2{font-size:9px;color:var(--t2);}
-/* Col 3 total — accent mono */
-.c3{position:relative;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:11px;color:var(--ac);min-width:70px;overflow:visible;}
+th.c2{font-size:9px;color:var(--t2);white-space:nowrap;}
+.c3{text-align:right;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:11px;color:var(--ac);min-width:72px;border-right:2px solid var(--fz-border) !important;}
 th.c3{font-size:9px;}
-/* Separator border on col3 right edge */
-.c3{border-right:2px solid rgba(0,200,122,.4) !important;}
-
-/* Shadow illusion — pseudo-element bleeds right from col3 into scrollable area */
-td.c3::after, th.c3::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -18px;
-  width: 18px;
-  height: 100%;
-  background: linear-gradient(to right, rgba(0,0,0,.18) 0%, transparent 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-/* Stronger shadow in dark mode */
-@media (prefers-color-scheme: dark) {
-  td.c3::after, th.c3::after {
-    background: linear-gradient(to right, rgba(0,0,0,.5) 0%, transparent 100%);
-    width: 22px;
-    right: -22px;
-  }
-}
 
 /* DATA CELLS */
-td.num{text-align:right;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);padding:5px 5px;}
+td.num{text-align:right;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);padding:5px 6px;}
 td.num-on{color:var(--t1);font-weight:600;font-size:11px;}
 
-/* BANDING — data cols only (excludes frozen) */
+/* BANDING — excludes frozen cols */
 tbody tr:nth-child(even) td:not(.cf){background:var(--row-even);}
 tbody tr:nth-child(odd)  td:not(.cf){background:var(--row-odd);}
-/* BANDING — frozen cols: solid distinct background, no bleed-through */
-tbody tr:nth-child(even) td.cf{background:var(--freeze-even) !important;}
-tbody tr:nth-child(odd)  td.cf{background:var(--freeze-odd) !important;}
-/* Default frozen bg for anything not caught above */
-td.cf{background:var(--freeze-odd);}
+tbody tr:nth-child(even) td.cf{background:var(--fz-even) !important;}
+tbody tr:nth-child(odd)  td.cf{background:var(--fz-odd)  !important;}
 
 /* TOTAL ROW */
-tr.total-row td{background:rgba(0,200,122,.1) !important;color:var(--ac) !important;font-weight:800 !important;font-family:'JetBrains Mono',monospace;font-size:10px !important;border-top:2px solid rgba(0,200,122,.25) !important;}
-tr.total-row td.c2{font-family:'DM Sans',sans-serif;font-size:11px !important;text-transform:uppercase;letter-spacing:.05em;}
+tr.total-row td{background:rgba(0,200,122,.1) !important;color:var(--ac) !important;font-weight:800 !important;font-family:'JetBrains Mono',monospace;font-size:10px !important;border-top:2px solid rgba(0,200,122,.3) !important;}
+tr.total-row td.cf{background:rgba(0,200,122,.18) !important;}
+tr.total-row td.c2{font-family:'DM Sans',sans-serif;font-size:11px !important;text-transform:uppercase;letter-spacing:.04em;}
 </style>
 </head>
 <body>
@@ -162,90 +146,90 @@ tr.total-row td.c2{font-family:'DM Sans',sans-serif;font-size:11px !important;te
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfQdBVl01cxsIoGnfJLltGDuOkIVDFqj-rNg3KwFVZ8-GGbUqk1DSs_CVaygisjaLhg30g1gjzIsdC/pub?gid=2079453016&single=true&output=csv';
 
 function parseCSV(text) {
-  const lines = []; let row = [], f = '', q = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i], n = text[i+1];
-    if (c==='"') { if (q&&n==='"'){f+='"';i++;} else q=!q; }
-    else if (c===','&&!q) { row.push(f); f=''; }
-    else if ((c==='\n'||c==='\r')&&!q) {
-      if (f||row.length){row.push(f);lines.push(row);row=[];f='';}
-      if (c==='\r'&&n==='\n') i++;
-    } else f+=c;
+  const lines=[]; let row=[],f='',q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i],n=text[i+1];
+    if(c==='"'){if(q&&n==='"'){f+='"';i++;}else q=!q;}
+    else if(c===','&&!q){row.push(f);f='';}
+    else if((c==='\n'||c==='\r')&&!q){
+      if(f||row.length){row.push(f);lines.push(row);row=[];f='';}
+      if(c==='\r'&&n==='\n')i++;
+    }else f+=c;
   }
-  if (f||row.length){row.push(f);lines.push(row);}
+  if(f||row.length){row.push(f);lines.push(row);}
   return lines;
 }
 
-const isNum = v => v && v.trim() && !isNaN(parseFloat(v.replace(/,/g,'')));
+const isNum = v => v&&v.trim()&&!isNaN(parseFloat(v.replace(/,/g,'')));
 const fmt   = v => { const n=parseFloat(v.replace(/,/g,'')); return isNaN(n)?v:Math.round(n).toLocaleString('en-KE'); };
 
 function build(data) {
-  if (!data||data.length<8) throw new Error('Insufficient data rows');
-  const weekRow  = data[4];
-  const monthRow = data[5];
-  const dateRow  = data[6];
-  const dataRows = data.slice(7).filter(r=>r.some(c=>c&&c.trim()));
-
-  const tbl   = document.createElement('table');
-  const thead = document.createElement('thead');
-  const tbody = document.createElement('tbody');
-
-  function freezeTh(txt, colCls) {
-    const th = document.createElement('th');
-    th.textContent = txt;
-    th.className = 'cf ' + colCls;
-    return th;
+  // Find header rows — look for row containing 'Alias' or 'ALIAS' in col 3
+  let baseRow = 4;
+  for(let i=0;i<Math.min(data.length,10);i++){
+    if((data[i][3]||'').toString().toLowerCase().includes('alias')){
+      baseRow = i - 2; // week row is 2 above alias row
+      break;
+    }
   }
+  baseRow = Math.max(0, baseRow);
 
-  // ── Row 1: Week numbers
-  const rW = document.createElement('tr');
-  rW.append(freezeTh('', 'c1'), freezeTh('MEMBER','c2'), freezeTh('TOTAL','c3'));
-  for (let i=3;i<weekRow.length;i++){const th=document.createElement('th');th.textContent=weekRow[i]||'';rW.appendChild(th);}
+  const weekRow  = data[baseRow]   || [];
+  const monthRow = data[baseRow+1] || [];
+  const dateRow  = data[baseRow+2] || [];
+  const dataRows = data.slice(baseRow+3).filter(r=>r.some(c=>c&&c.trim()));
+
+  if(!dataRows.length) throw new Error('No data rows found');
+
+  const tbl=document.createElement('table');
+  const thead=document.createElement('thead');
+  const tbody=document.createElement('tbody');
+
+  const mkTh=(txt,cls)=>{const th=document.createElement('th');th.textContent=txt;th.className=cls;return th;};
+
+  // Row 1: week numbers
+  const rW=document.createElement('tr');
+  rW.append(mkTh('','cf c1'), mkTh('MEMBER','cf c2'), mkTh('TOTAL','cf c3'));
+  for(let i=3;i<weekRow.length;i++){const th=document.createElement('th');th.textContent=weekRow[i]||'';rW.appendChild(th);}
   thead.appendChild(rW);
 
-  // ── Row 2: Months
-  const rM = document.createElement('tr');
-  rM.append(freezeTh('','c1'), freezeTh('','c2'), freezeTh('','c3'));
+  // Row 2: months
+  const rM=document.createElement('tr');
+  rM.append(mkTh('','cf c1'), mkTh('','cf c2'), mkTh('','cf c3'));
   let mi=3;
   while(mi<monthRow.length){
     const val=monthRow[mi]||''; let span=1;
-    while(mi+span<monthRow.length&&monthRow[mi+span]===val) span++;
+    while(mi+span<monthRow.length&&monthRow[mi+span]===val)span++;
     const th=document.createElement('th');
     th.textContent=val; if(span>1)th.setAttribute('colspan',span);
     rM.appendChild(th); mi+=span;
   }
   thead.appendChild(rM);
 
-  // ── Row 3: Dates
-  const rD = document.createElement('tr');
-  rD.append(freezeTh('#','c1'), freezeTh('ALIAS','c2'), freezeTh('TOTAL','c3'));
+  // Row 3: dates
+  const rD=document.createElement('tr');
+  rD.append(mkTh('#','cf c1'), mkTh('ALIAS','cf c2'), mkTh('TOTAL','cf c3'));
   for(let i=3;i<dateRow.length;i++){const th=document.createElement('th');th.textContent=dateRow[i]||'';rD.appendChild(th);}
   thead.appendChild(rD);
 
   tbl.appendChild(thead);
 
-  // ── Data rows
-  dataRows.forEach(row => {
-    const tr = document.createElement('tr');
-    const isTotal = (row[0]||'').toUpperCase().includes('TOTAL')||(row[1]||'').toUpperCase().includes('TOTAL');
-    if (isTotal) tr.classList.add('total-row');
-
-    const maxC = Math.max(row.length, weekRow.length);
-    for (let i=0;i<maxC;i++){
-      const td = document.createElement('td');
-      const val = (row[i]||'').trim();
-      if (i===0) {
-        td.className='cf c1'; td.textContent=val;
-      } else if (i===1) {
-        td.className='cf c2';
-        td.textContent = val.includes('/')?val.replace('/','/ '):val;
-      } else if (i===2) {
-        td.className='cf c3';
-        td.textContent = isNum(val)?fmt(val):val;
-      } else {
-        const active = isNum(val)&&parseFloat(val.replace(/,/g,''))>0;
-        td.className = active?'num num-on':'num';
-        td.textContent = isNum(val)?fmt(val):val;
+  // Data rows
+  dataRows.forEach(row=>{
+    const tr=document.createElement('tr');
+    const isTotal=(row[0]||'').toUpperCase().includes('TOTAL')||(row[1]||'').toUpperCase().includes('TOTAL');
+    if(isTotal)tr.classList.add('total-row');
+    const maxC=Math.max(row.length,weekRow.length);
+    for(let i=0;i<maxC;i++){
+      const td=document.createElement('td');
+      const val=(row[i]||'').trim();
+      if(i===0){td.className='cf c1';td.textContent=val;}
+      else if(i===1){td.className='cf c2';td.textContent=val.includes('/')?val.replace('/','/ '):val;}
+      else if(i===2){td.className='cf c3';td.textContent=isNum(val)?fmt(val):val;}
+      else{
+        const on=isNum(val)&&parseFloat(val.replace(/,/g,''))>0;
+        td.className=on?'num num-on':'num';
+        td.textContent=isNum(val)?fmt(val):val;
       }
       tr.appendChild(td);
     }
@@ -254,38 +238,47 @@ function build(data) {
 
   tbl.appendChild(tbody);
 
-  const wrap = document.getElementById('tblWrap');
-  wrap.innerHTML=''; wrap.appendChild(tbl); wrap.style.display='block';
+  const wrap=document.getElementById('tblWrap');
+  wrap.innerHTML='';
+  wrap.appendChild(tbl);
+  wrap.style.display='block';
   document.getElementById('loading').style.display='none';
 
-  // ── Fix frozen column left positions after paint
+  // Fix frozen col positions + inject shadow overlay
   requestAnimationFrame(()=>setTimeout(()=>{
     let w1=0,w2=0,w3=0;
     tbl.querySelectorAll('tr').forEach(tr=>{
-      const cells=[...tr.children];
-      if(cells[0]) w1=Math.max(w1,cells[0].offsetWidth);
-      if(cells[1]) w2=Math.max(w2,cells[1].offsetWidth);
-      if(cells[2]) w3=Math.max(w3,cells[2].offsetWidth);
+      const c=[...tr.children];
+      if(c[0])w1=Math.max(w1,c[0].offsetWidth);
+      if(c[1])w2=Math.max(w2,c[1].offsetWidth);
+      if(c[2])w3=Math.max(w3,c[2].offsetWidth);
     });
     tbl.querySelectorAll('.c1').forEach(c=>{c.style.left='0px';c.style.width=w1+'px';});
     tbl.querySelectorAll('.c2').forEach(c=>{c.style.left=w1+'px';c.style.width=w2+'px';});
     tbl.querySelectorAll('.c3').forEach(c=>{c.style.left=(w1+w2)+'px';c.style.width=w3+'px';});
 
-    const memberCount = dataRows.filter(r=>!(r[1]||'').toUpperCase().includes('TOTAL')).length;
-    const weekCount   = weekRow.filter(w=>w&&w.trim()).length;
-    document.getElementById('hdrMeta').textContent = memberCount+' members · '+weekCount+' weeks';
+    // Inject shadow overlay div — sits at left edge of scrollable area
+    const shd=document.createElement('div');
+    shd.className='freeze-shadow';
+    shd.style.left=(w1+w2+w3)+'px';
+    wrap.appendChild(shd);
+
+    const mc=dataRows.filter(r=>!(r[1]||'').toUpperCase().includes('TOTAL')).length;
+    const wc=weekRow.filter(w=>w&&w.trim()).length;
+    document.getElementById('hdrMeta').textContent=mc+' members · '+wc+' weeks';
   },100));
 }
 
-async function load() {
-  try {
-    const res = await fetch(CSV_URL+'&_='+Date.now(),{cache:'no-store'});
-    if(!res.ok) throw new Error('HTTP '+res.status);
+async function load(){
+  try{
+    const res=await fetch(CSV_URL+'&_='+Date.now(),{cache:'no-store'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
     build(parseCSV(await res.text()));
-  } catch(e) {
+  }catch(e){
     document.getElementById('loading').style.display='none';
     document.getElementById('errMsg').textContent='Could not load: '+e.message;
     document.getElementById('error').style.display='flex';
+    console.error(e);
   }
 }
 
