@@ -97,18 +97,20 @@ th.c2{font-size:9px;color:var(--t2);}
 .c3{text-align:right;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:11px;color:var(--ac);min-width:70px;}
 th.c3{font-size:9px;}
 /* Right border shadow — visually separates frozen from scrollable */
-.c3{border-right:2px solid rgba(0,200,122,.3) !important;box-shadow:var(--freeze-shd);}
+.c3{border-right:2px solid rgba(0,200,122,.35) !important;box-shadow:var(--freeze-shd);clip-path:inset(0 -20px 0 0);}
 
 /* DATA CELLS */
 td.num{text-align:right;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);padding:5px 5px;}
 td.num-on{color:var(--t1);font-weight:600;font-size:11px;}
 
-/* BANDING — data cols */
-tbody tr:nth-child(even) td{background:var(--row-even);}
-tbody tr:nth-child(odd)  td{background:var(--row-odd);}
-/* BANDING — frozen cols get their own distinct even/odd */
+/* BANDING — data cols only (excludes frozen) */
+tbody tr:nth-child(even) td:not(.cf){background:var(--row-even);}
+tbody tr:nth-child(odd)  td:not(.cf){background:var(--row-odd);}
+/* BANDING — frozen cols: solid distinct background, no bleed-through */
 tbody tr:nth-child(even) td.cf{background:var(--freeze-even) !important;}
 tbody tr:nth-child(odd)  td.cf{background:var(--freeze-odd) !important;}
+/* Default frozen bg for anything not caught above */
+td.cf{background:var(--freeze-odd);}
 
 /* TOTAL ROW */
 tr.total-row td{background:rgba(0,200,122,.1) !important;color:var(--ac) !important;font-weight:800 !important;font-family:'JetBrains Mono',monospace;font-size:10px !important;border-top:2px solid rgba(0,200,122,.25) !important;}
