@@ -94,10 +94,31 @@ thead tr:nth-child(3) .cf{background:rgba(0,200,122,.15) !important;color:var(--
 .c2{text-align:left;font-weight:700;font-size:12px;min-width:88px;white-space:normal;word-break:break-word;line-height:1.3;}
 th.c2{font-size:9px;color:var(--t2);}
 /* Col 3 total — accent mono */
-.c3{text-align:right;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:11px;color:var(--ac);min-width:70px;}
+.c3{position:relative;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:11px;color:var(--ac);min-width:70px;overflow:visible;}
 th.c3{font-size:9px;}
-/* Right border shadow — visually separates frozen from scrollable */
-.c3{border-right:2px solid rgba(0,200,122,.35) !important;box-shadow:var(--freeze-shd);clip-path:inset(0 -20px 0 0);}
+/* Separator border on col3 right edge */
+.c3{border-right:2px solid rgba(0,200,122,.4) !important;}
+
+/* Shadow illusion — pseudo-element bleeds right from col3 into scrollable area */
+td.c3::after, th.c3::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -18px;
+  width: 18px;
+  height: 100%;
+  background: linear-gradient(to right, rgba(0,0,0,.18) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+/* Stronger shadow in dark mode */
+@media (prefers-color-scheme: dark) {
+  td.c3::after, th.c3::after {
+    background: linear-gradient(to right, rgba(0,0,0,.5) 0%, transparent 100%);
+    width: 22px;
+    right: -22px;
+  }
+}
 
 /* DATA CELLS */
 td.num{text-align:right;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);padding:5px 5px;}
