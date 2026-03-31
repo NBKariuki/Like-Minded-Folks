@@ -545,15 +545,164 @@ const ADMIN_WHATSAPP       = '254700000000'; // ← replace with your number (no
 // Default icon/colour lookups — extended automatically for new members via sheet
 // New member? Just add their row to the Members tab. Icon/colour defaults apply if not in these maps.
 
-const INSPIRATIONS = [
+// ═══════════════════════════════════════════════════════════
+// GREETING SYSTEM — holidays, seasons, time-of-day, milestones
+// ═══════════════════════════════════════════════════════════
+
+// ── Easter (Anonymous Gregorian algorithm) ──────────────────
+function easterDate(yr) {
+  const a=yr%19, b=Math.floor(yr/100), c=yr%100;
+  const d=Math.floor(b/4), e=b%4, f=Math.floor((b+8)/25);
+  const g=Math.floor((b-f+1)/3), h=(19*a+b-d-g+15)%30;
+  const i=Math.floor(c/4), k=c%4, l=(32+2*e+2*i-h-k)%7;
+  const m=Math.floor((a+11*h+22*l)/451);
+  const month=Math.floor((h+l-7*m+114)/31)-1; // 0-indexed
+  const day=((h+l-7*m+114)%31)+1;
+  return {month, day};
+}
+
+// ── Hijri date approximation (Umm al-Qura algorithm) ────────
+function toHijri(date) {
+  const JD = Math.floor((date.getTime()/86400000) + 2440587.5 + 0.5);
+  const l  = JD - 1948440 + 10632;
+  const n  = Math.floor((l-1)/10631);
+  const l2 = l - 10631*n + 354;
+  const j  = Math.floor((10985-l2)/5316)*Math.floor(50*l2/17719) +
+              Math.floor(l2/5670)*Math.floor(43*l2/15238);
+  const l3 = l2 - Math.floor((30-j)/15)*Math.floor(17719*j/50) -
+              Math.floor(j/16)*Math.floor(15238*j/43) + 29;
+  const hMonth = Math.floor(24*l3/709);   // 1-indexed
+  const hDay   = l3 - Math.floor(709*hMonth/24);
+  const hYear  = 30*n + j - 30;
+  return { year: hYear, month: hMonth, day: hDay };
+}
+
+// ── Kenya public holidays (fixed-date) ──────────────────────
+const KE_HOLIDAYS = {
+  '01-01': { name: "New Year's Day",       msg: "Happy New Year! 🎆 A fresh year, a fresh start — let's make 2{YR} the one where LMF reaches new heights.",      emoji: '🎆' },
+  '05-01': { name: "Labour Day",            msg: "Happy Labour Day! 👷 Heshima kwa kila mfanyakazi. Hard work today plants the seeds of tomorrow's harvest.",       emoji: '👷' },
+  '06-01': { name: "Madaraka Day",          msg: "Happy Madaraka Day! 🇰🇪 On this day Kenya chose self-rule. We too are choosing financial freedom — together.",    emoji: '🇰🇪' },
+  '10-10': { name: "Utamaduni Day",         msg: "Utamaduni Day Njema! 🎭 Culture is our strength. Umoja ni nguvu — unity builds more than any one of us alone.",   emoji: '🎭' },
+  '10-20': { name: "Mashujaa Day",          msg: "Happy Mashujaa Day! 🦁 Honour to our heroes. Every shilling we save is a small act of courage for our future.",   emoji: '🦁' },
+  '12-12': { name: "Jamhuri Day",           msg: "Happy Jamhuri Day! 🇰🇪 60 years of independence — and we are still building, still growing, still together.",     emoji: '🇰🇪' },
+  '12-25': { name: "Christmas Day",         msg: "Merry Christmas! 🎄 Wishing every member of LMF a joyful, peaceful, and blessed Christmas with family.",         emoji: '🎄' },
+  '12-26': { name: "Boxing Day",            msg: "Happy Boxing Day! 🎁 A day to give, reflect, and appreciate. Grateful for this community we have built together.", emoji: '🎁' },
+};
+
+// ── Seasonal messages (Kenya) ────────────────────────────────
+function kenyaSeason(month, day) {
+  // Long rains: Mar–May
+  if (month >= 2 && month <= 4)
+    return { season:'Long Rains', msg: "Saving through the long rains ☔ — the best time to water your financial roots.", emoji:'☔' };
+  // Short rains: Oct–Nov
+  if (month >= 9 && month <= 10)
+    return { season:'Short Rains', msg: "The short rains are here 🌦️ — a gentle reminder that consistent deposits, like rain, make things grow.", emoji:'🌦️' };
+  // Hot dry: Jan–Feb
+  if (month <= 1)
+    return { season:'Dry Season', msg: "Kali kali ☀️ — the dry season tests our discipline. Stay consistent and the harvest will come.", emoji:'☀️' };
+  // Cool dry: Jun–Sep
+  return { season:'Cool Season', msg: "Cool and clear skies ☁️ — the perfect mindset for steady, focused saving.", emoji:'☁️' };
+}
+
+// ── Month-end awareness ──────────────────────────────────────
+function monthEndMsg(day, daysInMonth) {
+  const remaining = daysInMonth - day;
+  if (remaining <= 0)  return "Last day of the month! ⏰ Final call — is your contribution sorted?";
+  if (remaining <= 2)  return `${remaining} day${remaining>1?'s':''} to month-end ⏳ — don't let the deadline sneak up on you.`;
+  if (remaining <= 5)  return `${remaining} days to month-end 📅 — a gentle nudge: are you on track?`;
+  if (day <= 3)        return "Fresh month, fresh start 🌱 — the best time to lock in your contribution early.";
+  return null;
+}
+
+// ── Time-of-day greetings ────────────────────────────────────
+function timeGreeting(h) {
+  if (h < 5)  return "Burning the midnight oil 🌙";
+  if (h < 12) return "Good morning";
+  if (h < 14) return "Good afternoon";
+  if (h < 17) return "Good afternoon";
+  if (h < 20) return "Good evening";
+  return "Good evening";
+}
+
+// ── Regular inspiration pool (time-tuned) ───────────────────
+const INSPIRATIONS_MORNING = [
+  "Asubuhi njema — a productive morning sets the tone for the whole day. 🌅",
+  "Start the day with intention. Every great saving habit begins with one decision.",
+  "The early bird saves more. Lock in your contribution before the day gets busy.",
+  "Good morning! Discipline today. Freedom tomorrow.",
+];
+const INSPIRATIONS_DAY = [
   "Small, consistent steps build extraordinary wealth.",
   "Every contribution today is a gift to your future self.",
   "Saving together multiplies what we could never do alone.",
-  "Discipline today. Freedom tomorrow.",
-  "Wealth is built every single day.",
   "Consistency is the most underrated financial strategy.",
-  "Your commitment is an investment in yourself.",
+  "Wealth is built every single day — including today.",
 ];
+const INSPIRATIONS_EVENING = [
+  "End the day with gratitude 🙏 — you are building something real.",
+  "Usiku mwema — reflect on today. Did your money move with purpose?",
+  "Evening check-in: your future self is watching. Keep going.",
+  "The best investment you can make is in your community. You are doing it.",
+];
+const INSPIRATIONS_SWAHILI = [
+  "Umoja ni nguvu 🤝 — together we are far stronger than alone.",
+  "Haba na haba hujaza kibaba 🪣 — little by little fills the pot.",
+  "Haraka haraka haina baraka ⏳ — slow and steady wins the financial race.",
+  "Mtu ni watu 👥 — a person is defined by their community.",
+];
+
+// ── Master greeting resolver ─────────────────────────────────
+function greetLine() {
+  const now        = new Date();
+  const yr         = now.getFullYear();
+  const month      = now.getMonth();   // 0-indexed
+  const day        = now.getDate();
+  const h          = now.getHours();
+  const mmdd       = String(month+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+  const daysInMo   = new Date(yr, month+1, 0).getDate();
+  const timeGreet  = timeGreeting(h);
+
+  // 1. FIXED KENYA PUBLIC HOLIDAYS
+  if (KE_HOLIDAYS[mmdd]) {
+    const hd = KE_HOLIDAYS[mmdd];
+    return `${timeGreet} — ${hd.msg.replace('2{YR}', yr)}`;
+  }
+
+  // 2. EASTER (Good Friday = -2, Easter Sunday = 0, Easter Monday = +1)
+  const easter = easterDate(yr);
+  const easterMs  = new Date(yr, easter.month, easter.day).getTime();
+  const todayMs   = new Date(yr, month, day).getTime();
+  const easterDiff = Math.round((todayMs - easterMs) / 86400000);
+  if (easterDiff === -2) return `${timeGreet} — Good Friday 🕊️ — a solemn day of reflection. Grateful for the sacrifices that shape who we are.`;
+  if (easterDiff === 0)  return `${timeGreet} — Happy Easter! 🐣 Resurrection Sunday — a powerful symbol of new beginnings and renewed hope.`;
+  if (easterDiff === 1)  return `${timeGreet} — Happy Easter Monday! 🌸 May this season bring renewal to your finances and your spirit.`;
+
+  // 3. EID AL-FITR (Hijri month 10, day 1 — end of Ramadan)
+  const hijri = toHijri(now);
+  if (hijri.month === 10 && hijri.day <= 3)
+    return `${timeGreet} — Eid al-Fitr Mubarak! 🌙 May this blessed celebration bring joy, peace, and abundance to you and your family.`;
+
+  // 4. EID AL-ADHA (Hijri month 12, day 10)
+  if (hijri.month === 12 && hijri.day >= 10 && hijri.day <= 13)
+    return `${timeGreet} — Eid al-Adha Mubarak! 🐑 The spirit of sacrifice and gratitude — may it bless you and those you love.`;
+
+  // 5. RAMADAN greeting (Hijri month 9)
+  if (hijri.month === 9)
+    return `${timeGreet} — Ramadan Kareem 🌙 — wishing our fasting members strength, peace, and barakah this holy month.`;
+
+  // 6. MONTH-END AWARENESS
+  const meMsg = monthEndMsg(day, daysInMo);
+  if (meMsg) return `${timeGreet} — ${meMsg}`;
+
+  // 7. TIME-OF-DAY TUNED INSPIRATION (with Swahili rotation every 4th cycle)
+  const cycle = Math.floor(Date.now() / (1000*60*60*3)); // rotates every 3 hrs
+  if (cycle % 7 === 0) {
+    // Swahili rotation
+    return `${timeGreet} — ${INSPIRATIONS_SWAHILI[cycle % INSPIRATIONS_SWAHILI.length]}`;
+  }
+  const pool = h < 11 ? INSPIRATIONS_MORNING : h < 18 ? INSPIRATIONS_DAY : INSPIRATIONS_EVENING;
+  return `${timeGreet} — ${pool[cycle % pool.length]}`;
+}
 
 // Returns withdrawal window state: { state: 'off'|'open'|'closed' }
 function withdrawalWindow() {
@@ -566,13 +715,6 @@ function withdrawalWindow() {
   return { state: 'closed' };
 }
 
-function greetLine() {
-  const h = new Date().getHours();
-  const time = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  const quotes = INSPIRATIONS;
-  const quote = quotes[Math.floor(Date.now()/(1000*60*60*3)) % quotes.length];
-  return `${time} — ${quote}`;
-}
 function curMonth() { return MONTHS[new Date().getMonth()]; }
 
 function getAuth() {
