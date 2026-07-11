@@ -201,7 +201,8 @@ button,select,input{touch-action:manipulation;font-family:inherit;}
     0 14px 40px rgba(0,0,0,.3);}
 .hero::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   background:radial-gradient(130% 65% at 16% 0%, rgba(255,255,255,.4), transparent 52%);}
-.hero-lbl{font-size:var(--t-caption1);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:8px;}
+.hero-lbl{font-size:var(--t-caption1);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:8px;position:relative;}
+.hero-split{height:1px;background:var(--br);margin:22px -6px 20px;position:relative;}
 .hero-num{font-family:'Sora',sans-serif;font-size:var(--t-largetitle);font-weight:800;line-height:1;letter-spacing:-.04em;color:var(--t1);}
 .hero-sub{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;font-size:var(--t-footnote);color:var(--t3);}
 .hero-pill{background:rgba(105,190,81,.12);color:#8fe06a;padding:4px 12px;border-radius:20px;font-size:var(--t-caption1);font-weight:700;border:1px solid rgba(143,224,106,.25);letter-spacing:.02em;}
@@ -346,7 +347,7 @@ button,select,input{touch-action:manipulation;font-family:inherit;}
     linear-gradient(180deg, rgba(13,15,20,.36), rgba(13,15,20,.52)),
     linear-gradient(135deg, rgba(255,255,255,.28), rgba(255,255,255,.12) 45%, rgba(255,255,255,.20));
   border:1px solid rgba(255,255,255,.4);
-  border-radius:36px;padding:7px;
+  border-radius:32px;padding:5px;
   backdrop-filter:blur(30px) saturate(180%) brightness(1.15);-webkit-backdrop-filter:blur(30px) saturate(180%) brightness(1.15);
   box-shadow:
     inset 0 1px 1.5px rgba(255,255,255,.6),
@@ -370,13 +371,13 @@ button,select,input{touch-action:manipulation;font-family:inherit;}
   background:linear-gradient(135deg, rgba(255,255,255,.98), rgba(255,255,255,.9) 50%, rgba(255,255,255,.95));
   border:1px solid rgba(0,0,0,.08);
   box-shadow:inset 0 1px 1px rgba(255,255,255,1), 0 10px 30px rgba(0,0,0,.1), 0 2px 6px rgba(0,0,0,.06);}
-.bnav-it{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:9px 4px;border:none;background:transparent;border-radius:28px;
+.bnav-it{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:6px 4px;border:none;background:transparent;border-radius:26px;
   color:var(--t3);font-size:var(--t-caption2);font-weight:700;cursor:pointer;
   transition:all .18s;white-space:nowrap;}
 .bnav-it.on{color:var(--ac);background:var(--acl);box-shadow:inset 0 0 0 1px rgba(105,190,81,.28);}
 .bnav-it:active{transform:scale(.94);}
-.bnav-ico{font-size:1.15rem;line-height:1;}
+.bnav-ico{font-size:1rem;line-height:1;}
 /* Per-item identity colours — coral / green / amber */
 .bnav-it.bi-bal{color:#ff405f;}
 .bnav-it.bi-dep{color:#69be51;}
@@ -1688,17 +1689,34 @@ function App() {
               </div>
 
               <div className="hero">
+                {/* Top section — Group Contributions */}
                 <div className="hero-lbl">Group Contributions to Date &middot; Jan &ndash; {overviewMonth}</div>
                 <div className="hero-num">{st ? f2(st.cumC) : '—'}</div>
                 <div className="hero-sub">
                   <span style={{color:'var(--t3)'}}>This month:</span>
                   <span className="hero-pill">&#8593; KES {st ? f2(st.mTopups) : '0.00'}</span>
                 </div>
+
+                {/* Divider between the two number groups */}
+                <div className="hero-split"/>
+
+                {/* Bottom section — Group Performance */}
+                <div className="perf-nums">
+                  <div className="perf-row">
+                    <div className="perf-n int">{st ? f2(st.cumI) : '—'}</div>
+                    <div className="perf-lbl">Interest Earned</div>
+                  </div>
+                  <div className="perf-div"/>
+                  <div className="perf-row">
+                    <div className="perf-n bal">{st ? f2(st.totBal) : '—'}</div>
+                    <div className="perf-lbl">Total Group Balance</div>
+                  </div>
+                </div>
               </div>
 
               {/* Withdrawal window banner — shown from Dec 5 */}
               {wdraw.state !== 'off' && (
-                <div className={'wdraw-banner ' + wdraw.state} style={{margin:'0 0 14px'}}>
+                <div className={'wdraw-banner ' + wdraw.state} style={{margin:'14px 0 0'}}>
                   <div className="wdraw-bhead">
                     <span className="wdraw-bico">{wdraw.state === 'open' ? '🏦' : '🔒'}</span>
                     <div className="wdraw-btxt">
@@ -1717,25 +1735,6 @@ function App() {
                   </div>
                 </div>
               )}
-
-              {/* Group Performance card */}
-              <div className="perf-card">
-                <div className="perf-head">
-                  <div className="perf-ico">&#9878;</div>
-                  <div className="perf-title">Group Performance</div>
-                </div>
-                <div className="perf-nums">
-                  <div className="perf-row">
-                    <div className="perf-n int">{st ? f2(st.cumI) : '—'}</div>
-                    <div className="perf-lbl">Interest Earned</div>
-                  </div>
-                  <div className="perf-div"/>
-                  <div className="perf-row">
-                    <div className="perf-n bal">{st ? f2(st.totBal) : '—'}</div>
-                    <div className="perf-lbl">Total Group Balance</div>
-                  </div>
-                </div>
-              </div>
 
               <div className="priv"><strong>Members only.</strong> Do not share outside LMF.</div>
             </>
