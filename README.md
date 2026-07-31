@@ -2,7 +2,7 @@
 A clean, mobile-first web tracker for managing group Money Market Fund (MMF) contributions and balances.
 
 🚀 Quick Start
-Upload index.html and MMF_Tracker_2026_For_Website.xlsx to your GitHub Pages repository
+Upload index.html and MMF_Tracker_20**_For_Website.xlsx to your GitHub Pages repository
 Enable GitHub Pages in repository settings
 Share the link with your group members!
 
