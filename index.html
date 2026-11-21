@@ -571,10 +571,22 @@ const PASSWORD             = 'LikeMinded2026';
 const AUTH_DAYS            = 30;
 const CUR_YEAR             = new Date().getFullYear();
 
-// December withdrawal window — opens Dec 5, closes end of Week 3 (Dec 21)
-const WITHDRAWAL_MONTH     = 11;   // 0-indexed: December
-const WITHDRAWAL_OPEN_DAY  = 5;
-const WITHDRAWAL_CLOSE_DAY = 21;
+// Withdrawal window — opens 30 Nov 00:00, closes 5 Dec 23:59 (East Africa Time, UTC+3)
+const WITHDRAWAL_OPEN_MS = Date.UTC(CUR_YEAR, 10, 29, 21, 0, 0);   // 30 Nov 00:00 EAT
+const WITHDRAWAL_END_MS  = Date.UTC(CUR_YEAR, 11,  5, 21, 0, 0);   //  6 Dec 00:00 EAT (window ends just before)
+// Google Apps Script web app that saves requests to the Withdrawals sheet
+const WITHDRAW_URL = 'https://script.google.com/macros/s/AKfycbwSmVsOR4myuNNcdVxmB7UbghLlNVtNBDN3QsRtbxJ5P2Vyo52Q0h3IstjjLMFDJepo/exec';
+
+// Kenyan mobile number -> 2547XXXXXXXX / 2541XXXXXXXX, or '' if not valid
+function normPhone(raw) {
+  const d = String(raw||'').replace(/[\s\-()]/g,'');
+  const m = d.match(/^(?:\+?254|0)([71]\d{8})$/);
+  return m ? '254' + m[1] : '';
+}
+function showPhone(n) {
+  const l = '0' + String(n||'').replace(/^254/,'');
+  return l.length === 10 ? l.slice(0,4)+' '+l.slice(4,7)+' '+l.slice(7) : String(n||'');
+}
 // Default icon/colour lookups — extended automatically for new members via sheet
 // New member? Just add their row to the Members tab. Icon/colour defaults apply if not in these maps.
 
@@ -739,12 +751,9 @@ function greetLine() {
 
 // Returns withdrawal window state: { state: 'off'|'open'|'closed' }
 function withdrawalWindow() {
-  const now   = new Date();
-  const month = now.getMonth();
-  const day   = now.getDate();
-  if (month !== WITHDRAWAL_MONTH) return { state: 'off' };
-  if (day < WITHDRAWAL_OPEN_DAY)  return { state: 'off' };
-  if (day <= WITHDRAWAL_CLOSE_DAY) return { state: 'open', daysLeft: WITHDRAWAL_CLOSE_DAY - day + 1 };
+  const now = Date.now();
+  if (now < WITHDRAWAL_OPEN_MS) return { state: 'off' };
+  if (now < WITHDRAWAL_END_MS)  return { state: 'open', daysLeft: Math.ceil((WITHDRAWAL_END_MS - now) / 86400000) };
   return { state: 'closed' };
 }
 
@@ -1148,6 +1157,11 @@ function App() {
   const [cityColor,setCityColor]= useState(CITY_COLOR);
   const [cityBorder,setCityBorder]=useState(CITY_BORDER);
   const [wdrawAmt, setWdrawAmt] = useState('');
+  const [wdrawPhone,setWdrawPhone]= useState('');
+  const [wdrawName, setWdrawName] = useState('');
+  const [wdrawBusy, setWdrawBusy] = useState(false);
+  const [wdrawErr,  setWdrawErr]  = useState('');
+  const [wdrawEdit, setWdrawEdit] = useState(false);
   const [wdrawReqs,setWdrawReqs]= useState(() => {
     try { return JSON.parse(localStorage.getItem('mmf_wdraw_'+CUR_YEAR)||'{}'); }
     catch(e) { return {}; }
@@ -1351,7 +1365,14 @@ function App() {
   const cm      = curMonth();
   const today   = new Date().getDate();
   const wdraw   = withdrawalWindow();
-  const decData = data?.['December'];
+  // Latest balance on record for this member, whichever month it comes from
+  const latestBal = (() => {
+    for (let i = MONTHS.length - 1; i >= 0; i--) {
+      const r = data?.[MONTHS[i]]?.[alias];
+      if (r && (r.closingBalance > 0 || r.openingBalance > 0 || r.topups > 0)) return { month: MONTHS[i], bal: r.closingBalance || 0 };
+    }
+    return { month: '', bal: 0 };
+  })();
   const md      = data?.[balanceMonth]?.[alias]||{openingBalance:0,topups:0,interest:0,daysActive:0,closingBalance:0};
   const partner = pairs[alias];
   const f2 = n => n.toLocaleString('en-KE',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -1714,7 +1735,7 @@ function App() {
                 </div>
               </div>
 
-              {/* Withdrawal window banner — shown from Dec 5 */}
+              {/* Withdrawal window banner — shown from 30 Nov */}
               {wdraw.state !== 'off' && (
                 <div className={'wdraw-banner ' + wdraw.state} style={{margin:'14px 0 0'}}>
                   <div className="wdraw-bhead">
@@ -1725,8 +1746,8 @@ function App() {
                       </div>
                       <div className="wdraw-bsub">
                         {wdraw.state === 'open'
-                          ? `Go to My Balance tab to request your withdrawal. ${wdraw.daysLeft} day${wdraw.daysLeft!==1?'s':''} left — closes 21 Dec.`
-                          : 'The window closed on 21 Dec. See you next December!'}
+                          ? `Go to My Balance tab to request your withdrawal. ${wdraw.daysLeft} day${wdraw.daysLeft!==1?'s':''} left — closes 5 Dec.`
+                          : 'The window closed on 5 Dec. See you next year!'}
                       </div>
                     </div>
                     {wdraw.state === 'open' && (
@@ -1822,29 +1843,51 @@ function App() {
             )}
 
             {wdraw.state === 'open' ? (
-              /* ── DECEMBER: hide chart, show withdrawal form ── */
+              /* ── WITHDRAWAL WINDOW: hide chart, show withdrawal form ── */
               (() => {
-                const decBal = decData?.[alias]?.closingBalance || 0;
+                const decBal = latestBal.bal;
                 const reqAmt = parseFloat(wdrawAmt) || 0;
                 const remaining = decBal - reqAmt;
                 const existing = wdrawReqs[alias];
+                const phoneN = normPhone(wdrawPhone);
+                const nameOk = wdrawName.trim().length >= 3;
+                const canSubmit = reqAmt > 0 && reqAmt <= decBal && !!phoneN && nameOk && !wdrawBusy;
+                const inpStyle = {width:'100%',padding:'12px',background:'var(--ibg)',border:'1px solid var(--br2)',borderRadius:12,color:'var(--t1)',fontFamily:"'DM Sans',sans-serif",fontSize:'var(--t-subhead)',fontWeight:600,outline:'none'};
+                const lblStyle = {margin:'14px 0 6px',fontSize:'var(--t-caption2)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.07em',color:'var(--t3)'};
 
-                const submitWithdrawal = () => {
-                  if (!reqAmt || reqAmt <= 0) return;
-                  if (reqAmt > decBal) return;
+                const submitWithdrawal = async () => {
+                  if (!canSubmit) return;
+                  setWdrawBusy(true); setWdrawErr('');
                   const req = {
                     alias,
+                    balanceMonth: latestBal.month,
                     balance:   decBal,
                     amount:    reqAmt,
                     remaining: remaining,
+                    phone:     phoneN,
+                    name:      wdrawName.trim(),
                     date:      new Date().toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'}),
                     time:      new Date().toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit',hour12:true}),
                     year:      CUR_YEAR
                   };
-                  const updated = {...wdrawReqs, [alias]: req};
-                  setWdrawReqs(updated);
-                  localStorage.setItem('mmf_wdraw_'+CUR_YEAR, JSON.stringify(updated));
-                  setWdrawAmt('');
+                  try {
+                    const res = await fetch(WITHDRAW_URL, {
+                      method: 'POST',
+                      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+                      body: JSON.stringify(req)
+                    });
+                    const out = await res.json();
+                    if (!out.ok) throw new Error(out.error || 'Not saved');
+                    const updated = {...wdrawReqs, [alias]: req};
+                    setWdrawReqs(updated);
+                    localStorage.setItem('mmf_wdraw_'+CUR_YEAR, JSON.stringify(updated));
+                    setWdrawAmt(''); setWdrawPhone(''); setWdrawName(''); setWdrawEdit(false);
+                  } catch(e) {
+                    setWdrawErr(String(e.message||'').includes('closed')
+                      ? 'The withdrawal window is closed.'
+                      : 'Could not send your request. Check your internet and try again.');
+                  }
+                  setWdrawBusy(false);
                 };
 
                 return (
@@ -1856,7 +1899,7 @@ function App() {
                     </div>
                     <div className="wdraw-cbody">
 
-                      {existing ? (
+                      {existing && !wdrawEdit ? (
                         /* Already submitted */
                         <>
                           <div style={{textAlign:'center',padding:'8px 0 16px'}}>
@@ -1865,26 +1908,35 @@ function App() {
                             <div style={{fontSize:'var(--t-caption1)',color:'var(--t3)'}}>Submitted {existing.date} at {existing.time}</div>
                           </div>
                           <div className="srow">
-                            <span className="slbl">December Balance</span>
+                            <span className="slbl">{existing.balanceMonth||'December'} Balance</span>
                             <span className="sval">{f2(existing.balance)}</span>
                           </div>
                           <div className="srow">
                             <span className="slbl">Amount Requested</span>
                             <span className="sval gr">{f2(existing.amount)}</span>
                           </div>
+                          <div className="srow">
+                            <span className="slbl">Send To</span>
+                            <span className="sval">{showPhone(existing.phone)}</span>
+                          </div>
+                          <div className="srow">
+                            <span className="slbl">Registered Name</span>
+                            <span className="sval">{existing.name}</span>
+                          </div>
                           <div className="srow" style={{borderBottom:'none'}}>
                             <span className="slbl big">Balance After</span>
                             <span className="sval hero">{f2(existing.remaining)}</span>
                           </div>
                           <div className="wdraw-note" style={{marginTop:14}}>
-                            Your request has been recorded. The admin will process it before 21 Dec.
+                            Your request has been recorded and sent to the admin. You can edit it until the window closes on 5 Dec.
                           </div>
                           <button className="wdraw-btn" style={{background:'var(--ibg)',color:'var(--t3)',border:'1px solid var(--br2)',marginTop:4}}
                             onClick={() => {
-                              const updated = {...wdrawReqs};
-                              delete updated[alias];
-                              setWdrawReqs(updated);
-                              localStorage.setItem('mmf_wdraw_'+CUR_YEAR, JSON.stringify(updated));
+                              setWdrawAmt(String(existing.amount));
+                              setWdrawPhone(existing.phone || '');
+                              setWdrawName(existing.name || '');
+                              setWdrawErr('');
+                              setWdrawEdit(true);
                             }}>
                             ✏️ Edit Request
                           </button>
@@ -1893,7 +1945,7 @@ function App() {
                         /* Withdrawal form */
                         <>
                           <div className="srow">
-                            <span className="slbl big">December Balance</span>
+                            <span className="slbl big">{latestBal.month ? latestBal.month + ' Balance' : 'Balance'}</span>
                             <span className="sval hero">{decBal > 0 ? f2(decBal) : '—'}</span>
                           </div>
                           <div style={{margin:'14px 0 6px',fontSize:'var(--t-caption2)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.07em',color:'var(--t3)'}}>Amount to Withdraw</div>
@@ -1921,13 +1973,51 @@ function App() {
                               ⚠️ Amount exceeds your balance
                             </div>
                           )}
+                          <div style={lblStyle}>M-Pesa Number to Receive Money</div>
+                          <input
+                            type="tel"
+                            value={wdrawPhone}
+                            onChange={e => setWdrawPhone(e.target.value)}
+                            placeholder="07XX XXX XXX"
+                            inputMode="tel"
+                            autoComplete="tel"
+                            style={{...inpStyle, fontFamily:"'JetBrains Mono',monospace", border:'1px solid '+(wdrawPhone && !phoneN ? 'var(--rd)' : 'var(--br2)')}}
+                          />
+                          {wdrawPhone && !phoneN && (
+                            <div style={{fontSize:'var(--t-caption2)',color:'var(--rd)',marginTop:6}}>
+                              ⚠️ Enter a valid Safaricom or Airtel number, e.g. 0712 345 678
+                            </div>
+                          )}
+                          <div style={lblStyle}>Name Registered on That Number</div>
+                          <input
+                            type="text"
+                            value={wdrawName}
+                            onChange={e => setWdrawName(e.target.value)}
+                            placeholder="As it appears on M-Pesa"
+                            autoComplete="name"
+                            style={inpStyle}
+                          />
+                          {canSubmit && (
+                            <div className="wdraw-note" style={{marginTop:14,marginBottom:0}}>
+                              Please confirm: <b>{f2(reqAmt)}</b> will be sent to <b>{showPhone(phoneN)}</b> ({wdrawName.trim()}).
+                            </div>
+                          )}
+                          {wdrawErr && (
+                            <div style={{fontSize:'var(--t-caption2)',color:'var(--rd)',marginTop:10}}>⚠️ {wdrawErr}</div>
+                          )}
                           <button
-                            className={'wdraw-btn' + (!reqAmt || reqAmt <= 0 || reqAmt > decBal ? ' disabled' : '')}
+                            className={'wdraw-btn' + (!canSubmit ? ' disabled' : '')}
                             style={{marginTop:16}}
                             onClick={submitWithdrawal}
                           >
-                            🏦 Submit Withdrawal Request
+                            {wdrawBusy ? 'Sending…' : '🏦 Submit Withdrawal Request'}
                           </button>
+                          {existing && wdrawEdit && (
+                            <button className="wdraw-btn" style={{background:'var(--ibg)',color:'var(--t3)',border:'1px solid var(--br2)',marginTop:8}}
+                              onClick={() => { setWdrawEdit(false); setWdrawErr(''); setWdrawAmt(''); setWdrawPhone(''); setWdrawName(''); }}>
+                              Cancel Edit
+                            </button>
+                          )}
                         </>
                       )}
                     </div>
@@ -1987,7 +2077,7 @@ function App() {
               <ul className="rlist">
                 <li>Minimum contribution: <strong>KES 4,000/month</strong></li>
                 <li>Interest only on months with full minimum</li>
-                <li>Withdrawals in December — window open 5–21 Dec</li>
+                <li>Withdrawals — window open 30 Nov–5 Dec</li>
                 <li>Fund: <strong>Etica MMF</strong></li>
                 <li>Maximum members: <strong>15</strong></li>
               </ul>
@@ -2045,7 +2135,7 @@ function App() {
           </div>
 
           {/* STATEMENTS MODAL */}
-          {/* Withdrawal Statement — shown in Dec if a request exists for the selected alias */}
+          {/* Withdrawal Statement — shown if a request exists for the selected alias */}
           {alias && wdrawReqs[alias] && (() => {
             const r = wdrawReqs[alias];
             return (
@@ -2062,12 +2152,20 @@ function App() {
                     </span>
                   </div>
                   <div className="srow">
-                    <span className="slbl">December Balance</span>
+                    <span className="slbl">{r.balanceMonth||'December'} Balance</span>
                     <span className="sval">{f2(r.balance)}</span>
                   </div>
                   <div className="srow">
                     <span className="slbl">Amount Requested</span>
                     <span className="sval gr">{f2(r.amount)}</span>
+                  </div>
+                  <div className="srow">
+                    <span className="slbl">Send To</span>
+                    <span className="sval">{showPhone(r.phone)}</span>
+                  </div>
+                  <div className="srow">
+                    <span className="slbl">Registered Name</span>
+                    <span className="sval">{r.name}</span>
                   </div>
                   <div className="srow" style={{borderBottom:'none'}}>
                     <span className="slbl big">Balance After Withdrawal</span>
