@@ -1,479 +1,658 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#080b0f">
 <title>Like-Minded Folks · MMF</title>
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --t-largetitle: 2.125rem;   /* 34pt */
-  --t-title1:     1.75rem;    /* 28pt */
-  --t-title2:     1.375rem;   /* 22pt */
-  --t-title3:     1.25rem;    /* 20pt */
-  --t-headline:   1.0625rem;  /* 17pt — same size as body, but bold */
-  --t-body:       1.0625rem;  /* 17pt */
-  --t-callout:    1rem;       /* 16pt */
-  --t-subhead:    0.9375rem;  /* 15pt */
-  --t-footnote:   0.8125rem;  /* 13pt */
-  --t-caption1:   0.75rem;    /* 12pt */
-  --t-caption2:   0.6875rem;  /* 11pt */
+  --font-display: 'Sora', sans-serif;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
-  /* Accent & semantic colours — same in both modes */
-  --ac:  #69be51;
-  --acl: rgba(105,190,81,.13);
-  --bl:  #3b82f6;
-  --bll: rgba(59,130,246,.13);
-  --gd:  #ffa519;
-  --gdl: rgba(255,165,25,.13);
-  --rd:  #ff405f;
-  --tr:  .25s ease;
+  --ac: #56c252;
+  --ac-soft: rgba(86, 194, 82, 0.14);
+  --ac-border: rgba(86, 194, 82, 0.32);
+  --bl: #4b91ff;
+  --bl-soft: rgba(75, 145, 255, 0.14);
+  --gd: #ffaa2b;
+  --gd-soft: rgba(255, 170, 43, 0.14);
+  --rd: #ff4d6d;
+  --rd-soft: rgba(255, 77, 109, 0.14);
+
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  --tr: 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ── DARK MODE — follows system preference automatically (Apple HIG) ── */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg:   #0a0a0a;
-    --card: #181c26;
-    --card2:#1e2232;
-    --br:   rgba(255,255,255,.07);
-    --br2:  rgba(255,255,255,.14);
-    --t1:   #eef0f8;
-    --t2:   rgba(238,240,248,.6);
-    --t3:   rgba(238,240,248,.32);
-    --sh:   0 4px 24px rgba(0,0,0,.45);
-    --shl:  0 8px 40px rgba(0,0,0,.55);
-    --ibg:  rgba(255,255,255,.05);
-    --swbg: rgba(255,255,255,.1);
-  }
+[data-theme="dark"] {
+  --bg: #080b0f;
+  --card: rgba(20, 26, 36, 0.88);
+  --card-solid: #141a24;
+  --card-alt: #1a2230;
+  --br: rgba(255, 255, 255, 0.08);
+  --br-strong: rgba(255, 255, 255, 0.16);
+  --t1: #f2f5fa;
+  --t2: rgba(242, 245, 250, 0.68);
+  --t3: rgba(242, 245, 250, 0.42);
+  --glass-shine: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.01) 55%, rgba(86,194,82,0.04));
+  --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.42);
+  --shadow-dock: 0 16px 40px rgba(0, 0, 0, 0.58);
+  --input-bg: rgba(255, 255, 255, 0.05);
 }
 
-/* ── LIGHT MODE — follows system preference automatically (Apple HIG) ── */
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg:   #e6eae7;
-    --card: #fff;
-    --card2:#f7faf8;
-    --br:   rgba(0,0,0,.07);
-    --br2:  rgba(0,0,0,.13);
-    --t1:   #111827;
-    --t2:   rgba(17,24,39,.68);
-    --t3:   rgba(17,24,39,.46);
-    --sh:   0 4px 24px rgba(0,0,0,.08);
-    --shl:  0 8px 40px rgba(0,0,0,.13);
-    --ibg:  rgba(0,0,0,.04);
-    --swbg: rgba(0,0,0,.1);
-  }
+[data-theme="light"] {
+  --bg: #edf1ef;
+  --card: rgba(255, 255, 255, 0.92);
+  --card-solid: #ffffff;
+  --card-alt: #f4f7f5;
+  --br: rgba(15, 23, 42, 0.08);
+  --br-strong: rgba(15, 23, 42, 0.15);
+  --t1: #0f172a;
+  --t2: rgba(15, 23, 42, 0.7);
+  --t3: rgba(15, 23, 42, 0.46);
+  --glass-shine: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5) 60%, rgba(86,194,82,0.05));
+  --shadow-card: 0 10px 28px rgba(15, 23, 42, 0.07);
+  --shadow-dock: 0 14px 34px rgba(15, 23, 42, 0.14);
+  --input-bg: rgba(15, 23, 42, 0.04);
 }
 
-[data-theme=dark] {
-  --bg:#0a0a0a;--card:#181c26;--card2:#1e2232;
-  --br:rgba(255,255,255,.07);--br2:rgba(255,255,255,.14);
-  --t1:#eef0f8;--t2:rgba(238,240,248,.6);--t3:rgba(238,240,248,.32);
-  --sh:0 4px 24px rgba(0,0,0,.45);--shl:0 8px 40px rgba(0,0,0,.55);
-  --ibg:rgba(255,255,255,.05);--swbg:rgba(255,255,255,.1);
-}
-[data-theme=light] {
-  --bg:#e6eae7;--card:#fff;--card2:#f7faf8;
-  --br:rgba(0,0,0,.07);--br2:rgba(0,0,0,.13);
-  --t1:#111827;--t2:rgba(17,24,39,.68);--t3:rgba(17,24,39,.46);
-  --sh:0 4px 24px rgba(0,0,0,.08);--shl:0 8px 40px rgba(0,0,0,.13);
-  --ibg:rgba(0,0,0,.04);--swbg:rgba(0,0,0,.1);
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
-@media (prefers-color-scheme: light) {
-  .nav-track {
-    background: rgba(0,0,0,.05);
-    border-color: rgba(0,0,0,.1);
-  }
-  .tab { color: rgba(17,24,39,.45); }
-  .hero-pill { color: #3f9e2e; border-color: rgba(63,158,46,.3); background: rgba(63,158,46,.1); }
-  .qac {
-    background: rgba(255,255,255,.7);
-    border-color: rgba(0,0,0,.08);
-    box-shadow: 0 2px 16px rgba(0,0,0,.07);
-  }
-  .qac-ico {
-    background: rgba(0,0,0,.05);
-    border-color: rgba(0,0,0,.08);
-  }
-  .qac-lbl { color: rgba(17,24,39,.75); }
-  .qac-arr  { color: rgba(17,24,39,.3); }
-  .qac1 { background: rgba(59,130,246,.07); border-color: rgba(59,130,246,.18); }
-  .qac1 .qac-ico { background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.2); }
-  .qac1 .qac-lbl { color: #1d4ed8; }
-  .qac2 { background: rgba(80,170,60,.07); border-color: rgba(80,170,60,.18); }
-  .qac2 .qac-ico { background: rgba(80,170,60,.1); border-color: rgba(80,170,60,.2); }
-  .qac2 .qac-lbl { color: #047857; }
-  .perf-card {
-    border-color: rgba(0,0,0,.08);
-  }
-  .perf-ico  { background: rgba(80,170,60,.08); border-color: rgba(80,170,60,.18); }
-  .perf-title{ color: rgba(17,24,39,.55); }
-  .perf-n.int{ color: rgba(17,24,39,.8); }
-  .perf-n.bal{ color: #3f9e2e; }
-  .perf-lbl  { color: rgba(17,24,39,.35); }
-  .perf-div  { background: rgba(0,0,0,.07); }
+body {
+  font-family: var(--font-sans);
+  background: radial-gradient(circle at 50% -10%, var(--ac-soft), transparent 48%), var(--bg);
+  color: var(--t1);
+  min-height: 100svh;
+  transition: background var(--tr), color var(--tr);
 }
 
-[data-theme=light] .nav-track {
-  background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.1);
+button, input, select {
+  font-family: inherit;
+  touch-action: manipulation;
 }
-[data-theme=light] .tab { color: rgba(17,24,39,.45); }
-[data-theme=light] .hero-pill { color:#3f9e2e; border-color:rgba(63,158,46,.3); background:rgba(63,158,46,.1); }
-[data-theme=light] .qac { background:rgba(255,255,255,.7); border-color:rgba(0,0,0,.08); box-shadow:0 2px 16px rgba(0,0,0,.07); }
-[data-theme=light] .qac-ico { background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.08); }
-[data-theme=light] .qac-lbl { color:rgba(17,24,39,.75); }
-[data-theme=light] .qac-arr  { color:rgba(17,24,39,.3); }
-[data-theme=light] .qac1 { background:rgba(59,130,246,.07); border-color:rgba(59,130,246,.18); }
-[data-theme=light] .qac1 .qac-ico { background:rgba(59,130,246,.1); border-color:rgba(59,130,246,.2); }
-[data-theme=light] .qac1 .qac-lbl { color:#1d4ed8; }
-[data-theme=light] .qac2 { background:rgba(80,170,60,.07); border-color:rgba(80,170,60,.18); }
-[data-theme=light] .qac2 .qac-ico { background:rgba(80,170,60,.1); border-color:rgba(80,170,60,.2); }
-[data-theme=light] .qac2 .qac-lbl { color:#047857; }
-[data-theme=light] .perf-card { border-color:rgba(0,0,0,.08); }
-[data-theme=light] .perf-ico  { background:rgba(80,170,60,.08); border-color:rgba(80,170,60,.18); }
-[data-theme=light] .perf-title{ color:rgba(17,24,39,.55); }
-[data-theme=light] .perf-n.int{ color:rgba(17,24,39,.8); }
-[data-theme=light] .perf-n.bal{ color:#3f9e2e; }
-[data-theme=light] .perf-lbl  { color:rgba(17,24,39,.35); }
-[data-theme=light] .perf-div  { background:rgba(0,0,0,.07); }
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html{font-size:100%;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100svh;overscroll-behavior:none;transition:background var(--tr),color var(--tr);}
-button,select,input{touch-action:manipulation;font-family:inherit;}
 
-.pw-screen{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:24px;}
-.pw-card{background:var(--card);border:1px solid var(--br2);border-radius:28px;padding:40px 32px;width:100%;max-width:360px;box-shadow:var(--shl);display:flex;flex-direction:column;align-items:center;gap:6px;}
-.pw-title{font-family:'Sora',sans-serif;font-size:var(--t-title2);font-weight:800;margin-top:6px;}
-.pw-sub{font-size:var(--t-footnote);color:var(--t3);margin-bottom:16px;text-align:center;}
-.pw-inp{width:100%;padding:13px 16px;background:var(--ibg);border:1px solid var(--br2);border-radius:14px;color:var(--t1);font-size:var(--t-callout);outline:none;transition:border-color .2s;}
-.pw-inp:focus{border-color:var(--ac);}
-.pw-inp.err{border-color:var(--rd);}
-.pw-err{color:var(--rd);font-size:var(--t-footnote);min-height:18px;align-self:flex-start;}
-.pw-btn{width:100%;padding:14px;background:var(--ac);color:#fff;border:none;border-radius:14px;font-size:var(--t-callout);font-weight:700;cursor:pointer;margin-top:4px;}
-.pw-help{font-size:var(--t-caption1);color:var(--t3);text-align:center;margin-top:8px;}
-
-.shell{max-width:430px;margin:0 auto;min-height:100svh;display:flex;flex-direction:column;overflow-x:hidden;}
-.hdr{padding:20px 20px 0;}
-.hdr-row{display:flex;justify-content:space-between;align-items:flex-start;}
-.eyebrow{font-size:var(--t-caption2);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ac);}
-.title{font-family:'Sora',sans-serif;font-size:var(--t-title1);font-weight:800;letter-spacing:-.02em;}
-.subtitle{font-size:var(--t-footnote);color:var(--t2);margin-top:2px;}
-.sw{width:52px;height:28px;border-radius:20px;background:var(--swbg);border:1px solid var(--br2);cursor:pointer;display:flex;align-items:center;padding:3px;flex-shrink:0;transition:background .25s;}
-.knob{width:22px;height:22px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:var(--t-caption1);box-shadow:0 2px 6px rgba(0,0,0,.25);transition:transform .25s;}
-[data-theme=light] .knob{transform:translateX(24px);}
-[data-theme=light] .sw{background:var(--acl);border-color:var(--ac);}
-
-.greet{padding:22px 20px 10px;}
-.greet-line{font-size:var(--t-subhead);font-weight:500;line-height:1.4;color:var(--t1);letter-spacing:.01em;}
-
-
-/* ── Pill Nav ── */
-.nav-wrap{padding:14px 16px 0;position:sticky;top:0;z-index:50;background:var(--bg);}
-.nav-track{display:flex;gap:4px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:50px;padding:4px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
-.tab{flex:1;text-align:center;padding:9px 6px;border-radius:50px;color:var(--t3);font-size:var(--t-footnote);font-weight:700;cursor:pointer;white-space:nowrap;transition:all .22s;border:none;background:transparent;letter-spacing:.01em;}
-.tab-ov.on{background:#69be51;color:#001a0e;box-shadow:0 2px 12px rgba(105,190,81,.35);}
-.tab-bl.on{background:#ffa519;color:#3a2400;box-shadow:0 2px 12px rgba(255,165,25,.35);}
-.tab-mo.on{background:#ff405f;color:#fff;box-shadow:0 2px 12px rgba(255,64,95,.35);}
-
-
-.panel{display:none;padding-bottom:120px;}
-.panel.on{display:block;animation:up .3s ease;}
-
-.hero{position:relative;margin:20px 16px 0;padding:26px 18px 22px;text-align:center;
-  border-radius:32px;
-  background:
-    linear-gradient(180deg, rgba(13,15,20,.34), rgba(13,15,20,.5)),
-    linear-gradient(150deg, rgba(255,255,255,.24), rgba(255,255,255,.08) 46%, rgba(255,255,255,.16));
-  border:1px solid rgba(255,255,255,.36);
-  backdrop-filter:blur(28px) saturate(175%) brightness(1.12);-webkit-backdrop-filter:blur(28px) saturate(175%) brightness(1.12);
-  box-shadow:
-    inset 0 1px 1.5px rgba(255,255,255,.55),
-    inset 0 -1px 1px rgba(255,255,255,.12),
-    0 14px 40px rgba(0,0,0,.3);}
-.hero::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  background:radial-gradient(130% 65% at 16% 0%, rgba(255,255,255,.4), transparent 52%);}
-.hero-lbl{font-size:var(--t-caption1);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:8px;position:relative;}
-.hero-split{height:1px;background:var(--br);margin:22px -6px 20px;position:relative;}
-.hero-num{font-family:'Sora',sans-serif;font-size:var(--t-largetitle);font-weight:800;line-height:1;letter-spacing:-.04em;color:var(--t1);}
-.hero-sub{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;font-size:var(--t-footnote);color:var(--t3);}
-.hero-pill{background:rgba(105,190,81,.12);color:#8fe06a;padding:4px 12px;border-radius:20px;font-size:var(--t-caption1);font-weight:700;border:1px solid rgba(143,224,106,.25);letter-spacing:.02em;}
-
-/* ── Quick-action glass cards (side by side) ── */
-.qarow{display:flex;gap:10px;padding:14px 16px 0;}
-.qac{flex:1;border-radius:18px;padding:16px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:transform .15s,opacity .15s;
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.12);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  box-shadow:0 2px 16px rgba(0,0,0,.2);}
-.qac:active{transform:scale(.96);opacity:.85;}
-.qac-ico{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:var(--t-headline);}
-.qac-lbl{font-family:'Sora',sans-serif;font-size:var(--t-footnote);font-weight:700;color:rgba(238,240,248,.8);line-height:1.3;text-align:center;}
-.qac-arr{font-size:var(--t-caption1);color:rgba(238,240,248,.3);}
-.qac1{background:rgba(59,130,246,.06);border-color:rgba(91,163,246,.14);}
-.qac1 .qac-ico{background:rgba(59,130,246,.1);border-color:rgba(91,163,246,.18);}
-.qac1 .qac-lbl{color:rgba(180,210,255,.75);}
-.qac2{background:rgba(105,190,81,.06);border-color:rgba(105,190,81,.14);}
-.qac2 .qac-ico{background:rgba(105,190,81,.1);border-color:rgba(105,190,81,.18);}
-.qac2 .qac-lbl{color:rgba(180,245,220,.75);}
-
-/* ── Group Performance card — luminous liquid glass ── */
-.perf-card{position:relative;margin:20px 16px 0;border-radius:30px;padding:22px 18px 26px;
-  background:
-    linear-gradient(180deg, rgba(13,15,20,.34), rgba(13,15,20,.5)),
-    linear-gradient(135deg, rgba(255,255,255,.24), rgba(255,255,255,.09) 50%, rgba(255,255,255,.16));
-  border:1px solid rgba(255,255,255,.36);
-  backdrop-filter:blur(28px) saturate(175%) brightness(1.12);-webkit-backdrop-filter:blur(28px) saturate(175%) brightness(1.12);
-  box-shadow:
-    inset 0 1px 1.5px rgba(255,255,255,.55),
-    inset 0 -1px 1px rgba(255,255,255,.12),
-    0 16px 44px rgba(0,0,0,.32);}
-.perf-card::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  background:radial-gradient(130% 65% at 12% 0%, rgba(255,255,255,.4), transparent 52%);}
-.perf-head{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:18px;}
-.perf-ico{width:36px;height:36px;border-radius:10px;background:rgba(105,190,81,.09);border:1px solid rgba(105,190,81,.2);display:flex;align-items:center;justify-content:center;font-size:var(--t-headline);}
-.perf-title{font-family:'Sora',sans-serif;font-size:var(--t-subhead);font-weight:700;color:rgba(238,240,248,.6);text-align:center;}
-.perf-nums{display:flex;flex-direction:column;gap:14px;}
-.perf-row{display:flex;flex-direction:column;align-items:center;gap:2px;}
-.perf-n{font-family:'Sora',sans-serif;font-weight:800;line-height:1;letter-spacing:-.02em;text-align:center;}
-.perf-n.int{font-size:var(--t-title2);color:rgba(238,240,248,.75);}
-.perf-n.bal{font-size:var(--t-title1);color:#8fe06a;letter-spacing:-.03em;}
-.perf-lbl{font-size:var(--t-caption2);font-weight:600;color:rgba(238,240,248,.28);text-transform:uppercase;letter-spacing:.08em;text-align:center;}
-.perf-div{height:1px;background:rgba(255,255,255,.06);margin:0 4px;}
-
-.inner{padding:0 20px;animation:up .25s ease;}
-.back-btn{display:flex;align-items:center;gap:8px;padding:14px 0 10px;color:var(--t2);font-size:var(--t-subhead);font-weight:600;cursor:pointer;background:transparent;border:none;}
-.inner-title{font-family:'Sora',sans-serif;font-size:var(--t-title3);font-weight:800;margin-bottom:14px;}
-.ccrd{background:var(--card);border:1px solid var(--br);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:var(--sh);}
-.clbl{font-size:var(--t-caption1);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:2px;}
-.csub{font-size:var(--t-caption1);color:var(--t3);margin-bottom:10px;}
-
-.mtbl-wrap{background:var(--card);border:1px solid var(--br);border-radius:20px;box-shadow:var(--sh);margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-.mtbl{width:100%;border-collapse:collapse;font-size:var(--t-caption1);min-width:340px;}
-.mtbl thead{background:var(--card2);}
-.mtbl th{padding:8px 7px;text-align:right;color:var(--t3);font-size:var(--t-caption2);font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--br);white-space:nowrap;}
-.mtbl th.tl{text-align:left;}
-.mtbl td{padding:8px 7px;text-align:right;border-bottom:1px solid var(--br);color:var(--t2);white-space:nowrap;}
-.mtbl td.tl{text-align:left;}
-.mtbl th:first-child,.mtbl td:first-child{padding-left:12px;}
-.mtbl th:last-child,.mtbl td:last-child{padding-right:12px;}
-.mtbl tbody tr:last-child td{border-bottom:none;}
-.mtbl .tot td{background:var(--card2);color:var(--t1);font-weight:700;border-top:1px solid var(--br2);border-bottom:none;}
-.nm{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
-.ac{color:var(--ac)!important;font-weight:700!important;}
-.tcell{display:flex;align-items:center;justify-content:flex-end;gap:5px;}
-.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.dts{font-size:var(--t-caption2);color:var(--t3);text-align:center;padding:8px 0;}
-
-.bpad{padding:16px 20px 0;}
-.mscroll{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:16px;}
-.mscroll::-webkit-scrollbar{display:none;}
-.mpill{padding:7px 14px;border-radius:20px;border:1px solid var(--br2);background:transparent;color:var(--t3);font-size:var(--t-footnote);font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s;}
-.mpill.on{background:var(--ac);color:#fff;border-color:var(--ac);}
-.acrd{background:var(--card);border:1px solid var(--br2);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:var(--sh);}
-.albl{font-size:var(--t-caption2);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:8px;}
-.asel{width:100%;padding:12px 14px;background:var(--ibg);border:1px solid var(--br2);border-radius:14px;color:var(--t1);font-family:'DM Sans',sans-serif;font-size:var(--t-subhead);font-weight:600;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='rgba(150,150,170,.6)' d='M0 0l6 8 6-8z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
-.asel:focus{border-color:var(--ac);}
-.asel option{background:var(--card);}
-.scrd{background:var(--card);border:1px solid var(--br);border-radius:20px;padding:20px;margin-bottom:14px;box-shadow:var(--sh);}
-.s-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
-.s-avatar{width:42px;height:42px;border-radius:13px;background:var(--ibg);border:1px solid var(--br2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
-.s-alias{font-family:'Sora',sans-serif;font-size:var(--t-title2);font-weight:800;margin-bottom:2px;}
-.s-month{font-size:var(--t-footnote);color:var(--t3);}
-/* Current Balance — quiet neutral banner, green reserved for the number only */
-.s-hero{position:relative;border-radius:18px;padding:18px 20px;margin-bottom:8px;overflow:hidden;
-  background:var(--ibg);
-  border:1px solid var(--br);}
-.s-hero-lbl{font-size:var(--t-caption2);font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--t3);margin-bottom:6px;position:relative;}
-.s-hero-num{font-family:'Sora',sans-serif;font-size:var(--t-title1);font-weight:800;color:var(--ac);letter-spacing:-.03em;line-height:1;position:relative;}
-.s-hero-cur{position:absolute;top:16px;right:20px;font-size:var(--t-caption2);font-weight:700;color:var(--t3);}
-.srow{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--br);}
-.srow:last-child{border-bottom:none;padding-bottom:0;}
-.slbl{font-size:var(--t-subhead);color:var(--t2);}
-.sval{font-family:'JetBrains Mono',monospace;font-size:var(--t-subhead);font-weight:600;color:var(--t1);}
-.sval.bl{color:var(--bl);}
-.sval.gr{color:var(--ac);}
-.sval.hero{font-size:var(--t-title2);color:var(--ac);font-family:'Sora',sans-serif;font-weight:800;}
-.slbl.big{font-size:var(--t-subhead);font-weight:700;color:var(--t1);}
-.hint{font-size:var(--t-caption2);color:var(--gd);margin-top:2px;}
-.sts{font-size:var(--t-caption2);color:var(--t3);text-align:right;margin-top:10px;}
-.wcrd{background:var(--gdl);border:1px solid rgba(255,165,25,.2);border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;gap:12px;}
-.wtitle{font-size:var(--t-footnote);font-weight:700;color:var(--gd);margin-bottom:3px;}
-.wbody{font-size:var(--t-footnote);color:var(--t2);line-height:1.5;}
-.mcrd{background:var(--card);border:1px solid var(--br);border-radius:20px;padding:16px;margin-bottom:14px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--sh);}
-.mico{font-size:1.4rem;flex-shrink:0;}
-.mtxt{font-size:var(--t-subhead);color:var(--t2);line-height:1.6;}
-.empty{text-align:center;padding:40px 20px;color:var(--t3);font-size:var(--t-subhead);}
-
-.morepad{padding:16px 20px 0;display:flex;flex-direction:column;gap:12px;}
-.morecrd{background:var(--card);border:1px solid var(--br);border-radius:20px;overflow:hidden;box-shadow:var(--sh);}
-.morehead{padding:13px 16px;border-bottom:1px solid var(--br);font-size:var(--t-caption1);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ac);}
-.morebody{padding:14px 16px;}
-.dep{background:var(--ibg);border:1px solid var(--br);border-radius:14px;padding:12px;margin-bottom:8px;}
-.dep:last-child{margin-bottom:0;}
-.dep-t{font-size:var(--t-caption1);font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--bl);margin-bottom:6px;}
-.dep-i{font-size:var(--t-footnote);color:var(--t2);line-height:1.7;}
-.dep-i strong{color:var(--t1);font-family:'JetBrains Mono',monospace;font-size:.82rem;}
-.dep-w{margin-top:8px;padding:8px 10px;background:var(--gdl);border:1px solid rgba(255,165,25,.2);border-radius:8px;font-size:var(--t-caption1);color:var(--gd);line-height:1.4;}
-.rlist{list-style:none;}
-.rlist li{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--br);font-size:var(--t-subhead);color:var(--t2);line-height:1.5;}
-.rlist li:last-child{border-bottom:none;}
-.rlist li::before{content:'—';color:var(--ac);font-weight:700;flex-shrink:0;}
-.rlist strong{color:var(--t1);}
-.pdf-pw{font-size:var(--t-caption2);color:var(--gd);margin-bottom:8px;text-align:right;}
-.ssel{width:100%;padding:11px 13px;background:var(--acl);color:var(--ac);border:1px solid rgba(105,190,81,.22);border-radius:14px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;}
-.ssel option{background:var(--card);color:var(--t1);}
-.priv{margin:20px 20px 0;padding:11px 14px;background:transparent;border:1px solid var(--br);border-radius:14px;font-size:var(--t-caption1);color:var(--t3);line-height:1.5;text-align:center;}
-.priv strong{color:var(--t2);font-weight:700;}
-.priv strong{color:var(--t1);}
-
-.stmt-btn{width:100%;padding:13px;background:var(--card);border:1px solid var(--br2);border-radius:14px;color:var(--t2);font-family:'DM Sans',sans-serif;font-size:var(--t-subhead);font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s,border-color .15s;margin-bottom:14px;}
-.stmt-btn:hover{background:var(--acl);border-color:var(--ac);color:var(--ac);}
-.stmt-btn:active{transform:scale(.97);}
-
-/* ── Bottom nav — floating glass capsule ── */
-.bnav{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
-  width:calc(100% - 28px);max-width:400px;
-  display:flex;gap:4px;z-index:60;
-  background:
-    linear-gradient(180deg, rgba(13,15,20,.36), rgba(13,15,20,.52)),
-    linear-gradient(135deg, rgba(255,255,255,.28), rgba(255,255,255,.12) 45%, rgba(255,255,255,.20));
-  border:1px solid rgba(255,255,255,.4);
-  border-radius:32px;padding:5px;
-  backdrop-filter:blur(30px) saturate(180%) brightness(1.15);-webkit-backdrop-filter:blur(30px) saturate(180%) brightness(1.15);
-  box-shadow:
-    inset 0 1px 1.5px rgba(255,255,255,.6),
-    inset 0 -1px 1px rgba(255,255,255,.14),
-    0 16px 46px rgba(0,0,0,.4);}
-.bnav::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  background:radial-gradient(130% 80% at 15% 0%, rgba(255,255,255,.45), transparent 55%);}
-[data-theme=light] .bnav{background:linear-gradient(135deg, rgba(255,255,255,.96), rgba(255,255,255,.86) 45%, rgba(255,255,255,.92));border:1px solid rgba(0,0,0,.1);
-  box-shadow:inset 0 1px 1px rgba(255,255,255,1), 0 12px 32px rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.08);}
-@media (prefers-color-scheme: light){
-  :root:not([data-theme=dark]) .bnav{background:linear-gradient(135deg, rgba(255,255,255,.96), rgba(255,255,255,.86) 45%, rgba(255,255,255,.92));border:1px solid rgba(0,0,0,.1);
-    box-shadow:inset 0 1px 1px rgba(255,255,255,1), 0 12px 32px rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.08);}
-  :root:not([data-theme=dark]) .perf-card,
-  :root:not([data-theme=dark]) .hero{
-    background:linear-gradient(135deg, rgba(255,255,255,.98), rgba(255,255,255,.9) 50%, rgba(255,255,255,.95));
-    border:1px solid rgba(0,0,0,.08);
-    box-shadow:inset 0 1px 1px rgba(255,255,255,1), 0 10px 30px rgba(0,0,0,.1), 0 2px 6px rgba(0,0,0,.06);}
+.app-shell {
+  max-width: 440px;
+  margin: 0 auto;
+  min-height: 100svh;
+  padding-bottom: 108px;
 }
-[data-theme=light] .perf-card,
-[data-theme=light] .hero{
-  background:linear-gradient(135deg, rgba(255,255,255,.98), rgba(255,255,255,.9) 50%, rgba(255,255,255,.95));
-  border:1px solid rgba(0,0,0,.08);
-  box-shadow:inset 0 1px 1px rgba(255,255,255,1), 0 10px 30px rgba(0,0,0,.1), 0 2px 6px rgba(0,0,0,.06);}
-.bnav-it{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
-  padding:6px 4px;border:none;background:transparent;border-radius:26px;
-  color:var(--t3);font-size:var(--t-caption2);font-weight:700;cursor:pointer;
-  transition:all .18s;white-space:nowrap;}
-.bnav-it.on{color:var(--ac);background:var(--acl);box-shadow:inset 0 0 0 1px rgba(105,190,81,.28);}
-.bnav-it:active{transform:scale(.94);}
-.bnav-ico{font-size:1rem;line-height:1;}
-/* Per-item identity colours — coral / green / amber */
-.bnav-it.bi-bal{color:#ff405f;}
-.bnav-it.bi-dep{color:#69be51;}
-.bnav-it.bi-stm{color:#ffa519;}
-.bnav-it.bi-bal.on{color:#ff405f;background:rgba(255,64,95,.13);box-shadow:inset 0 0 0 1px rgba(255,64,95,.3);}
-.bnav-it.bi-dep.on{color:#69be51;background:rgba(105,190,81,.13);box-shadow:inset 0 0 0 1px rgba(105,190,81,.3);}
-.bnav-it.bi-stm.on{color:#ffa519;background:rgba(255,165,25,.13);box-shadow:inset 0 0 0 1px rgba(255,165,25,.3);}
 
-.lscreen{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--t3);font-size:var(--t-subhead);}
-.spin{width:32px;height:32px;border:3px solid var(--br2);border-top-color:var(--ac);border-radius:50%;animation:rot .7s linear infinite;}
-@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-@keyframes rot{to{transform:rotate(360deg)}}
-@keyframes shk{0%,100%{transform:none}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+/* Password screen */
+.pw-wrap {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
 
-/* ── Custom dropdown wrapper (alias + statements) ── */
-.cdrop{position:relative;width:100%;}
-.cdrop-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;border:none;text-align:left;}
-.cdrop-btn.asel-btn{padding:12px 14px;background:var(--ibg);border:1px solid var(--br2);border-radius:14px;color:var(--t1);font-family:'DM Sans',sans-serif;font-size:var(--t-subhead);font-weight:600;}
-.cdrop-btn.asel-btn:focus-visible{outline:2px solid var(--ac);}
-.cdrop-btn.ssel-btn{padding:11px 13px;background:var(--acl);border:1px solid rgba(105,190,81,.22);border-radius:14px;color:var(--ac);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;}
-.cdrop-btn.ssel-btn:focus-visible{outline:2px solid var(--ac);}
-.cdrop-arrow{flex-shrink:0;transition:transform .2s;font-size:.65rem;opacity:.55;}
-.cdrop-arrow.open{transform:rotate(180deg);}
-.cdrop-list{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--card);border:1px solid var(--br2);border-radius:16px;z-index:999;max-height:260px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.28);padding:6px;animation:up .15s ease;}
-.cdrop-item{padding:10px 13px;border-radius:10px;font-size:var(--t-subhead);font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .1s;}
-.cdrop-item:hover{background:var(--ibg);}
-.cdrop-item.sel{color:var(--ac);font-weight:700;background:var(--acl);}
-.cdrop-item .chk{font-size:.7rem;flex-shrink:0;}
-.pdf-msg{margin-top:10px;padding:11px 13px;background:var(--gdl);border:1px solid rgba(255,165,25,.3);border-radius:12px;font-size:var(--t-footnote);color:var(--gd);line-height:1.5;}
+.pw-box {
+  width: 100%;
+  max-width: 360px;
+  padding: 32px 24px;
+  border-radius: var(--radius-lg);
+  background: var(--glass-shine), var(--card);
+  border: 1px solid var(--br-strong);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
 
-/* ── Statements month-picker modal ── */
-.modal-overlay{position:fixed;inset:0;z-index:1200;display:flex;align-items:flex-end;justify-content:center;padding:0 0 20px;}
-.modal-blur{position:fixed;inset:0;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);background:rgba(0,0,0,.45);z-index:1199;}
-.modal-sheet{position:relative;z-index:1201;width:100%;max-width:480px;background:var(--card);border:1px solid var(--br2);border-radius:24px 24px 16px 16px;padding:0 0 12px;box-shadow:0 24px 60px rgba(0,0,0,.5);animation:up .2s ease;}
-.modal-handle{width:36px;height:4px;background:var(--br2);border-radius:4px;margin:10px auto 0;}
-.modal-title{padding:14px 20px 10px;font-size:var(--t-caption1);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ac);}
-.modal-item{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;font-size:var(--t-body);font-weight:600;color:var(--t1);cursor:pointer;border-bottom:1px solid var(--br);transition:background .1s;}
-.modal-item:last-child{border-bottom:none;}
-.modal-item:hover,.modal-item:active{background:var(--ibg);}
-.modal-cancel{display:block;width:calc(100% - 32px);margin:10px 16px 0;padding:14px;background:var(--ibg);border:1px solid var(--br2);border-radius:14px;font-size:var(--t-body);font-weight:700;color:var(--t3);cursor:pointer;text-align:center;}
+.pw-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--br-strong);
+  background: var(--input-bg);
+  color: var(--t1);
+  font-size: 0.95rem;
+  outline: none;
+  margin-top: 14px;
+}
 
-/* ── Withdrawal window ── */
-.wdraw-banner{margin:0 16px 14px;border-radius:20px;overflow:hidden;border:1px solid rgba(105,190,81,.25);}
-.wdraw-banner.soon{border-color:rgba(255,165,25,.3);}
-.wdraw-banner.closed{border-color:rgba(255,64,95,.25);}
-.wdraw-bhead{padding:12px 16px;display:flex;align-items:center;gap:10px;background:rgba(105,190,81,.08);}
-.wdraw-banner.soon .wdraw-bhead{background:rgba(255,165,25,.08);}
-.wdraw-banner.closed .wdraw-bhead{background:rgba(255,64,95,.07);}
-.wdraw-bico{font-size:1.3rem;flex-shrink:0;}
-.wdraw-btxt{flex:1;}
-.wdraw-btitle{font-size:var(--t-footnote);font-weight:700;color:var(--ac);margin-bottom:1px;}
-.wdraw-banner.soon .wdraw-btitle{color:var(--gd);}
-.wdraw-banner.closed .wdraw-btitle{color:var(--rd);}
-.wdraw-bsub{font-size:var(--t-caption2);color:var(--t3);}
-.wdraw-bbadge{font-size:var(--t-caption2);font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(105,190,81,.15);color:var(--ac);border:1px solid rgba(105,190,81,.3);}
-.wdraw-banner.soon .wdraw-bbadge{background:rgba(255,165,25,.13);color:var(--gd);border-color:rgba(255,165,25,.3);}
-.wdraw-banner.closed .wdraw-bbadge{background:rgba(255,64,95,.1);color:var(--rd);border-color:rgba(255,64,95,.25);}
+.pw-input:focus { border-color: var(--ac); }
+.pw-input.err { border-color: var(--rd); }
 
-.wdraw-crd{background:var(--card);border:1px solid rgba(105,190,81,.25);border-radius:20px;margin-bottom:14px;overflow:hidden;box-shadow:var(--sh);}
-.wdraw-crd.closed{border-color:rgba(255,64,95,.2);}
-.wdraw-chead{padding:14px 16px 12px;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:8px;}
-.wdraw-ctitle{font-size:var(--t-caption1);font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ac);}
-.wdraw-crd.closed .wdraw-ctitle{color:var(--rd);}
-.wdraw-cbody{padding:16px;}
-.wdraw-amount{font-family:'JetBrains Mono',monospace;font-size:var(--t-title2);font-weight:700;color:var(--ac);margin-bottom:4px;}
-.wdraw-amtlbl{font-size:var(--t-caption2);color:var(--t3);margin-bottom:16px;}
-.wdraw-note{font-size:var(--t-footnote);color:var(--t2);line-height:1.6;padding:10px 12px;background:var(--acl);border-radius:12px;margin-bottom:14px;}
-.wdraw-crd.closed .wdraw-note{background:rgba(255,64,95,.07);}
-.wdraw-btn{width:100%;padding:14px;background:var(--ac);color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:var(--t-subhead);font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;}
-.wdraw-btn:active{opacity:.8;}
-.wdraw-btn.disabled{background:var(--ibg);color:var(--t3);cursor:default;border:1px solid var(--br2);}
+/* Header */
+.top-hdr {
+  padding: 20px 20px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
 
-/* ── Alias picker modal grid ── */
-.modal-sheet.alias-sheet{max-height:82svh;display:flex;flex-direction:column;}
-.alias-grid-wrap{overflow-y:auto;flex:1;padding:4px 12px 0;}
-.alias-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-bottom:8px;}
-.alias-grid-inline{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 0 16px;}
-.alias-pick-hdr{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:14px;margin-top:4px;}
-.change-alias{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;background:var(--ibg);border:1px solid rgba(212,170,60,.35);border-radius:20px;font-size:.72rem;font-weight:700;color:#c9a227;cursor:pointer;margin-bottom:12px;transition:background .15s,color .15s,border-color .15s;}
-.change-alias:hover{background:rgba(212,170,60,.12);color:#e0b830;border-color:rgba(212,170,60,.6);}
-.alias-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:16px;background:var(--ibg);border:1px solid var(--br);cursor:pointer;transition:all .15s;text-align:center;}
-.alias-cell:active{transform:scale(.95);}
-.alias-cell.sel{background:var(--acl);border-color:var(--ac);}
-.alias-cell-ico{font-size:1.6rem;line-height:1;}
-.alias-cell-lbl{font-size:var(--t-footnote);font-weight:700;color:var(--t1);line-height:1.2;}
-.alias-cell.sel .alias-cell-lbl{color:var(--ac);}
-.alias-sel-display{display:flex;align-items:center;gap:8px;}
-.alias-sel-ico{font-size:1.1rem;}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ac);
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ac);
+  box-shadow: 0 0 8px var(--ac);
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-top: 3px;
+}
+
+.brand-sub {
+  font-size: 0.82rem;
+  color: var(--t2);
+  margin-top: 2px;
+}
+
+.hdr-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chip-btn {
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--br-strong);
+  background: var(--card-solid);
+  color: var(--t2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--tr);
+}
+
+.chip-btn.active {
+  background: var(--ac-soft);
+  border-color: var(--ac-border);
+  color: var(--ac);
+}
+
+.theme-toggle {
+  width: 50px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--input-bg);
+  border: 1px solid var(--br-strong);
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all var(--tr);
+}
+
+.theme-knob {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--card-solid);
+  color: var(--t1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  transition: transform var(--tr);
+}
+
+[data-theme="light"] .theme-knob { transform: translateX(22px); }
+
+/* Greeting strip */
+.greeting-card {
+  margin: 6px 16px 12px;
+  padding: 12px 15px;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  border: 1px solid var(--br);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--t2);
+}
+
+/* Sticky segmented bar */
+.seg-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding: 8px 16px 12px;
+  background: linear-gradient(to bottom, var(--bg) 75%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.seg-track {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--card-solid);
+  border: 1px solid var(--br-strong);
+  box-shadow: var(--shadow-card);
+}
+
+.seg-btn {
+  border: none;
+  background: transparent;
+  color: var(--t3);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 9px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all var(--tr);
+}
+
+.seg-btn.active {
+  background: var(--ac);
+  color: #061509;
+  box-shadow: 0 4px 14px rgba(86, 194, 82, 0.32);
+}
+
+/* Month selector */
+.month-bar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 2px 16px 14px;
+  scrollbar-width: none;
+}
+
+.month-bar::-webkit-scrollbar { display: none; }
+
+.m-pill {
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--br);
+  background: var(--card-solid);
+  color: var(--t3);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--tr);
+}
+
+.m-pill.active {
+  background: var(--ac-soft);
+  border-color: var(--ac-border);
+  color: var(--ac);
+}
+
+/* Cards */
+.surface-card {
+  margin: 0 16px 14px;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: var(--glass-shine), var(--card);
+  border: 1px solid var(--br-strong);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px);
+}
+
+.hero-kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--t3);
+  text-align: center;
+}
+
+.hero-total {
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-align: center;
+  margin: 6px 0 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-badge-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--t2);
+}
+
+.pill-green {
+  background: var(--ac-soft);
+  color: var(--ac);
+  border: 1px solid var(--ac-border);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.stat-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--br);
+}
+
+.mini-stat {
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--input-bg);
+  border: 1px solid var(--br);
+}
+
+.mini-stat-lbl {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--t3);
+}
+
+.mini-stat-val {
+  font-family: var(--font-mono);
+  font-size: 0.96rem;
+  font-weight: 700;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0 16px 14px;
+}
+
+.action-tile {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--card-solid);
+  border: 1px solid var(--br-strong);
+  color: var(--t1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.14s ease, border-color var(--tr);
+}
+
+.action-tile:active { transform: scale(0.97); }
+.action-tile:hover { border-color: var(--ac-border); }
+
+.tile-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.tile-title { font-size: 0.82rem; font-weight: 700; line-height: 1.25; }
+.tile-sub { font-size: 0.7rem; color: var(--t3); margin-top: 2px; }
+
+/* Alias picker */
+.alias-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.alias-card {
+  padding: 12px 8px;
+  border-radius: var(--radius-md);
+  background: var(--input-bg);
+  border: 1px solid var(--br);
+  color: var(--t1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all var(--tr);
+}
+
+.alias-card:hover, .alias-card.selected {
+  background: var(--ac-soft);
+  border-color: var(--ac-border);
+}
+
+.alias-emoji { font-size: 1.3rem; }
+.alias-name { font-size: 0.76rem; font-weight: 700; }
+
+/* Balance breakdown */
+.bal-hero {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--ac-soft);
+  border: 1px solid var(--ac-border);
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.bal-hero-num {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--ac);
+  font-variant-numeric: tabular-nums;
+}
+
+.kv-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--br);
+  font-size: 0.88rem;
+}
+
+.kv-row:last-child { border-bottom: none; }
+.kv-lbl { color: var(--t2); }
+.kv-val {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Table */
+.tbl-card {
+  margin: 0 16px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--card-solid);
+  border: 1px solid var(--br-strong);
+  overflow-x: auto;
+  box-shadow: var(--shadow-card);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 340px;
+  font-size: 0.78rem;
+}
+
+th {
+  padding: 10px 8px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--t3);
+  background: var(--card-alt);
+  border-bottom: 1px solid var(--br);
+  text-align: right;
+}
+
+th:first-child, th:nth-child(2) { text-align: left; }
+th:first-child, td:first-child { padding-left: 12px; }
+th:last-child, td:last-child { padding-right: 12px; }
+
+td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--br);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+td:first-child, td:nth-child(2) { text-align: left; }
+td.mono { font-family: var(--font-mono); font-size: 0.72rem; }
+
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-left: 5px;
+}
+
+.primary-btn {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--ac);
+  color: #061509;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.14s ease, opacity 0.15s ease;
+}
+
+.primary-btn:active { transform: scale(0.98); }
+
+.info-box {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--input-bg);
+  border: 1px solid var(--br);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--t2);
+  margin-bottom: 10px;
+}
+
+.rule-item {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--br);
+  font-size: 0.85rem;
+  color: var(--t2);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.rule-item:last-child { border-bottom: none; }
+.rule-item strong { color: var(--t1); }
+
+.loader-box {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--t2);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--br-strong);
+  border-top-color: var(--ac);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Floating Bottom Dock */
+.bottom-dock {
+  position: fixed;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 28px);
+  max-width: 400px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 5px;
+  border-radius: 999px;
+  background: var(--card);
+  border: 1px solid var(--br-strong);
+  backdrop-filter: blur(22px);
+  box-shadow: var(--shadow-dock);
+  z-index: 50;
+}
+
+.dock-item {
+  border: none;
+  background: transparent;
+  color: var(--t3);
+  padding: 7px 6px;
+  border-radius: 999px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--tr);
+}
+
+.dock-item.active {
+  background: var(--ac-soft);
+  color: var(--ac);
+}
+
+.dock-icon { font-size: 1rem; line-height: 1; }
 </style>
 </head>
 <body>
 <div id="root"></div>
+
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
 
-// ── FALLBACK member list (used only if Members sheet tab fails to load) ──
 const FALLBACK_MEMBERS = [
   'Tokyo','Berlin','Gandia','Denver','Helsinki','Oslo','Moscow',
   'California','Lisbon','Stockholm','Paris','Marseille','Rio','Nairobi',
@@ -485,67 +664,19 @@ const FALLBACK_PAIRS = {
   'Paris':'Marseille','Marseille':'Paris'
 };
 
-// Members tab URL (encoded) — sheet column layout:
-//   A: Alias   B: Icon (emoji)   C: PairWith (optional)
 const MEMBERS_URL = atob('aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlFmUWRCVmwwMWN4c0lvR25mSkxsdEdEdU9rSVZERnFqLXJOZzNLd0ZWWjgtR0diVXFrMURTc19DVmF5Z2lzamFMaGczMGcxZ2p6SXNkQy9wdWI/Z2lkPTE4MDc5MjY5NzMmc2luZ2xlPXRydWUmb3V0cHV0PWNzdg==');
 
 const CITY_ICON = {
-  Tokyo:      '🗼', Berlin:    '🐻', Gandia:    '🏖️',
-  Denver:     '🏔️', Helsinki:  '🇫🇮', Oslo:      '🫎',
-  Moscow:     '🏛️', California:'🌴', Lisbon:    '🛸',
-  Stockholm:  '👑', Paris:     '🗽', Marseille: '⚓',
-  Rio:        '🌊', Nairobi:   '🦁', 'Tel Aviv': '✡️',
-  Valencia:   '🍊', Havana:    '🎺', Manilla:   '🌺',
-  Scofield:   '🔑', Bogota:    '☁️', Emirates:  '🌇',
-  Dublin:     '🍀', Doha:      '🌙', Bern:      '🐻‍❄️'
+  Tokyo:'🗼', Berlin:'🐻', Gandia:'🏖️', Denver:'🏔️', Helsinki:'🇫🇮', Oslo:'🫎',
+  Moscow:'🏛️', California:'🌴', Lisbon:'🛸', Stockholm:'👑', Paris:'🗽', Marseille:'⚓',
+  Rio:'🌊', Nairobi:'🦁', 'Tel Aviv':'✡️', Valencia:'🍊', Havana:'🎺', Manilla:'🌺',
+  Scofield:'🔑', Bogota:'☁️', Emirates:'🌇', Dublin:'🍀', Doha:'🌙', Bern:'🐻‍❄️'
 };
 
-const CITY_COLOR = {
-  // ── cool tones: teals · icy blues · grey-blues ──────────────
-  Berlin:     'rgba( 55,105,165,.18)',   // steel blue
-  Denver:     'rgba( 42, 95,130,.18)',   // slate teal
-  Oslo:       'rgba( 38,108,102,.18)',   // sea green
-  Stockholm:  'rgba( 58, 80,115,.18)',   // pewter blue
-  Paris:      'rgba( 60, 88,148,.18)',   // indigo blue
-  Rio:        'rgba( 38,100,110,.18)',   // ocean teal
-  Dublin:     'rgba( 42, 98, 88,.18)',   // moss teal
-  Bern:       'rgba( 62, 95,128,.18)',   // glacier blue
-  // ── warm tones: terracotta · sunset orange · golden amber ───
-  Tokyo:      'rgba(172, 68, 45,.18)',   // terracotta
-  Gandia:     'rgba(188,132, 42,.18)',   // golden sand
-  California: 'rgba(198, 88, 40,.18)',   // sunset orange
-  Marseille:  'rgba(182,112, 38,.18)',   // warm amber
-  Nairobi:    'rgba(162, 62, 30,.18)',   // burnt sienna
-  Valencia:   'rgba(178, 82, 42,.18)',   // cinnamon
-  Havana:     'rgba(168, 95, 32,.18)',   // bronze
-  Emirates:   'rgba(198,145, 38,.18)',   // desert gold
-  // ── neutral anchors: beige · sand · slate ───────────────────
-  Helsinki:   'rgba( 88,112,108,.18)',   // sage grey
-  Moscow:     'rgba( 88, 90, 98,.18)',   // cool slate
-  Lisbon:     'rgba(148,125, 90,.18)',   // warm sand
-  'Tel Aviv': 'rgba( 95,108,118,.18)',   // stone blue
-  Manilla:    'rgba(142,118, 88,.18)',   // pale beige
-  Scofield:   'rgba(100,108,115,.18)',   // pebble grey
-  Bogota:     'rgba(128, 98, 72,.18)',   // clay
-  Doha:       'rgba(132,118, 90,.18)',   // driftwood
-};
-
-const CITY_BORDER = {
-  Berlin:     'rgba( 55,105,165,.32)',  Denver:     'rgba( 42, 95,130,.32)',
-  Oslo:       'rgba( 38,108,102,.32)',  Stockholm:  'rgba( 58, 80,115,.32)',
-  Paris:      'rgba( 60, 88,148,.32)',  Rio:        'rgba( 38,100,110,.32)',
-  Dublin:     'rgba( 42, 98, 88,.32)',  Bern:       'rgba( 62, 95,128,.32)',
-  Tokyo:      'rgba(172, 68, 45,.32)',  Gandia:     'rgba(188,132, 42,.32)',
-  California: 'rgba(198, 88, 40,.32)',  Marseille:  'rgba(182,112, 38,.32)',
-  Nairobi:    'rgba(162, 62, 30,.32)',  Valencia:   'rgba(178, 82, 42,.32)',
-  Havana:     'rgba(168, 95, 32,.32)',  Emirates:   'rgba(198,145, 38,.32)',
-  Helsinki:   'rgba( 88,112,108,.32)',  Moscow:     'rgba( 88, 90, 98,.32)',
-  Lisbon:     'rgba(148,125, 90,.32)',  'Tel Aviv': 'rgba( 95,108,118,.32)',
-  Manilla:    'rgba(142,118, 88,.32)',  Scofield:   'rgba(100,108,115,.32)',
-  Bogota:     'rgba(128, 98, 72,.32)',  Doha:       'rgba(132,118, 90,.32)',
-};
-const MONTHS = ['January','February','March','April','May','June',
-  'July','August','September','October','November','December'];
+const MONTHS = [
+  'January','February','March','April','May','June',
+  'July','August','September','October','November','December'
+];
 
 const URLS = [
   "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTE4ODE3NjExNTQmc2luZ2xlPXRydWUmb3V0cHV0PWNzdg==",
@@ -561,1588 +692,650 @@ const URLS = [
   "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTM1MDMxNTkyMiZzaW5nbGU9dHJ1ZSZvdXRwdXQ9Y3N2",
   "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlN2RXUzZVhzd0FRSXZ6Y2dZVE5ZSkFNTEhad0F6Z0REOExxVWl1MHRtQzhTalRXVWlfWjFZQkowWlJoeW93ZkpBNUJJT1VQVkp5N3R2ai9wdWI/Z2lkPTEwMTY1NjE3OTgmc2luZ2xlPXRydWUmb3V0cHV0PWNzdg=="
 ];
+
 const MONTH_URLS = {};
-MONTHS.forEach((m,i) => { MONTH_URLS[m] = atob(URLS[i]); });
+MONTHS.forEach((m, i) => { MONTH_URLS[m] = atob(URLS[i]); });
 
-const MIN_CONTRIB          = 4000;
-const ETICA_MONTHLY        = 0.12 / 12;
-const WARN_START_DAY       = 10;
-const PASSWORD             = 'LikeMinded2026';
-const AUTH_DAYS            = 30;
-const CUR_YEAR             = new Date().getFullYear();
-
-// December withdrawal window — opens Dec 5, closes end of Week 3 (Dec 21)
-const WITHDRAWAL_MONTH     = 11;   // 0-indexed: December
-const WITHDRAWAL_OPEN_DAY  = 5;
-const WITHDRAWAL_CLOSE_DAY = 21;
-// Default icon/colour lookups — extended automatically for new members via sheet
-// New member? Just add their row to the Members tab. Icon/colour defaults apply if not in these maps.
-
-// ═══════════════════════════════════════════════════════════
-// GREETING SYSTEM — holidays, seasons, time-of-day, milestones
-// ═══════════════════════════════════════════════════════════
-
-// ── Easter (Anonymous Gregorian algorithm) ──────────────────
-function easterDate(yr) {
-  const a=yr%19, b=Math.floor(yr/100), c=yr%100;
-  const d=Math.floor(b/4), e=b%4, f=Math.floor((b+8)/25);
-  const g=Math.floor((b-f+1)/3), h=(19*a+b-d-g+15)%30;
-  const i=Math.floor(c/4), k=c%4, l=(32+2*e+2*i-h-k)%7;
-  const m=Math.floor((a+11*h+22*l)/451);
-  const month=Math.floor((h+l-7*m+114)/31)-1; // 0-indexed
-  const day=((h+l-7*m+114)%31)+1;
-  return {month, day};
-}
-
-// ── Hijri date approximation (Umm al-Qura algorithm) ────────
-function toHijri(date) {
-  const JD = Math.floor((date.getTime()/86400000) + 2440587.5 + 0.5);
-  const l  = JD - 1948440 + 10632;
-  const n  = Math.floor((l-1)/10631);
-  const l2 = l - 10631*n + 354;
-  const j  = Math.floor((10985-l2)/5316)*Math.floor(50*l2/17719) +
-              Math.floor(l2/5670)*Math.floor(43*l2/15238);
-  const l3 = l2 - Math.floor((30-j)/15)*Math.floor(17719*j/50) -
-              Math.floor(j/16)*Math.floor(15238*j/43) + 29;
-  const hMonth = Math.floor(24*l3/709);   // 1-indexed
-  const hDay   = l3 - Math.floor(709*hMonth/24);
-  const hYear  = 30*n + j - 30;
-  return { year: hYear, month: hMonth, day: hDay };
-}
-
-// ── Kenya public holidays (fixed-date) ──────────────────────
-const KE_HOLIDAYS = {
-  '01-01': { name: "New Year's Day",       msg: "Happy New Year! 🎆 A fresh year, a fresh start — let's make 2{YR} the one where LMF reaches new heights.",      emoji: '🎆' },
-  '05-01': { name: "Labour Day",            msg: "Happy Labour Day! 👷 Heshima kwa kila mfanyakazi. Hard work today plants the seeds of tomorrow's harvest.",       emoji: '👷' },
-  '06-01': { name: "Madaraka Day",          msg: "Happy Madaraka Day! 🇰🇪 On this day Kenya chose self-rule. We too are choosing financial freedom — together.",    emoji: '🇰🇪' },
-  '10-10': { name: "Utamaduni Day",         msg: "Utamaduni Day Njema! 🎭 Culture is our strength. Umoja ni nguvu — unity builds more than any one of us alone.",   emoji: '🎭' },
-  '10-20': { name: "Mashujaa Day",          msg: "Happy Mashujaa Day! 🦁 Honour to our heroes. Every shilling we save is a small act of courage for our future.",   emoji: '🦁' },
-  '12-12': { name: "Jamhuri Day",           msg: "Happy Jamhuri Day! 🇰🇪 60 years of independence — and we are still building, still growing, still together.",     emoji: '🇰🇪' },
-  '12-25': { name: "Christmas Day",         msg: "Merry Christmas! 🎄 Wishing every member of LMF a joyful, peaceful, and blessed Christmas with family.",         emoji: '🎄' },
-  '12-26': { name: "Boxing Day",            msg: "Happy Boxing Day! 🎁 A day to give, reflect, and appreciate. Grateful for this community we have built together.", emoji: '🎁' },
-};
-
-// ── Seasonal messages (Kenya) ────────────────────────────────
-function kenyaSeason(month, day) {
-  // Long rains: Mar–May
-  if (month >= 2 && month <= 4)
-    return { season:'Long Rains', msg: "Saving through the long rains ☔ — the best time to water your financial roots.", emoji:'☔' };
-  // Short rains: Oct–Nov
-  if (month >= 9 && month <= 10)
-    return { season:'Short Rains', msg: "The short rains are here 🌦️ — a gentle reminder that consistent deposits, like rain, make things grow.", emoji:'🌦️' };
-  // Hot dry: Jan–Feb
-  if (month <= 1)
-    return { season:'Dry Season', msg: "Kali kali ☀️ — the dry season tests our discipline. Stay consistent and the harvest will come.", emoji:'☀️' };
-  // Cool dry: Jun–Sep
-  return { season:'Cool Season', msg: "Cool and clear skies ☁️ — the perfect mindset for steady, focused saving.", emoji:'☁️' };
-}
-
-// ── Month-end awareness ──────────────────────────────────────
-function monthEndMsg(day, daysInMonth) {
-  const remaining = daysInMonth - day;
-  if (remaining <= 0)  return "Last day of the month! ⏰ Final call — is your contribution sorted?";
-  if (remaining <= 2)  return `${remaining} day${remaining>1?'s':''} to month-end ⏳ — don't let the deadline sneak up on you.`;
-  if (remaining <= 5)  return `${remaining} days to month-end 📅 — a gentle nudge: are you on track?`;
-  if (day <= 3)        return "Fresh month, fresh start 🌱 — the best time to lock in your contribution early.";
-  return null;
-}
-
-// ── Time-of-day greetings ────────────────────────────────────
-function timeGreeting(h) {
-  if (h < 5)  return "Burning the midnight oil 🌙";
-  if (h < 12) return "Good morning";
-  if (h < 14) return "Good afternoon";
-  if (h < 17) return "Good afternoon";
-  if (h < 20) return "Good evening";
-  return "Good evening";
-}
-
-// ── Regular inspiration pool (time-tuned) ───────────────────
-const INSPIRATIONS_MORNING = [
-  "Asubuhi njema — a productive morning sets the tone for the whole day. 🌅",
-  "Start the day with intention. Every great saving habit begins with one decision.",
-  "The early bird saves more. Lock in your contribution before the day gets busy.",
-  "Good morning! Discipline today. Freedom tomorrow.",
-];
-const INSPIRATIONS_DAY = [
-  "Small, consistent steps build extraordinary wealth.",
-  "Every contribution today is a gift to your future self.",
-  "Saving together multiplies what we could never do alone.",
-  "Consistency is the most underrated financial strategy.",
-  "Wealth is built every single day — including today.",
-];
-const INSPIRATIONS_EVENING = [
-  "End the day with gratitude 🙏 — you are building something real.",
-  "Usiku mwema — reflect on today. Did your money move with purpose?",
-  "Evening check-in: your future self is watching. Keep going.",
-  "The best investment you can make is in your community. You are doing it.",
-];
-const INSPIRATIONS_SWAHILI = [
-  "Umoja ni nguvu 🤝 — together we are far stronger than alone.",
-  "Haba na haba hujaza kibaba 🪣 — little by little fills the pot.",
-  "Haraka haraka haina baraka ⏳ — slow and steady wins the financial race.",
-  "Mtu ni watu 👥 — a person is defined by their community.",
-];
-
-// ── Master greeting resolver ─────────────────────────────────
-function greetLine() {
-  const now        = new Date();
-  const yr         = now.getFullYear();
-  const month      = now.getMonth();   // 0-indexed
-  const day        = now.getDate();
-  const h          = now.getHours();
-  const mmdd       = String(month+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
-  const daysInMo   = new Date(yr, month+1, 0).getDate();
-  const timeGreet  = timeGreeting(h);
-
-  // 1. FIXED KENYA PUBLIC HOLIDAYS
-  if (KE_HOLIDAYS[mmdd]) {
-    const hd = KE_HOLIDAYS[mmdd];
-    return `${timeGreet} — ${hd.msg.replace('2{YR}', yr)}`;
-  }
-
-  // 2. EASTER (Good Friday = -2, Easter Sunday = 0, Easter Monday = +1)
-  const easter = easterDate(yr);
-  const easterMs  = new Date(yr, easter.month, easter.day).getTime();
-  const todayMs   = new Date(yr, month, day).getTime();
-  const easterDiff = Math.round((todayMs - easterMs) / 86400000);
-  if (easterDiff === -2) return `${timeGreet} — Good Friday 🕊️ — a solemn day of reflection. Grateful for the sacrifices that shape who we are.`;
-  if (easterDiff === 0)  return `${timeGreet} — Happy Easter! 🐣 Resurrection Sunday — a powerful symbol of new beginnings and renewed hope.`;
-  if (easterDiff === 1)  return `${timeGreet} — Happy Easter Monday! 🌸 May this season bring renewal to your finances and your spirit.`;
-
-  // 3. EID AL-FITR (Hijri month 10, day 1 — end of Ramadan)
-  const hijri = toHijri(now);
-  if (hijri.month === 10 && hijri.day <= 3)
-    return `${timeGreet} — Eid al-Fitr Mubarak! 🌙 May this blessed celebration bring joy, peace, and abundance to you and your family.`;
-
-  // 4. EID AL-ADHA (Hijri month 12, day 10)
-  if (hijri.month === 12 && hijri.day >= 10 && hijri.day <= 13)
-    return `${timeGreet} — Eid al-Adha Mubarak! 🐑 The spirit of sacrifice and gratitude — may it bless you and those you love.`;
-
-  // 5. RAMADAN greeting (Hijri month 9)
-  if (hijri.month === 9)
-    return `${timeGreet} — Ramadan Kareem 🌙 — wishing our fasting members strength, peace, and barakah this holy month.`;
-
-  // 6. MONTH-END AWARENESS
-  const meMsg = monthEndMsg(day, daysInMo);
-  if (meMsg) return `${timeGreet} — ${meMsg}`;
-
-  // 7. TIME-OF-DAY TUNED INSPIRATION (with Swahili rotation every 4th cycle)
-  const cycle = Math.floor(Date.now() / (1000*60*60*3)); // rotates every 3 hrs
-  if (cycle % 7 === 0) {
-    // Swahili rotation
-    return `${timeGreet} — ${INSPIRATIONS_SWAHILI[cycle % INSPIRATIONS_SWAHILI.length]}`;
-  }
-  const pool = h < 11 ? INSPIRATIONS_MORNING : h < 18 ? INSPIRATIONS_DAY : INSPIRATIONS_EVENING;
-  return `${timeGreet} — ${pool[cycle % pool.length]}`;
-}
-
-// Returns withdrawal window state: { state: 'off'|'open'|'closed' }
-function withdrawalWindow() {
-  const now   = new Date();
-  const month = now.getMonth();
-  const day   = now.getDate();
-  if (month !== WITHDRAWAL_MONTH) return { state: 'off' };
-  if (day < WITHDRAWAL_OPEN_DAY)  return { state: 'off' };
-  if (day <= WITHDRAWAL_CLOSE_DAY) return { state: 'open', daysLeft: WITHDRAWAL_CLOSE_DAY - day + 1 };
-  return { state: 'closed' };
-}
+const MIN_CONTRIB = 4000;
+const ETICA_MONTHLY = 0.12 / 12;
+const PASSWORD = 'LikeMinded2026';
+const AUTH_DAYS = 30;
+const CUR_YEAR = new Date().getFullYear();
 
 function curMonth() { return MONTHS[new Date().getMonth()]; }
 
 function getAuth() {
   try {
-    const r = localStorage.getItem('mmf_auth');
-    if (!r) return null;
-    const t = JSON.parse(r);
-    if (Date.now() > t.exp) { localStorage.removeItem('mmf_auth'); return null; }
-    return t;
-  } catch(e) { return null; }
+    const raw = localStorage.getItem('mmf_auth');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Date.now() > parsed.exp) { localStorage.removeItem('mmf_auth'); return null; }
+    return parsed;
+  } catch (e) { return null; }
 }
+
 function setAuth() {
-  localStorage.setItem('mmf_auth', JSON.stringify({ok:true, exp: Date.now() + AUTH_DAYS*86400000}));
+  localStorage.setItem('mmf_auth', JSON.stringify({ ok: true, exp: Date.now() + AUTH_DAYS * 86400000 }));
 }
 
 function parseRow(line) {
-  const r=[]; let cur='', inQ=false;
+  const res = [];
+  let cur = '';
+  let inQ = false;
   for (const ch of line) {
-    if (ch==='"') inQ=!inQ;
-    else if (ch===',' && !inQ) { r.push(cur); cur=''; }
-    else cur+=ch;
+    if (ch === '"') inQ = !inQ;
+    else if (ch === ',' && !inQ) { res.push(cur); cur = ''; }
+    else cur += ch;
   }
-  r.push(cur); return r;
+  res.push(cur);
+  return res;
 }
 
-// ── Fetch with a hard timeout ─────────────────────────────────
-// fetch() has NO default timeout: a single hung Google connection would
-// freeze Promise.all forever (the endless-spinner bug). AbortController
-// guarantees every request settles within `ms` milliseconds.
 function fetchT(url, ms = 15000) {
-  const ctrl  = new AbortController();
+  const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms);
-  return fetch(url, {cache:'no-store', signal: ctrl.signal})
-    .finally(() => clearTimeout(timer));
+  return fetch(url, { cache: 'no-store', signal: ctrl.signal }).finally(() => clearTimeout(timer));
 }
 
-const PARTIAL_CONTRIBUTION_MESSAGES = [
-            (a,r) => `Hey there! 👋 You've put in KES ${a.toLocaleString()} this month. Just KES ${r.toLocaleString()} more and you're all set for interest. You've got this! 💪`,
-            (a,r) => `Nice start! 🌟 You're at KES ${a.toLocaleString()} so far. Top up KES ${r.toLocaleString()} more to unlock this month's interest. Almost there!`,
-            (a,r) => `Good progress! 🎯 Your KES ${a.toLocaleString()} is working. Add KES ${r.toLocaleString()} more to hit the minimum and earn interest. Keep going!`,
-            (a,r) => `You're on the right track! 🚀 KES ${a.toLocaleString()} down, KES ${r.toLocaleString()} to go. Top up soon!`,
-            (a,r) => `Almost there! 😊 You've contributed KES ${a.toLocaleString()}. Just KES ${r.toLocaleString()} more to qualify for interest this month!`
-        ];
-
-const ARCHETYPE_MESSAGES = {
-            OVERACHIEVER: [
-                { icon: '🏆', text: "You're in the top 3! At this pace, you're on track for **{projected}** by December. Your early deposits are earning you way more interest than late contributors." },
-                { icon: '💎', text: "Star performer! You've earned **{interest}** in interest so far. Keep this up!" },
-                { icon: '🚀', text: "Your balance is growing faster than **{percentBeaten}%** of the group. December projection: **{projected}**." },
-                { icon: '🔥', text: "On fire! You're projected to hit **{projected}** by December. **{stretchGoal}** is totally within reach." },
-                { icon: '👑', text: "Top tier! You've contributed **{totalTopups}** so far. December you will have **{projected}**. That's a serious emergency fund." },
-            ],
-            STEADY_CLIMBER: [
-                { icon: '🌱', text: "Solid progress! Projected **{projected}** by December. Just **KES 1,000 more/month** pushes that to **{stretchGoal}**." },
-                { icon: '💪', text: "Consistent wins! If you deposited **3 days earlier** each month, you'd earn **KES 200+ more interest** by December." },
-                { icon: '📈', text: "Steady climb! Your average deposit is **{avgDeposit}**/month. December: **{projected}** with **{projectedInterest}** in interest." },
-                { icon: '🚶', text: "One step at a time! On track for **{projected}** by December. **{monthsLeft}** months of steady contributions away." },
-                { icon: '🎊', text: "You're doing great! **{percentBeaten}%** of members are behind you. Keep going and you'll crack **{projected}** by December." }
-            ],
-            LATE_BLOOMER: [
-                { icon: '🔥', text: "Look at you go! From **{previousMonthTopup}** last month to **{currentMonthTopup}** this month. Keep this momentum and you'll hit **{projected}** by December." },
-                { icon: '🌅', text: "Late bloomer alert! You're gaining speed. **{avgDeposit}**/month → **{projected}** by year-end." },
-                { icon: '📈', text: "Upward trajectory! Last: **{previousMonthTopup}**. Now: **{currentMonthTopup}**. Next month? Hit **{suggestedNextDeposit}** and you're on a roll." },
-                { icon: '🎯', text: "You're catching up fast! **{totalTopups}** total → **{projected}** by December. That's real money!" },
-                { icon: '🎉', text: "Progress party! You've more than doubled your deposit this month. December: **{projected}**." }
-            ],
-            PARTIAL_CONTRIBUTOR: [
-                { icon: '🎯', text: "You've put in {currentMonthTopup} this month. Just {gapToMinimum} away from qualifying for interest. Doable!" },
-                { icon: '💚', text: "Good news: {similarMembers} members started at your level and hit the minimum by month-end. Just {gapToMinimum} more!" },
-                { icon: '⏰', text: "You still have time left in the month. {gapToMinimum} is all you need to qualify for interest." },
-                { icon: '🌱', text: "Every shilling counts! Add {gapToMinimum} more and you'll earn interest this month." },
-                { icon: '💪', text: "You're {gapToMinimum} away from interest. Hit it and you'll start earning on {currentBalance}." }
-            ],
-            GHOST: [
-                { icon: '👋', text: "It's not too late! Start with just {minimum} this month. By December, that becomes real money plus interest." },
-                { icon: '⏰', text: "Every month you wait costs you growth. Deposit {minimum} now and December you will thank today you." },
-                { icon: '💪', text: "No judgment, just math: {minimum}/month for {monthsLeft} months = {lateStartProjection} by December. Still worth it!" },
-                { icon: '🎯', text: "Your seat is still warm! Deposit {minimum} this month. Even starting late, you'll have {lateStartProjection} by year-end." },
-                { icon: '✨', text: "The best time to start was January. The second best time is today. {minimum} gets you in the game." }
-            ],
-            EARLY_BIRD: [
-                { icon: '🐦', text: "Early bird gets the interest! Your deposit is earning more than late-month deposits. December: **{projected}**!" },
-                { icon: '⏰', text: "Perfect timing! You're earning more interest than average just by depositing early. That's free money for good habits." },
-                { icon: '🎯', text: "Nailed it! Early deposits mean more earning days. On track for **{projected}** by December." },
-                { icon: '💎', text: "Premium timing! You're maximizing interest by depositing early. December you: **{projected}**." },
-            ],
-            BIG_DEPOSITOR: [
-                { icon: '🐋', text: "Whale alert! Your {currentBalance} is the group's backbone. Projected {projected} by December." },
-                { icon: '👑', text: "Your {avgDeposit}/month is above average. December you: {projected}. Respect!" },
-                { icon: '🌟', text: "Star power! Your {totalTopups} in contributions are setting the pace. Projected {projected} by December." },
-            ],
-            ACCELERATOR: [
-                { icon: '🚀', text: "Momentum builder! From {previousMonthTopup} to {currentMonthTopup} this month. Keep this and you'll blow past {projected}!" },
-                { icon: '📈', text: "You're scaling up! Deposits growing {percentIncrease}% month-over-month. December could surprise with {stretchGoal}." },
-                { icon: '🔥', text: "On fire! Contributions jumped from {previousMonthTopup} to {currentMonthTopup}. Hit {stretchGoal} by year-end." },
-            ],
-            STEADY_CONTRIBUTOR: [
-                { icon: '🎯', text: "Consistency wins! You've hit {avgDeposit} like clockwork. December: {projected}." },
-                { icon: '⚙️', text: "Autopilot mode. Your steady {avgDeposit}/month is compounding nicely. By December: {projected}+." },
-                { icon: '🏆', text: "Steady wins the race. {avgDeposit} deposits earning you {projected} by year-end." }
-            ],
-            DECELERATOR: [
-                { icon: '⚠️', text: "Heads up! You dropped from {previousMonthTopup} to {currentMonthTopup} this month. Try to get back on track." },
-                { icon: '💡', text: "Your balance is still growing, but slower. Bump back to {suggestedNextDeposit}/month to hit {projected}." },
-                { icon: '🛤️', text: "You're slipping a bit. Get back to {minimum}+ and December you hits {projected}." }
-            ],
-            VOLATILE: [
-                { icon: '🎢', text: "Rollercoaster rider! Try smoothing to {avgDeposit} consistently for better growth to {projected}." },
-                { icon: '🎲', text: "Wildcard! Aim for {minimum}+ steadily to maximize compound interest." },
-            ]
-        };
-
-function calculateMemberArchetype(memberData, allMembersData, currentMonth) {
-            const { totalTopups, currentMonthTopup, closingBalance, daysActive, previousMonthTopup } = memberData;
-            const monthIndex = MONTHS.indexOf(currentMonth);
-            const monthsElapsed = monthIndex + 1;
-            const sortedMembers = [...allMembersData].sort((a,b) => b.closingBalance - a.closingBalance);
-            const rank = sortedMembers.findIndex(m => m.closingBalance === closingBalance) + 1;
-            if (totalTopups === 0) return 'GHOST';
-            if (currentMonthTopup > 0 && currentMonthTopup < MIN_CONTRIB) return 'PARTIAL_CONTRIBUTOR';
-            if (monthIndex > 0 && previousMonthTopup !== undefined) {
-                const trendChange  = currentMonthTopup - previousMonthTopup;
-                const trendPercent = previousMonthTopup > 0 ? (trendChange / previousMonthTopup) * 100 : 0;
-                if (Math.abs(trendPercent) > 50 && monthIndex > 1) return 'VOLATILE';
-                if (trendChange > 0 && trendPercent > 20) return 'ACCELERATOR';
-                if (trendChange < 0 && trendPercent < -20 && currentMonthTopup >= MIN_CONTRIB) return 'DECELERATOR';
-            }
-            const avgDeposit = monthsElapsed > 0 ? totalTopups / monthsElapsed : 0;
-            if (rank <= 3 && closingBalance > 0) return 'OVERACHIEVER';
-            if (daysActive <= 5 && currentMonthTopup >= MIN_CONTRIB) return 'EARLY_BIRD';
-            if (avgDeposit > MIN_CONTRIB * 2) return 'BIG_DEPOSITOR';
-            if (currentMonthTopup >= MIN_CONTRIB) {
-                const variance = Math.abs(currentMonthTopup - avgDeposit) / (avgDeposit || 1);
-                return variance < 0.15 ? 'STEADY_CONTRIBUTOR' : 'STEADY_CLIMBER';
-            }
-            return 'STEADY_CLIMBER';
-        }
-
-function formatArchetypeMessage(archetype, memberData, allMembersData, currentMonth) {
-            try {
-                const messages = ARCHETYPE_MESSAGES[archetype] || ARCHETYPE_MESSAGES.STEADY_CLIMBER;
-                let available = messages;
-                const monthIndex = MONTHS.indexOf(currentMonth);
-                if (monthIndex === 0) {
-                    const trendTypes = ['LATE_BLOOMER','ACCELERATOR','DECELERATOR','VOLATILE'];
-                    if (trendTypes.includes(archetype)) {
-                        available = messages.filter(m => !m.text.includes('{previousMonthTopup}') && !m.text.includes('{previousInterest}'));
-                        if (!available.length) available = ARCHETYPE_MESSAGES.STEADY_CLIMBER;
-                    }
-                }
-                const msg = available[Math.floor(Math.random() * available.length)];
-                const monthsElapsed   = monthIndex + 1;
-                const monthsRemaining = 12 - monthsElapsed;
-                const avgDeposit      = monthsElapsed > 0 ? (memberData.totalTopups || 0) / monthsElapsed : 0;
-                const projected       = (memberData.closingBalance || 0) + (avgDeposit * monthsRemaining);
-                const stretchGoal     = (memberData.closingBalance || 0) + ((avgDeposit * 1.5) * monthsRemaining);
-                const suggestedNext   = Math.round((memberData.currentMonthTopup || 0) * 1.2);
-                const prevTopup       = memberData.previousMonthTopup || 0;
-                const balanceIncrease = prevTopup > 0 ? Math.round(((memberData.currentMonthTopup - prevTopup) / prevTopup) * 100) : 0;
-                const estimatedInterest = ((memberData.closingBalance||0) + (avgDeposit*monthsRemaining)) * ETICA_MONTHLY * monthsRemaining;
-                const shareOfTotal    = allMembersData.length > 0 ? Math.round(((memberData.closingBalance||0) / allMembersData.reduce((s,m)=>s+(m.closingBalance||0),0))*100) : 0;
-                const lateStart       = MIN_CONTRIB * monthsRemaining + (MIN_CONTRIB * monthsRemaining * ETICA_MONTHLY * (monthsRemaining/2));
-                let text = msg.text
-                    .replace(/{projected}/g,           `KES ${Math.round(projected).toLocaleString()}`)
-                    .replace(/{stretchGoal}/g,         `KES ${Math.round(stretchGoal).toLocaleString()}`)
-                    .replace(/{totalTopups}/g,         `KES ${(memberData.totalTopups||0).toLocaleString()}`)
-                    .replace(/{currentMonthTopup}/g,   `KES ${(memberData.currentMonthTopup||0).toLocaleString()}`)
-                    .replace(/{previousMonthTopup}/g,  `KES ${prevTopup.toLocaleString()}`)
-                    .replace(/{interest}/g,            `KES ${(memberData.totalInterest||0).toLocaleString()}`)
-                    .replace(/{currentInterest}/g,     `KES ${(memberData.currentInterest||0).toLocaleString()}`)
-                    .replace(/{avgDeposit}/g,          `KES ${Math.round(avgDeposit).toLocaleString()}`)
-                    .replace(/{monthsLeft}/g,          monthsRemaining.toString())
-                    .replace(/{minimum}/g,             `KES ${MIN_CONTRIB.toLocaleString()}`)
-                    .replace(/{gapToMinimum}/g,        `KES ${Math.max(0, MIN_CONTRIB-(memberData.currentMonthTopup||0)).toLocaleString()}`)
-                    .replace(/{currentBalance}/g,      `KES ${(memberData.closingBalance||0).toLocaleString()}`)
-                    .replace(/{suggestedNextDeposit}/g,`KES ${suggestedNext.toLocaleString()}`)
-                    .replace(/{balanceIncrease}/g,     balanceIncrease.toString())
-                    .replace(/{percentIncrease}/g,     balanceIncrease.toString())
-                    .replace(/{similarMembers}/g,      (Math.floor(Math.random()*5)+3).toString())
-                    .replace(/{shareOfTotal}/g,        shareOfTotal.toString())
-                    .replace(/{projectedInterest}/g,   `KES ${Math.round(estimatedInterest).toLocaleString()}`)
-                    .replace(/{lateStartProjection}/g, `KES ${Math.round(lateStart).toLocaleString()}`);
-                return { icon: msg.icon, text };
-            } catch(e) {
-                return { icon: '📊', text: `You're on track for KES ${Math.round((memberData.closingBalance||0)+40000).toLocaleString()} by December. Keep going!` };
-            }
-        }
-
-// Renders **text** markers as <strong> elements instead of stripping them
-function renderBold(text) {
-  const parts = text.split(/\*\*(.*?)\*\*/g);
-  return parts.map((p, i) => i % 2 === 1 ? React.createElement('strong', {key:i}, p) : p);
+function fmtKes(n, decimals = 2) {
+  return (typeof n === 'number' && !isNaN(n) ? n : 0).toLocaleString('en-KE', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
 }
 
-// ─── PASSWORD ──────────────────────────────────────────────────────────────
-function PwScreen({onOK}) {
-  const [pw, setPw]   = useState('');
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning — starting the month or day early keeps your compounding ahead of schedule.';
+  if (h < 17) return 'Good afternoon — steady monthly contributions build lasting financial momentum.';
+  return 'Good evening — a quick check-in today keeps your savings goals on track.';
+}
+
+function PwScreen({ onOK }) {
+  const [pw, setPw] = useState('');
   const [err, setErr] = useState('');
-  const [shk, setShk] = useState(false);
-  const go = e => {
+  const submit = e => {
     e.preventDefault();
     if (pw === PASSWORD) { setAuth(); onOK(); }
-    else {
-      setErr('Wrong password. Ask your group admin.');
-      setShk(true); setTimeout(()=>setShk(false),500); setPw('');
-    }
+    else { setErr('Incorrect password. Please check with your group admin.'); setPw(''); }
   };
   return (
-    <div className="pw-screen">
-      <div className="pw-card" style={{animation: shk ? 'shk .5s' : undefined}}>
-        <div style={{fontSize:'2.2rem'}}>&#128274;</div>
-        <div className="pw-title">Like-Minded Folks</div>
-        <div className="pw-sub">MMF Account Tracker · Members Only</div>
-        <form onSubmit={go} style={{width:'100%',display:'flex',flexDirection:'column',gap:8}}>
-          <input type="password" value={pw} onChange={e=>setPw(e.target.value)}
-            placeholder="Enter password" autoFocus
-            className={`pw-inp${err?' err':''}`} />
-          <div className="pw-err">{err}</div>
-          <button type="submit" className="pw-btn">Access Tracker &#8594;</button>
-        </form>
-        <div className="pw-help">No password? Contact your group admin</div>
-      </div>
+    <div className="pw-wrap">
+      <form className="pw-box" onSubmit={submit}>
+        <div className="eyebrow" style={{ justifyContent: 'center' }}><span className="live-dot" /> Members Only</div>
+        <h1 className="brand-title" style={{ marginTop: 8 }}>Like-Minded Folks</h1>
+        <p className="brand-sub">MMF Account Tracker · {CUR_YEAR}</p>
+        <input
+          type="password"
+          className={`pw-input ${err ? 'err' : ''}`}
+          placeholder="Enter member password"
+          value={pw}
+          onChange={e => setPw(e.target.value)}
+          autoFocus
+        />
+        {err && <div style={{ color: 'var(--rd)', fontSize: '0.78rem', marginTop: 8, textAlign: 'left' }}>{err}</div>}
+        <button type="submit" className="primary-btn" style={{ marginTop: 14 }}>Unlock Tracker →</button>
+      </form>
     </div>
   );
 }
 
-// ─── MEMBER CHART ──────────────────────────────────────────────────────────
-function MemberChart({alias, data, month, theme}) {
-  const ref = useRef(null), inst = useRef(null);
+function GrowthChart({ alias, data, month, theme, members, mode }) {
+  const canvasRef = useRef(null);
+  const chartRef = useRef(null);
+
   useEffect(() => {
-    if (!ref.current || !data || !alias) return;
-    if (inst.current) inst.current.destroy();
-    const ctx = ref.current.getContext('2d');
-    const idx = MONTHS.indexOf(month);
-    let total = 0;
-    const deps=[], bals=[];
-    for (let i=0; i<=idx; i++) {
-      const md = data[MONTHS[i]]?.[alias]||{};
-      deps.push(md.topups||0); bals.push(md.closingBalance||0);
-      total += md.topups||0;
+    if (!canvasRef.current || !data) return;
+    if (chartRef.current) chartRef.current.destroy();
+
+    const idx = Math.max(0, MONTHS.indexOf(month));
+    const labels = MONTHS.map(m => m.slice(0, 3));
+    const bars = [];
+    const actualLine = [];
+    let cumTopups = 0;
+
+    for (let i = 0; i <= idx; i++) {
+      const mName = MONTHS[i];
+      if (mode === 'group') {
+        const t = members.reduce((s, a) => s + (data[mName]?.[a]?.topups || 0), 0);
+        const b = members.reduce((s, a) => s + (data[mName]?.[a]?.closingBalance || 0), 0);
+        bars.push(t);
+        actualLine.push(b);
+        cumTopups += t;
+      } else {
+        const row = data[mName]?.[alias] || { topups: 0, closingBalance: 0 };
+        bars.push(row.topups);
+        actualLine.push(row.closingBalance);
+        cumTopups += row.topups;
+      }
     }
-    const avg = (idx+1) > 0 ? total/(idx+1) : MIN_CONTRIB;
-    const barD  = [...deps, ...Array(11-idx).fill(null)];
-    const barC  = deps.map(v => v>=MIN_CONTRIB?'rgba(105,190,81,.78)':v>0?'rgba(255,165,25,.78)':'rgba(255,64,95,.55)').concat(Array(11-idx).fill('transparent'));
-    const balL  = [...bals, ...Array(11-idx).fill(null)];
-    const last  = bals[bals.length-1]||0;
-    const proj  = Array(12).fill(null); proj[idx]=last;
-    for (let i=idx+1;i<12;i++) proj[i]=(proj[i-1]+avg)*(1+ETICA_MONTHLY);
-    inst.current = new Chart(ctx, {
-      data:{labels:MONTHS.map(m=>m.slice(0,3)), datasets:[
-        {type:'bar',  label:'Monthly Deposit', data:barD, backgroundColor:barC, borderWidth:0, borderRadius:4, yAxisID:'y', order:3},
-        {type:'line', label:'Balance to Date', data:balL, borderColor:'#69be51', backgroundColor:'transparent', borderWidth:2.5, pointBackgroundColor:'#69be51', pointRadius:4, fill:false, tension:.3, yAxisID:'y', order:1, spanGaps:false},
-        {type:'line', label:'Projected',       data:proj, borderColor:'#3b82f6', backgroundColor:'transparent', borderWidth:2,   borderDash:[6,4], pointBackgroundColor:'#3b82f6', pointRadius:3, fill:false, tension:.3, yAxisID:'y', order:2, spanGaps:false}
-      ]},
-      options:{responsive:true, maintainAspectRatio:false,
-        interaction:{mode:'index',intersect:false},
-        plugins:{
-          legend:{display:true,position:'top',labels:{color: document.documentElement.getAttribute('data-theme')==='light' ? 'rgba(30,40,60,.65)' : 'rgba(200,200,220,.55)',font:{size:10,family:'DM Sans'},boxWidth:10,padding:12}},
-          tooltip:{backgroundColor:'#1e2232',titleColor:'#69be51',bodyColor:'#eef0f8',borderColor:'rgba(105,190,81,.2)',borderWidth:1,
-            callbacks:{label:c=>{const v=c.parsed.y; if(v===null||v===undefined)return null; return `${c.dataset.label}: KES ${Math.round(v).toLocaleString()}`;}}}
+
+    const avgMonthly = cumTopups / (idx + 1) || MIN_CONTRIB;
+    const barSeries = [...bars, ...Array(11 - idx).fill(null)];
+    const lineSeries = [...actualLine, ...Array(11 - idx).fill(null)];
+    const projSeries = Array(12).fill(null);
+    projSeries[idx] = actualLine[idx] || 0;
+    for (let i = idx + 1; i < 12; i++) {
+      projSeries[i] = (projSeries[i - 1] + avgMonthly) * (1 + ETICA_MONTHLY);
+    }
+
+    const tickColor = theme === 'light' ? 'rgba(15,23,42,0.58)' : 'rgba(242,245,250,0.55)';
+    const gridColor = theme === 'light' ? 'rgba(15,23,42,0.06)' : 'rgba(255,255,255,0.06)';
+
+    chartRef.current = new Chart(canvasRef.current.getContext('2d'), {
+      data: {
+        labels,
+        datasets: [
+          {
+            type: 'bar',
+            label: mode === 'group' ? 'Group Top-ups' : 'Monthly Top-ups',
+            data: barSeries,
+            backgroundColor: 'rgba(86, 194, 82, 0.72)',
+            borderRadius: 5,
+            order: 3
+          },
+          {
+            type: 'line',
+            label: 'Balance',
+            data: lineSeries,
+            borderColor: '#56c252',
+            borderWidth: 2.5,
+            pointRadius: 3,
+            tension: 0.3,
+            spanGaps: false,
+            order: 1
+          },
+          {
+            type: 'line',
+            label: 'Projected',
+            data: projSeries,
+            borderColor: '#4b91ff',
+            borderWidth: 2,
+            borderDash: [5, 4],
+            pointRadius: 2.5,
+            tension: 0.3,
+            spanGaps: false,
+            order: 2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: tickColor, boxWidth: 10, font: { size: 11, family: 'DM Sans' } }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => ctx.parsed.y == null ? null : `${ctx.dataset.label}: KES ${Math.round(ctx.parsed.y).toLocaleString()}`
+            }
+          }
         },
-        scales:{
-          y:{beginAtZero:true, ticks:{color: document.documentElement.getAttribute('data-theme')==='light' ? 'rgba(30,40,60,.6)' : 'rgba(200,200,220,.5)',font:{size:9},callback:v=>'KES '+(v/1000).toFixed(0)+'k'}, grid:{color:'rgba(255,255,255,.04)'}},
-          x:{ticks:{color: document.documentElement.getAttribute('data-theme')==='light' ? 'rgba(30,40,60,.6)' : 'rgba(200,200,220,.5)',font:{size:9}}, grid:{display:false}}
+        scales: {
+          x: { ticks: { color: tickColor, font: { size: 10 } }, grid: { display: false } },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              color: tickColor,
+              font: { size: 10 },
+              callback: v => 'KES ' + Math.round(v / 1000) + 'k'
+            },
+            grid: { color: gridColor }
+          }
         }
       }
     });
-    return () => { if(inst.current) inst.current.destroy(); };
-  }, [alias, data, month, theme]);
-  if (!alias) return null;
-  return <div style={{height:'240px',position:'relative'}}><canvas ref={ref}/></div>;
+
+    return () => { if (chartRef.current) chartRef.current.destroy(); };
+  }, [alias, data, month, theme, members, mode]);
+
+  return <div style={{ height: 215, position: 'relative' }}><canvas ref={canvasRef} /></div>;
 }
 
-// ─── GROUP CHART ───────────────────────────────────────────────────────────
-function GroupChart({data, month, theme, members}) {
-  const ref = useRef(null), inst = useRef(null);
-  useEffect(() => {
-    if (!ref.current || !data) return;
-    if (inst.current) inst.current.destroy();
-    const ctx = ref.current.getContext('2d');
-    const idx = MONTHS.indexOf(month);
-    let total = 0;
-    const tots=[], bals=[];
-    for (let i=0; i<=idx; i++) {
-      let t=0,b=0;
-      members.forEach(a => { t+=data[MONTHS[i]]?.[a]?.topups||0; b+=data[MONTHS[i]]?.[a]?.closingBalance||0; });
-      tots.push(t); bals.push(b); total+=t;
-    }
-    const avg  = (idx+1)>0 ? total/(idx+1) : 0;
-    const barD = [...tots, ...Array(11-idx).fill(null)];
-    const last = bals[bals.length-1]||0;
-    const proj = Array(12).fill(null); proj[idx]=last;
-    for (let i=idx+1;i<12;i++) proj[i]=(proj[i-1]+avg)*(1+ETICA_MONTHLY);
-    inst.current = new Chart(ctx, {
-      data:{labels:MONTHS.map(m=>m.slice(0,3)), datasets:[
-        {type:'bar',  label:'Monthly Group Total', data:barD, backgroundColor:'rgba(105,190,81,.65)', borderWidth:0, borderRadius:4, yAxisID:'y', order:2},
-        {type:'line', label:'Projected Balance',   data:proj, borderColor:'#3b82f6', backgroundColor:'transparent', borderWidth:2, borderDash:[6,4], pointBackgroundColor:'#3b82f6', pointRadius:3, fill:false, tension:.3, yAxisID:'y', order:1, spanGaps:false}
-      ]},
-      options:{responsive:true, maintainAspectRatio:false,
-        interaction:{mode:'index',intersect:false},
-        plugins:{
-          legend:{display:true,position:'top',labels:{color: document.documentElement.getAttribute('data-theme')==='light' ? 'rgba(30,40,60,.65)' : 'rgba(200,200,220,.55)',font:{size:10,family:'DM Sans'},boxWidth:10,padding:12}},
-          tooltip:{backgroundColor:'#1e2232',titleColor:'#69be51',bodyColor:'#eef0f8',borderColor:'rgba(105,190,81,.2)',borderWidth:1,
-            callbacks:{label:c=>{const v=c.parsed.y; if(v===null||v===undefined)return null; return `${c.dataset.label}: KES ${Math.round(v).toLocaleString()}`;}}}
-        },
-        scales:{
-          y:{beginAtZero:true, ticks:{color: document.documentElement.getAttribute('data-theme')==='light' ? 'rgba(30,40,60,.6)' : 'rgba(200,200,220,.5)',font:{size:9},callback:v=>'KES '+(v/1000).toFixed(0)+'k'}, grid:{color:'rgba(255,255,255,.04)'}},
-          x:{ticks:{color: document.documentElement.getAttribute('data-theme')==='light' ? 'rgba(30,40,60,.6)' : 'rgba(200,200,220,.5)',font:{size:9}}, grid:{display:false}}
-        }
-      }
-    });
-    return () => { if(inst.current) inst.current.destroy(); };
-  }, [data, month, theme]);
-  return <div style={{height:'220px',position:'relative'}}><canvas ref={ref}/></div>;
-}
-
-// ─── ALL MEMBERS VIEW ──────────────────────────────────────────────────────
-function AllMembers({month, rows, ts, data, theme, onBack, members}) {
-  const tO=rows.reduce((s,r)=>s+r.openingBalance,0);
-  const tT=rows.reduce((s,r)=>s+r.topups,0);
-  const tI=rows.reduce((s,r)=>s+r.interest,0);
-  const tC=rows.reduce((s,r)=>s+r.closingBalance,0);
-  const fmt = n => n.toLocaleString('en-KE',{maximumFractionDigits:0});
-  return (
-    <div className="inner">
-      {onBack && <button className="back-btn" onClick={onBack}>&#8592; Back to Overview</button>}
-      <div className="inner-title">Interest Accrual &middot; {month}</div>
-      <div className="ccrd">
-        <div className="clbl">Group Monthly Totals &amp; Projection</div>
-        <div className="csub"><span style={{color:'#69be51'}}>&#9646;</span> Monthly &nbsp;&middot;&nbsp; <span style={{color:'#3b82f6'}}>&#8213;</span> Projected</div>
-        <GroupChart data={data} month={month} theme={theme} members={members} />
-      </div>
-      <div className="mtbl-wrap">
-        <table className="mtbl">
-          <thead>
-            <tr>
-              <th className="tl">#</th>
-              <th className="tl">Alias</th>
-              <th className="nm">Opening</th>
-              <th className="nm">Top-ups</th>
-              <th className="nm">Int.</th>
-              <th className="nm">Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r,i) => {
-              const dc = r.topups>=MIN_CONTRIB?'#69be51':r.topups>0?'#ffa519':'#ff405f';
-              return (
-                <tr key={r.alias}>
-                  <td className="tl" style={{color:'var(--t3)',fontSize:'.72rem'}}>{i<3?['🥇','🥈','🥉'][i]:i+1}</td>
-                  <td className="tl" style={{fontWeight:600,color:'var(--t1)'}}>{r.alias}</td>
-                  <td className="nm">{fmt(r.openingBalance)}</td>
-                  <td className="nm"><div className="tcell">{fmt(r.topups)}<span className="dot" style={{backgroundColor:dc}}/></div></td>
-                  <td className="nm">{fmt(r.interest)}</td>
-                  <td className="nm ac">{fmt(r.closingBalance)}</td>
-                </tr>
-              );
-            })}
-            <tr className="tot">
-              <td/><td className="tl">TOTALS</td>
-              <td className="nm">{fmt(tO)}</td>
-              <td className="nm">{fmt(tT)}</td>
-              <td className="nm">{fmt(tI)}</td>
-              <td className="nm ac">{fmt(tC)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      {ts && <div className="dts">Data as of {ts.toLocaleString('en-KE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})}</div>}
-    </div>
-  );
-}
-
-// ─── MAIN APP ──────────────────────────────────────────────────────────────
 function App() {
-  const [auth,    setAuth2]    = useState(() => !!getAuth());
+  const [auth, setAuthState] = useState(() => !!getAuth());
   const [theme, setTheme] = useState(() => {
-    // Check for manual override first; otherwise follow system
     const saved = localStorage.getItem('mmf_theme');
     if (saved) return saved;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
-  const [data,    setData]     = useState(null);
-  const [loading, setLoading]  = useState(true);
-  const [error,   setError]    = useState(null);
-  const [partial, setPartial]  = useState(false);
-  const [tab,     setTab]      = useState('overview');
-  const [overviewMonth, setOverviewMonth] = useState(curMonth);
-  const [balanceMonth,  setBalanceMonth]  = useState(curMonth);
-  const [accrualMonth,  setAccrualMonth]  = useState(curMonth);
-  const [alias,   setAlias]    = useState('');
-  const [ts,      setTs]       = useState(null);
-  const [pdfMsg,  setPdfMsg]   = useState(null);
-  const [openDrop, setOpenDrop] = useState(null);
-  const [members,  setMembers]  = useState(FALLBACK_MEMBERS);
-  const [pairs,    setPairs]    = useState(FALLBACK_PAIRS);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [tab, setTab] = useState('overview');
+  const [month, setMonth] = useState(curMonth);
+  const [alias, setAlias] = useState('');
+  const [members, setMembers] = useState(FALLBACK_MEMBERS);
+  const [pairs, setPairs] = useState(FALLBACK_PAIRS);
   const [cityIcon, setCityIcon] = useState(CITY_ICON);
-  const [cityColor,setCityColor]= useState(CITY_COLOR);
-  const [cityBorder,setCityBorder]=useState(CITY_BORDER);
-  const [wdrawAmt, setWdrawAmt] = useState('');
-  const [wdrawReqs,setWdrawReqs]= useState(() => {
-    try { return JSON.parse(localStorage.getItem('mmf_wdraw_'+CUR_YEAR)||'{}'); }
-    catch(e) { return {}; }
-  });
+  const [statementSummary, setStatementSummary] = useState('');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('mmf_theme', theme);
   }, [theme]);
 
-  useEffect(() => { if (auth) load(); }, [auth]);
-
-  useEffect(() => {
-    if (!openDrop) return;
-    const handler = e => {
-      const id = 'drop-' + (openDrop === 'alias' ? 'alias' : 'stmt');
-      const el = document.getElementById(id);
-      if (el && !el.contains(e.target)) setOpenDrop(null);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [openDrop]);
-
-  // Keep the ACTIVE month pill visible — centres it in the scroll row
-  // whenever a pill row (re)appears or the selected month changes.
-  useEffect(() => {
-    if (loading) return;
-    requestAnimationFrame(() => {
-      document.querySelectorAll('.mscroll .mpill.on').forEach(el => {
-        el.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
-      });
-    });
-  }, [loading, tab, overviewMonth, balanceMonth, accrualMonth, alias]);
-
-  const load = async () => {
+  const loadData = useCallback(async () => {
     try {
-      setLoading(true); setError(null); setPartial(false);
+      setLoading(true);
+      setError(null);
 
-      // ── Step 1: fetch Members tab ──────────────────────────────────────────
       let liveMembers = FALLBACK_MEMBERS;
-      let livePairs   = FALLBACK_PAIRS;
-      let liveIcon    = {...CITY_ICON};
-      let liveColor   = {...CITY_COLOR};
-      let liveBorder  = {...CITY_BORDER};
-
-      // Rotating colour palette for new members not yet in the hardcoded maps
-      const PALETTE = [
-        ['rgba(255,64,95,.15)','rgba(255,64,95,.3)'],
-        ['rgba(168,85,247,.15)','rgba(168,85,247,.3)'],
-        ['rgba(255,165,25,.15)','rgba(255,165,25,.3)'],
-        ['rgba(59,130,246,.15)','rgba(59,130,246,.3)'],
-        ['rgba(20,184,166,.15)','rgba(20,184,166,.3)'],
-        ['rgba(16,185,129,.15)','rgba(16,185,129,.3)'],
-        ['rgba(99,102,241,.15)','rgba(99,102,241,.3)'],
-        ['rgba(251,146,60,.15)','rgba(251,146,60,.3)'],
-        ['rgba(236,72,153,.15)','rgba(236,72,153,.3)'],
-        ['rgba(234,179,8,.15)','rgba(234,179,8,.3)'],
-      ];
+      let livePairs = FALLBACK_PAIRS;
+      let liveIcons = { ...CITY_ICON };
 
       try {
-        const mr   = await fetchT(MEMBERS_URL + '&_=' + Date.now());
+        const mr = await fetchT(MEMBERS_URL + '&_=' + Date.now());
         const mtxt = await mr.text();
         const mlines = mtxt.split('\n').filter(l => l.trim());
-        if (mlines.length < 2) throw new Error('Empty members sheet');
-
-        // Detect column positions from header row (case-insensitive)
-        const headers = parseRow(mlines[0]).map(h => h.trim().toLowerCase().replace(/"/g,''));
-        const colAlias  = headers.findIndex(h => h.includes('alias') || h.includes('name'));
-        const colIcon   = headers.findIndex(h => h.includes('icon') || h.includes('emoji'));
-        const colPair   = headers.findIndex(h => h.includes('pair') || h.includes('partner'));
-        // Default to positional (A=0,B=1,C=2) if headers not recognised
-        const iA = colAlias  >= 0 ? colAlias  : 0;
-        const iI = colIcon   >= 0 ? colIcon   : 1;
-        const iP = colPair   >= 0 ? colPair   : 2;
-
-        const parsed = [];
-        const parsedPairs = {};
-        mlines.slice(1).forEach((line, idx) => {
-          const cols  = parseRow(line);
-          const name  = cols[iA]?.trim().replace(/"/g,'');
-          const icon  = cols[iI]?.trim().replace(/"/g,'').trim() || '';
-          const pair  = cols[iP]?.trim().replace(/"/g,'') || '';
-          if (!name) return;
-          parsed.push(name);
-          if (pair) { parsedPairs[name] = pair; }
-          // Colour: use hardcoded if exists, otherwise assign from palette
-          if (!liveColor[name]) {
-            const [bg, br] = PALETTE[idx % PALETTE.length];
-            liveColor[name]  = bg;
-            liveBorder[name] = br;
+        if (mlines.length > 1) {
+          const headers = parseRow(mlines[0]).map(h => h.trim().toLowerCase().replace(/"/g, ''));
+          const iA = Math.max(0, headers.findIndex(h => h.includes('alias') || h.includes('name')));
+          const iI = headers.findIndex(h => h.includes('icon') || h.includes('emoji'));
+          const iP = headers.findIndex(h => h.includes('pair') || h.includes('partner'));
+          const parsedMembers = [];
+          const parsedPairs = {};
+          mlines.slice(1).forEach(line => {
+            const cols = parseRow(line);
+            const name = cols[iA]?.trim().replace(/"/g, '');
+            if (!name) return;
+            parsedMembers.push(name);
+            const icon = iI >= 0 ? cols[iI]?.trim().replace(/"/g, '') : '';
+            liveIcons[name] = icon || CITY_ICON[name] || '👤';
+            if (iP >= 0 && cols[iP]?.trim()) parsedPairs[name] = cols[iP].trim().replace(/"/g, '');
+          });
+          if (parsedMembers.length > 0) {
+            liveMembers = parsedMembers;
+            livePairs = parsedPairs;
+            setMembers(parsedMembers);
+            setPairs(parsedPairs);
+            setCityIcon(liveIcons);
           }
-          // Icon: sheet ALWAYS wins — only fall back to hardcoded if sheet cell is blank
-          const cleanIcon = icon.replace(/"/g,'').trim();
-          liveIcon[name] = cleanIcon || CITY_ICON[name] || '👤';
-        });
-        if (parsed.length > 0) {
-          liveMembers = parsed;
-          livePairs   = parsedPairs;
-          console.log('✅ Members loaded from sheet:', parsed.length, 'members');
-          setMembers(parsed);
-          setPairs(parsedPairs);
-          setCityIcon(liveIcon);
-          setCityColor(liveColor);
-          setCityBorder(liveBorder);
         }
-      } catch(e) {
-        // Members tab fetch failed — silently use fallback, site still works
-        console.warn('Members tab fetch failed, using fallback list:', e);
+      } catch (_) {
+        // Keep fallback members
       }
 
-      // ── Step 2: fetch month data (Jan → current month, fault-tolerant) ─────
-      // Each month is fetched independently with a hard timeout. A failed or
-      // hung month becomes an empty {} instead of blocking the whole app —
-      // this is what fixes the endless "Loading your data…" spinner.
-      const curIdx       = new Date().getMonth();
+      const curIdx = new Date().getMonth();
       const activeMonths = MONTHS.slice(0, curIdx + 1);
-      const parsed       = {};
-      let   okCount      = 0;
+      const parsedData = {};
+      let okCount = 0;
 
       await Promise.all(activeMonths.map(async m => {
         try {
           const resp = await fetchT(MONTH_URLS[m] + '&_=' + Date.now());
           if (!resp.ok) throw new Error('HTTP ' + resp.status);
-          const txt  = await resp.text();
-          const ls   = txt.split('\n').filter(l=>l.trim());
-          const md   = {};
-          for (let i=3; i<ls.length; i++) {
-            const cols  = parseRow(ls[i]);
-            const name  = cols[0]?.trim().replace(/"/g,'');
+          const txt = await resp.text();
+          const lines = txt.split('\n').filter(l => l.trim());
+          const monthMap = {};
+          for (let i = 3; i < lines.length; i++) {
+            const cols = parseRow(lines[i]);
+            const name = cols[0]?.trim().replace(/"/g, '');
             if (name && liveMembers.includes(name)) {
-              const n = s => parseFloat((s||'').replace(/["',\s]/g,''))||0;
-              md[name] = {
-                openingBalance: n(cols[1]),
-                topups:         n(cols[2]),
-                interest:       n(cols[3]),
-                daysActive:     parseInt((cols[4]||'').replace(/[",\s]/g,''))||0,
-                closingBalance: n(cols[5])
+              const num = s => parseFloat((s || '').replace(/["',\s]/g, '')) || 0;
+              monthMap[name] = {
+                openingBalance: num(cols[1]),
+                topups: num(cols[2]),
+                interest: num(cols[3]),
+                daysActive: parseInt((cols[4] || '').replace(/[",\s]/g, ''), 10) || 0,
+                closingBalance: num(cols[5])
               };
             }
           }
-          parsed[m] = md;
+          parsedData[m] = monthMap;
           okCount++;
-        } catch(e) {
-          console.warn('⚠️ Month fetch failed (will show zeros):', m, e.message);
-          parsed[m] = {};
+        } catch (_) {
+          parsedData[m] = {};
         }
       }));
 
-      // Only hard-fail if EVERY month failed — otherwise show what we have
-      if (okCount === 0) throw new Error('all months failed');
-      if (okCount < activeMonths.length) setPartial(true);
-
-      setData(parsed); setTs(new Date()); setLoading(false);
-    } catch(e) {
-      setError('Could not load data. Please check your connection and refresh.'); setLoading(false);
+      if (okCount === 0) throw new Error('Unable to load monthly sheet data.');
+      setData(parsedData);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message || 'Failed to load tracker data.');
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const getRows = useCallback(m => {
-    if (!data) return [];
-    return members.map(a => ({alias:a,...(data[m]?.[a]||{openingBalance:0,topups:0,interest:0,daysActive:0,closingBalance:0})}))
-      .sort((a,b)=>b.closingBalance-a.closingBalance);
-  }, [data]);
+  useEffect(() => {
+    if (auth) loadData();
+  }, [auth, loadData]);
 
-  const stats = useCallback(() => {
-    if (!data) return null;
-    const rows = getRows(overviewMonth);
-    const mTopups = rows.reduce((s,r)=>s+r.topups,0);
-    const mInt    = rows.reduce((s,r)=>s+r.interest,0);
-    const totBal  = rows.reduce((s,r)=>s+r.closingBalance,0);
-    const idx = MONTHS.indexOf(overviewMonth);
-    let cumC=0,cumI=0;
-    for (let i=0;i<=idx;i++) {
-      if (data[MONTHS[i]]) {
-        const rr=getRows(MONTHS[i]);
-        cumC+=rr.reduce((s,r)=>s+r.topups,0);
-        cumI+=rr.reduce((s,r)=>s+r.interest,0);
-      }
-    }
-    return {mTopups,mInt,cumC,cumI,totBal};
-  }, [data, overviewMonth, getRows]);
+  if (!auth) return <PwScreen onOK={() => setAuthState(true)} />;
 
-  if (!auth) return <PwScreen onOK={() => setAuth2(true)} />;
-
-  if (loading) return (
-    <div className="lscreen">
-      <div className="spin"/>
-      <div>Loading your data&hellip;</div>
-    </div>
-  );
-
-  if (error) return (
-    <div className="lscreen">
-      <div style={{fontSize:'1.5rem'}}>&#9888;&#65039;</div>
-      <div style={{color:'var(--rd)',textAlign:'center',padding:'0 32px'}}>{error}</div>
-      <button onClick={load} className="pw-btn" style={{width:'auto',padding:'10px 24px'}}>Retry</button>
-    </div>
-  );
-
-  const st      = stats();
-  const cm      = curMonth();
-  const today   = new Date().getDate();
-  const wdraw   = withdrawalWindow();
-  const decData = data?.['December'];
-  const md      = data?.[balanceMonth]?.[alias]||{openingBalance:0,topups:0,interest:0,daysActive:0,closingBalance:0};
-  const partner = pairs[alias];
-  const f2 = n => n.toLocaleString('en-KE',{minimumFractionDigits:2,maximumFractionDigits:2});
-  const f0 = n => n.toLocaleString('en-KE',{maximumFractionDigits:0});
-
-  let warn='', warnMsg='';
-  if (balanceMonth===cm && today>=WARN_START_DAY && alias) {
-    if (partner) {
-      const pd=data[balanceMonth]?.[partner]||{topups:0};
-      const comb=md.topups+pd.topups;
-      if (comb===0) { warn=true; warnMsg=`Combined ${balanceMonth} contribution with ${partner} not recorded yet.`; }
-      else if (comb<MIN_CONTRIB) {
-        warn=true;
-        const fn=PARTIAL_CONTRIBUTION_MESSAGES[Math.floor(Math.random()*PARTIAL_CONTRIBUTION_MESSAGES.length)];
-        warnMsg=fn(comb,MIN_CONTRIB-comb)+` (Combined with ${partner})`;
-      }
-    } else {
-      if (md.topups===0) { warn=true; warnMsg=`${balanceMonth} contribution not recorded yet. Deposit KES ${MIN_CONTRIB.toLocaleString()} soon.`; }
-      else if (md.topups<MIN_CONTRIB) {
-        warn=true;
-        const fn=PARTIAL_CONTRIBUTION_MESSAGES[Math.floor(Math.random()*PARTIAL_CONTRIBUTION_MESSAGES.length)];
-        warnMsg=fn(md.topups,MIN_CONTRIB-md.topups);
-      }
-    }
+  if (loading) {
+    return (
+      <div className="loader-box">
+        <div className="spinner" />
+        <div>Loading MMF balances…</div>
+      </div>
+    );
   }
 
-  let motiv = {icon:'📊',text:'Keep going!'};
-  if (alias && data) {
-    const idx=MONTHS.indexOf(balanceMonth);
-    const hist={totalTopups:0,totalInterest:0,currentMonthTopup:0,currentInterest:0,previousMonthTopup:0,closingBalance:0,daysActive:0};
-    for (let i=0;i<=idx;i++) {
-      const m2=data[MONTHS[i]]?.[alias]||{};
-      hist.totalTopups+=m2.topups||0; hist.totalInterest+=m2.interest||0;
-      if (i===idx) { hist.currentMonthTopup=m2.topups||0; hist.currentInterest=m2.interest||0; hist.closingBalance=m2.closingBalance||0; hist.daysActive=m2.daysActive||0; }
-      if (i===idx-1) hist.previousMonthTopup=m2.topups||0;
-    }
-    const allMD=members.map(a=>({alias:a,closingBalance:data[balanceMonth]?.[a]?.closingBalance||0}));
-    const arch=calculateMemberArchetype(hist,allMD,balanceMonth);
-    motiv=formatArchetypeMessage(arch,hist,allMD,balanceMonth);
+  if (error || !data) {
+    return (
+      <div className="loader-box" style={{ padding: 24, textAlign: 'center' }}>
+        <div style={{ color: 'var(--rd)', fontWeight: 700 }}>{error || 'No data available'}</div>
+        <button className="primary-btn" style={{ maxWidth: 180 }} onClick={loadData}>Retry</button>
+      </div>
+    );
   }
 
+  const rows = members.map(a => ({
+    alias: a,
+    ...(data[month]?.[a] || { openingBalance: 0, topups: 0, interest: 0, daysActive: 0, closingBalance: 0 })
+  })).sort((a, b) => b.closingBalance - a.closingBalance);
 
-  const generateStatement = () => {
-    if (!alias || !data) return;
-
-    // Always show full YTD up to the real current month — ignore balanceMonth
-    const actualMonth = curMonth();
-    const idx  = MONTHS.indexOf(actualMonth);
-    const isDark = theme === 'dark';
-
-    const fmt2 = n => (typeof n === 'number' ? n : 0).toLocaleString('en-KE', {minimumFractionDigits:2, maximumFractionDigits:2});
-    const fmt0 = n => (typeof n === 'number' ? n : 0).toLocaleString('en-KE', {maximumFractionDigits:0});
-
-    // Build YTD rows
-    let ytdTopups = 0, ytdInterest = 0;
-    const rows = [];
-    for (let i = 0; i <= idx; i++) {
-      const m  = MONTHS[i];
-      const d  = data[m]?.[alias] || {openingBalance:0, topups:0, interest:0, closingBalance:0};
-      ytdTopups   += d.topups   || 0;
-      ytdInterest += d.interest || 0;
-      rows.push({month:m, opening:d.openingBalance||0, topups:d.topups||0, interest:d.interest||0, closing:d.closingBalance||0});
-    }
-
-    const latestClosing = rows[rows.length - 1]?.closing || 0;
-    const icon          = cityIcon[alias] || '👤';
-    const genDate       = new Date().toLocaleDateString('en-KE', {day:'2-digit', month:'long', year:'numeric'});
-
-    // Theme tokens — match the app palette exactly
-    const bg      = isDark ? '#0f1117' : '#f5f7f5';
-    const page    = isDark ? '#1a1e28' : '#ffffff';
-    const border  = isDark ? '#2d3347' : '#e5e7eb';
-    const border2 = isDark ? '#3a4060' : '#d1d5db';
-    const t1      = isDark ? '#e8eaf0' : '#111827';
-    const t2      = isDark ? '#9aa0b8' : '#6b7280';
-    const t3      = isDark ? '#6b7280' : '#9ca3af';
-    const green   = '#00a86b';
-    const greenDim = isDark ? '#0d3326' : '#ecfdf5';
-    const greenBdr = isDark ? '#145940' : '#a7f3d0';
-    const rowAlt  = isDark ? '#1e2233' : '#f9fafb';
-    const rowCur  = isDark ? '#0d2e1f' : '#ecfdf5';
-    const tfoot   = isDark ? '#222638' : '#f3f4f6';
-
-    const rowsHTML = rows.map((r, i) => `
-      <tr style="background:${i === idx ? rowCur : (i % 2 === 0 ? rowAlt : page)}">
-        <td style="text-align:left;font-weight:700;color:${i === idx ? green : t1}">${r.month}</td>
-        <td>${fmt2(r.opening)}</td>
-        <td style="color:${t2}">${r.topups > 0 ? fmt0(r.topups) : '—'}</td>
-        <td style="color:${i === idx ? green : green}">${fmt2(r.interest)}</td>
-        <td style="font-weight:${i === idx ? '700':'600'};color:${i === idx ? green : t1}">${fmt2(r.closing)}</td>
-      </tr>`).join('');
-
-    const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MMF Statement · ${alias} · ${CUR_YEAR}</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Sora:wght@700;800&family=JetBrains+Mono:wght@500;600&display=swap');
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:'DM Sans',sans-serif;background:${bg};color:${t1};padding:24px 16px 48px;min-height:100vh;}
-  .page{max-width:660px;margin:0 auto;background:${page};border-radius:20px;overflow:hidden;border:1px solid ${border};}
-
-  /* ── Header bar ── */
-  .hdr{padding:28px 36px 22px;border-bottom:1px solid ${border};display:flex;justify-content:space-between;align-items:center;gap:24px;}
-  .brand{font-family:'Sora',sans-serif;font-size:.82rem;font-weight:800;color:${green};line-height:1.2;}
-  .brand-sub{font-size:.62rem;color:${t3};margin-top:4px;letter-spacing:.07em;text-transform:uppercase;}
-  .hdr-divider{width:1px;height:36px;background:${border2};flex-shrink:0;}
-  .stmt-label{text-align:right;}
-  .stmt-title{font-family:'Sora',sans-serif;font-size:1.5rem;font-weight:800;color:${t1};letter-spacing:-.025em;line-height:1.1;}
-  .stmt-period{font-size:.72rem;color:${t2};margin-top:5px;}
-
-  /* ── Member strip ── */
-  .member{display:flex;align-items:center;gap:14px;margin:24px 36px;padding:16px 20px;
-    background:${greenDim};border:1px solid ${greenBdr};border-radius:14px;}
-  .member-ico{font-size:2rem;line-height:1;flex-shrink:0;}
-  .member-name{font-family:'Sora',sans-serif;font-size:1.15rem;font-weight:800;color:${t1};}
-  .member-ref{font-size:.72rem;color:${t2};margin-top:3px;font-family:'JetBrains Mono',monospace;}
-
-  /* ── YTD summary row ── */
-  .ytd-strip{display:flex;gap:0;margin:0 36px 24px;border:1px solid ${border};border-radius:12px;overflow:hidden;}
-  .ytd-cell{flex:1;padding:14px 12px;text-align:center;border-right:1px solid ${border};}
-  .ytd-cell:last-child{border-right:none;}
-  .ytd-lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:${t3};margin-bottom:5px;}
-  .ytd-kes{display:block;font-size:.62rem;font-weight:600;color:${t3};letter-spacing:.04em;margin-bottom:2px;}
-  .ytd-amt{display:block;font-family:'JetBrains Mono',monospace;font-size:.92rem;font-weight:700;color:${t1};word-break:break-all;}
-  .ytd-amt.grn{color:${green};}
-
-  /* ── Section label ── */
-  .sec-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${t3};
-    padding:0 36px 10px;margin-top:4px;}
-
-  /* ── Table wrapper scrolls on narrow screens ── */
-  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-
-  /* ── Table ── */
-  table{width:100%;border-collapse:collapse;min-width:440px;}
-  th{padding:10px 10px;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
-    color:${t2};border-bottom:2px solid ${border2};background:${isDark ? '#1f2435' : '#f3f4f6'};text-align:right;white-space:nowrap;}
-  th:first-child{text-align:left;padding-left:36px;}
-  th:last-child{padding-right:20px;}
-  td{padding:10px 10px;font-family:'JetBrains Mono',monospace;font-size:.8rem;text-align:right;
-    border-bottom:1px solid ${border};color:${t2};}
-  td:first-child{font-family:'DM Sans',sans-serif;text-align:left;padding-left:36px;font-size:.84rem;}
-  td:last-child{padding-right:20px;}
-  .tfoot-row td{background:${tfoot};border-top:2px solid ${border2};border-bottom:none;
-    font-weight:700;color:${t1};font-family:'JetBrains Mono',monospace;font-size:.8rem;}
-  .tfoot-row td:first-child{font-family:'DM Sans',sans-serif;color:${t1};}
-  .tfoot-row .grn{color:${green};}
-
-  /* ── Footer ── */
-  .footer{padding:20px 36px 28px;margin-top:8px;border-top:1px solid ${border};
-    display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;}
-  .footer-note{font-size:.68rem;color:${t3};line-height:1.7;max-width:58%;}
-  .footer-right{text-align:right;flex-shrink:0;}
-  .footer-date{font-size:.68rem;color:${t3};}
-  .footer-conf{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${border2};margin-top:3px;}
-  @media(max-width:480px){
-    body{padding:0;}
-    .page{border-radius:0;border-left:none;border-right:none;}
-    .hdr,.member,.ytd-strip,.sec-lbl,.footer{margin-left:0;margin-right:0;}
-    .hdr{padding:20px 20px 16px;}
-    .member{margin:16px 0;}
-    .ytd-strip{margin:0 0 20px;border-radius:0;border-left:none;border-right:none;}
-    .sec-lbl{padding:0 0 8px;}
-    th:first-child,td:first-child{padding-left:16px;}
-    th:last-child,td:last-child{padding-right:12px;}
-    .footer{padding:16px 16px 24px;}
+  const monthTopups = rows.reduce((s, r) => s + r.topups, 0);
+  const totalBalance = rows.reduce((s, r) => s + r.closingBalance, 0);
+  const mIdx = MONTHS.indexOf(month);
+  let cumContributions = 0;
+  let cumInterest = 0;
+  for (let i = 0; i <= mIdx; i++) {
+    const mRows = Object.values(data[MONTHS[i]] || {});
+    cumContributions += mRows.reduce((s, r) => s + (r.topups || 0), 0);
+    cumInterest += mRows.reduce((s, r) => s + (r.interest || 0), 0);
   }
-</style>
-</head>
-<body>
-<div class="page">
 
-  <div class="hdr">
-    <div>
-      <div class="brand">Like-Minded Folks</div>
-      <div class="brand-sub">MMF &middot; Etica Unit Trust</div>
-    </div>
-    <div class="hdr-divider"></div>
-    <div class="stmt-label">
-      <div class="stmt-title">Member Statement</div>
-      <div class="stmt-period">Year to Date &middot; Jan &ndash; ${actualMonth} ${CUR_YEAR}</div>
-    </div>
-  </div>
+  const activeAlias = alias || members[0] || 'Nairobi';
+  const memberRow = data[month]?.[activeAlias] || { openingBalance: 0, topups: 0, interest: 0, daysActive: 0, closingBalance: 0 };
+  const partner = pairs[activeAlias];
+  const partnerTopup = partner ? (data[month]?.[partner]?.topups || 0) : 0;
+  const effectiveTopup = partner ? memberRow.topups + partnerTopup : memberRow.topups;
+  const shortfall = Math.max(0, MIN_CONTRIB - effectiveTopup);
 
-  <div class="member">
-    <div class="member-ico">${icon}</div>
-    <div>
-      <div class="member-name">${alias}</div>
-      <div class="member-ref">Ref&nbsp;308398M &nbsp;&middot;&nbsp; Etica MMF &nbsp;&middot;&nbsp; ${CUR_YEAR}</div>
-    </div>
-  </div>
+  const openYtdStatement = () => {
+    const actualIdx = MONTHS.indexOf(curMonth());
+    let ytdDep = 0;
+    let ytdInt = 0;
+    const trHtml = [];
+    for (let i = 0; i <= actualIdx; i++) {
+      const mName = MONTHS[i];
+      const r = data[mName]?.[activeAlias] || { openingBalance: 0, topups: 0, interest: 0, closingBalance: 0 };
+      ytdDep += r.topups || 0;
+      ytdInt += r.interest || 0;
+      trHtml.push(`<tr><td>${mName}</td><td>${fmtKes(r.openingBalance)}</td><td>${fmtKes(r.topups, 0)}</td><td>${fmtKes(r.interest)}</td><td>${fmtKes(r.closingBalance)}</td></tr>`);
+    }
+    const closingLatest = data[curMonth()]?.[activeAlias]?.closingBalance || memberRow.closingBalance;
+    setStatementSummary(`Generated YTD summary for ${activeAlias}: Deposits KES ${fmtKes(ytdDep, 0)} · Interest KES ${fmtKes(ytdInt)} · Balance KES ${fmtKes(closingLatest)}.`);
 
-  <div class="ytd-strip">
-    <div class="ytd-cell">
-      <div class="ytd-lbl">YTD Deposits</div>
-      <span class="ytd-kes">KES</span>
-      <span class="ytd-amt">${fmt0(ytdTopups)}</span>
-    </div>
-    <div class="ytd-cell">
-      <div class="ytd-lbl">YTD Interest</div>
-      <span class="ytd-kes">KES</span>
-      <span class="ytd-amt grn">${fmt2(ytdInterest)}</span>
-    </div>
-    <div class="ytd-cell">
-      <div class="ytd-lbl">Current Balance</div>
-      <span class="ytd-kes">KES</span>
-      <span class="ytd-amt grn">${fmt2(latestClosing)}</span>
-    </div>
-  </div>
-
-  <div class="sec-lbl">Monthly Breakdown</div>
-  <div class="tbl-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Month</th>
-        <th>Opening Bal</th>
-        <th>Top-Ups</th>
-        <th>Interest</th>
-        <th>Closing Bal</th>
-      </tr>
-    </thead>
-    <tbody>${rowsHTML}</tbody>
-    <tfoot>
-      <tr class="tfoot-row">
-        <td>Total ${CUR_YEAR}</td>
-        <td>—</td>
-        <td>${fmt0(ytdTopups)}</td>
-        <td class="grn">${fmt2(ytdInterest)}</td>
-        <td class="grn">${fmt2(latestClosing)}</td>
-      </tr>
-    </tfoot>
-  </table>
-  </div>
-
-  <div class="footer">
-    <div></div>
-    <div class="footer-right">
-      <div class="footer-date">Generated ${genDate}</div>
-      <div class="footer-conf">Confidential &middot; Members Only</div>
-    </div>
-  </div>
-
-</div>
-</body>
-</html>`;
-
-    const b64   = btoa(unescape(encodeURIComponent(html)));
-    const bytes = atob(b64);
-    const arr   = new Uint8Array(bytes.length);
-    for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
-    window.open(URL.createObjectURL(new Blob([arr], {type:'text/html'})), '_blank');
+    const docHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${activeAlias} Statement · ${CUR_YEAR}</title>
+      <style>body{font-family:sans-serif;padding:24px;color:#111}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}th:first-child,td:first-child{text-align:left}</style></head>
+      <body><h2>Like-Minded Folks · ${activeAlias} (${CUR_YEAR})</h2><p>YTD Deposits: KES ${fmtKes(ytdDep,0)} | YTD Interest: KES ${fmtKes(ytdInt)} | Balance: KES ${fmtKes(closingLatest)}</p>
+      <table><thead><tr><th>Month</th><th>Opening</th><th>Top-ups</th><th>Interest</th><th>Closing</th></tr></thead><tbody>${trHtml.join('')}</tbody></table></body></html>`;
+    const blob = new Blob([docHtml], { type: 'text/html' });
+    window.open(URL.createObjectURL(blob), '_blank');
   };
-
-  const openContrib = () => {
-    const b64='PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAsIG1heGltdW0tc2NhbGU9MS4wLCB1c2VyLXNjYWxhYmxlPW5vIj4KPHRpdGxlPkxNRiBEZXBvc2l0IExvZzwvdGl0bGU+CjxsaW5rIGhyZWY9Imh0dHBzOi8vZm9udHMuZ29vZ2xlYXBpcy5jb20vY3NzMj9mYW1pbHk9RE0rU2Fuczp3Z2h0QDQwMDs1MDA7NjAwOzcwMCZmYW1pbHk9U29yYTp3Z2h0QDcwMDs4MDAmZmFtaWx5PUpldEJyYWlucytNb25vOndnaHRANTAwOzYwMCZkaXNwbGF5PXN3YXAiIHJlbD0ic3R5bGVzaGVldCI+CjxzdHlsZT4KOnJvb3R7CiAgLS1iZzojMGEwYTBhOyAtLWNhcmQ6IzE0MTQxNDsgLS1jYXJkMjojMWUyMjMyOyAtLWJyOnJnYmEoMjU1LDI1NSwyNTUsLjA3KTsKICAtLWJyMjpyZ2JhKDI1NSwyNTUsMjU1LC4xMik7IC0tdDE6I2VlZjBmODsgLS10MjpyZ2JhKDIzOCwyNDAsMjQ4LC41OCk7CiAgLS10MzpyZ2JhKDIzOCwyNDAsMjQ4LC4zNCk7IC0tYWM6IzY5YmU1MTsKICAtLWhkOiMxNjFhMjQ7IC0taGQyOiMxMjE2MWY7IC0tdG90OiMxNDE4MjE7IC0tYmFuZDpyZ2JhKDI1NSwyNTUsMjU1LC4wMjIpOwp9CltkYXRhLXRoZW1lPSJsaWdodCJdewogIC0tYmc6I2VlZjFlZjsgLS1jYXJkOiNmZmZmZmY7IC0tY2FyZDI6I2VhZWVlYzsgLS1icjpyZ2JhKDAsMCwwLC4xKTsKICAtLWJyMjpyZ2JhKDAsMCwwLC4xNik7IC0tdDE6IzBiMTIyMDsgLS10MjpyZ2JhKDE3LDI0LDM5LC43Mik7CiAgLS10MzpyZ2JhKDE3LDI0LDM5LC41KTsgLS1hYzojMmY4ZjFmOwogIC0taGQ6I2U3ZWJlOTsgLS1oZDI6I2RkZTNlMDsgLS10b3Q6I2U0ZWJlMDsgLS1iYW5kOnJnYmEoMCwwLDAsLjAzKTsKfQoqe21hcmdpbjowO3BhZGRpbmc6MDtib3gtc2l6aW5nOmJvcmRlci1ib3g7fQpib2R5e2ZvbnQtZmFtaWx5OidETSBTYW5zJyxzYW5zLXNlcmlmO2ZvbnQtc2l6ZToxMnB4O2xpbmUtaGVpZ2h0OjEuMztvdmVyZmxvdzpoaWRkZW47CiAgYmFja2dyb3VuZDp2YXIoLS1iZyk7Y29sb3I6dmFyKC0tdDEpO3RyYW5zaXRpb246YmFja2dyb3VuZCAuMnM7fQoKLnBhZ2UtaGVhZGVye3RleHQtYWxpZ246Y2VudGVyO3BhZGRpbmc6MTZweCAxNHB4O2JhY2tncm91bmQ6dmFyKC0tYmcpOwogIGNvbG9yOnZhcigtLXQxKTtmb250LWZhbWlseTonU29yYScsc2Fucy1zZXJpZjtmb250LXNpemU6MXJlbTtmb250LXdlaWdodDo4MDA7CiAgbGV0dGVyLXNwYWNpbmc6LS4wMWVtO3Bvc2l0aW9uOnN0aWNreTt0b3A6MDt6LWluZGV4OjIwOwogIGJvcmRlci1ib3R0b206MXB4IHNvbGlkIHZhcigtLWJyKTt9Ci5wYWdlLWhlYWRlciAuc3Vie2ZvbnQtZmFtaWx5OidETSBTYW5zJyxzYW5zLXNlcmlmO2ZvbnQtc2l6ZTouNjJyZW07Zm9udC13ZWlnaHQ6NzAwOwogIHRleHQtdHJhbnNmb3JtOnVwcGVyY2FzZTtsZXR0ZXItc3BhY2luZzouMTJlbTtjb2xvcjp2YXIoLS10Myk7bWFyZ2luLXRvcDo0cHg7fQoKI2xvYWRpbmd7cGFkZGluZzo0MHB4IDIwcHg7dGV4dC1hbGlnbjpjZW50ZXI7Y29sb3I6dmFyKC0tdDMpO2ZvbnQtc2l6ZTouODVyZW07fQouc3Bpbnt3aWR0aDoyNnB4O2hlaWdodDoyNnB4O2JvcmRlcjoyLjVweCBzb2xpZCB2YXIoLS1icjIpO2JvcmRlci10b3AtY29sb3I6dmFyKC0tYWMpOwogIGJvcmRlci1yYWRpdXM6NTAlO2FuaW1hdGlvbjpyb3QgLjdzIGxpbmVhciBpbmZpbml0ZTttYXJnaW46MCBhdXRvIDE0cHg7fQpAa2V5ZnJhbWVzIHJvdHt0b3t0cmFuc2Zvcm06cm90YXRlKDM2MGRlZyl9fQojZXJyb3J7cGFkZGluZzoyMHB4O2NvbG9yOiNmZjQwNWY7ZGlzcGxheTpub25lO2ZvbnQtc2l6ZTouODVyZW07dGV4dC1hbGlnbjpjZW50ZXI7fQoKLnRhYmxlLWNvbnRhaW5lcnt3aWR0aDoxMDB2dztoZWlnaHQ6Y2FsYygxMDBkdmggLSA1OHB4KTtvdmVyZmxvdzphdXRvOy13ZWJraXQtb3ZlcmZsb3ctc2Nyb2xsaW5nOnRvdWNoO30KdGFibGV7Ym9yZGVyLWNvbGxhcHNlOmNvbGxhcHNlO3dpZHRoOm1heC1jb250ZW50O2ZvbnQtc2l6ZToxMXB4O21hcmdpbi1ib3R0b206NjBweDt9CnRoLHRke3BhZGRpbmc6N3B4IDZweDt0ZXh0LWFsaWduOmNlbnRlcjtib3JkZXI6MC41cHggc29saWQgdmFyKC0tYnIpOwogIHdoaXRlLXNwYWNlOm5vd3JhcDtmb250LXNpemU6MTFweDtjb2xvcjp2YXIoLS10Mik7fQp0Ym9keSB0ZHtmb250LXNpemU6MTIuNXB4O2ZvbnQtZmFtaWx5OidKZXRCcmFpbnMgTW9ubycsbW9ub3NwYWNlOwogIGZvbnQtdmFyaWFudC1udW1lcmljOnRhYnVsYXItbnVtcztjb2xvcjp2YXIoLS10Mik7fQoKLyogRnJvemVuIGZpcnN0IHRocmVlIGNvbHVtbnMg4oCUIG5ldXRyYWwgKi8KdGg6bnRoLWNoaWxkKDEpLHRkOm50aC1jaGlsZCgxKXtwb3NpdGlvbjpzdGlja3k7bGVmdDowO2JhY2tncm91bmQ6dmFyKC0tY2FyZCk7ei1pbmRleDo1OwogIHRleHQtYWxpZ246bGVmdDt3aWR0aDphdXRvO21pbi13aWR0aDozMHB4O21heC13aWR0aDo1dnc7Zm9udC1zaXplOjExcHg7cGFkZGluZzo3cHggNnB4O2NvbG9yOnZhcigtLXQzKTt9CnRib2R5IHRkOm50aC1jaGlsZCgxKXtmb250LXNpemU6MTIuNXB4O30KLyogTWVtYmVyIG5hbWVzIOKAlCBXSElURSwgdGhlIHByaW1hcnkgcmVhZCAqLwp0aDpudGgtY2hpbGQoMiksdGQ6bnRoLWNoaWxkKDIpe3Bvc2l0aW9uOnN0aWNreTtsZWZ0OnZhcigtLWNvbDEtd2lkdGgsNXZ3KTtiYWNrZ3JvdW5kOnZhcigtLWNhcmQpOwogIHotaW5kZXg6NTt0ZXh0LWFsaWduOmxlZnQ7d2lkdGg6YXV0bzttaW4td2lkdGg6ODBweDttYXgtd2lkdGg6MTZ2dztmb250LXNpemU6MTFweDsKICBwYWRkaW5nOjdweCA2cHg7d2hpdGUtc3BhY2U6bm9ybWFsO3dvcmQtd3JhcDpicmVhay13b3JkO2xpbmUtaGVpZ2h0OjEuMzsKICBmb250LWZhbWlseTonRE0gU2Fucycsc2Fucy1zZXJpZjtmb250LXdlaWdodDo3MDA7Y29sb3I6dmFyKC0tdDEpO30KdGJvZHkgdGQ6bnRoLWNoaWxkKDIpe2ZvbnQtc2l6ZToxMi41cHg7fQovKiBNZW1iZXIgdG90YWwg4oCUIG5lYXItd2hpdGUsIHF1aWV0LCBub3QgZ3JlZW4gKi8KdGg6bnRoLWNoaWxkKDMpLHRkOm50aC1jaGlsZCgzKXtwb3NpdGlvbjpzdGlja3k7bGVmdDp2YXIoLS1jb2wyLXdpZHRoLDIxdncpO2JhY2tncm91bmQ6dmFyKC0tY2FyZCk7CiAgei1pbmRleDo1O3RleHQtYWxpZ246cmlnaHQ7d2lkdGg6YXV0bzttaW4td2lkdGg6ODBweDsKICBtYXgtd2lkdGg6Y2FsYygzMy4zM3Z3IC0gdmFyKC0tY29sMS13aWR0aCw1dncpIC0gdmFyKC0tY29sMi13aWR0aCwyMXZ3KSArIDV2dyArIDE2dncpOwogIGZvbnQtc2l6ZToxMXB4O2ZvbnQtd2VpZ2h0OjcwMDtwYWRkaW5nOjdweCA2cHg7d2hpdGUtc3BhY2U6bm93cmFwO292ZXJmbG93OmhpZGRlbjsKICB0ZXh0LW92ZXJmbG93OmVsbGlwc2lzO2ZvbnQtZmFtaWx5OidKZXRCcmFpbnMgTW9ubycsbW9ub3NwYWNlO2NvbG9yOnZhcigtLXQxKTt9CnRib2R5IHRkOm50aC1jaGlsZCgzKXtmb250LXNpemU6MTIuNXB4O30KCi8qIFN0aWNreSBoZWFkZXJzIOKAlCBuZXV0cmFsIGNocm9tZSAqLwp0aGVhZCB0ciB0aHtwb3NpdGlvbjpzdGlja3k7YmFja2dyb3VuZDp2YXIoLS1jYXJkMik7Zm9udC13ZWlnaHQ6NjAwO3otaW5kZXg6MTA7CiAgZm9udC1mYW1pbHk6J0RNIFNhbnMnLHNhbnMtc2VyaWY7dGV4dC10cmFuc2Zvcm06dXBwZXJjYXNlO2xldHRlci1zcGFjaW5nOi4wNGVtOwogIGZvbnQtc2l6ZTo5LjVweDtjb2xvcjp2YXIoLS10Mik7fQp0aGVhZCB0ciB0aDpudGgtY2hpbGQoMSksdGhlYWQgdHIgdGg6bnRoLWNoaWxkKDIpLHRoZWFkIHRyIHRoOm50aC1jaGlsZCgzKXt6LWluZGV4OjE1O2JhY2tncm91bmQ6dmFyKC0tY2FyZDIpO30KCnRoZWFkIHRyOm50aC1jaGlsZCgxKSB0aHt0b3A6MDtmb250LXNpemU6MTBweDtwYWRkaW5nOjZweCA0cHg7Y29sb3I6dmFyKC0tdDEpO30KdGhlYWQgdHI6bnRoLWNoaWxkKDIpIHRoe3RvcDoyNnB4O2ZvbnQtc2l6ZToxMHB4O2ZvbnQtd2VpZ2h0OjYwMDtwYWRkaW5nOjZweCA0cHg7Y29sb3I6dmFyKC0tdDEpO30KdGhlYWQgdHI6bnRoLWNoaWxkKDMpIHRoe3RvcDo1MHB4O3doaXRlLXNwYWNlOm5vcm1hbDt3b3JkLXdyYXA6YnJlYWstd29yZDtmb250LXNpemU6OS41cHg7CiAgbGluZS1oZWlnaHQ6MS4zNTtwYWRkaW5nOjZweCA0cHg7aGVpZ2h0OjQ0cHg7dmVydGljYWwtYWxpZ246bWlkZGxlOwogIGJhY2tncm91bmQ6dmFyKC0taGQyKSAhaW1wb3J0YW50O2NvbG9yOnZhcigtLXQyKTtmb250LXdlaWdodDo2MDA7fQp0aGVhZCB0cjpudGgtY2hpbGQoMykgdGg6bnRoLWNoaWxkKDEpLAp0aGVhZCB0cjpudGgtY2hpbGQoMykgdGg6bnRoLWNoaWxkKDIpLAp0aGVhZCB0cjpudGgtY2hpbGQoMykgdGg6bnRoLWNoaWxkKDMpe2JhY2tncm91bmQ6dmFyKC0taGQyKSAhaW1wb3J0YW50O30KCi8qIEJhbmRlZCByb3dzIOKAlCBiYXJlbHktdGhlcmUgbmV1dHJhbCAqLwp0Ym9keSB0cjpudGgtY2hpbGQoZXZlbikgdGR7YmFja2dyb3VuZC1jb2xvcjp2YXIoLS1iYW5kKTt9CnRib2R5IHRyOm50aC1jaGlsZChvZGQpIHRke2JhY2tncm91bmQtY29sb3I6dHJhbnNwYXJlbnQ7fQp0Ym9keSB0cjpudGgtY2hpbGQoZXZlbikgdGQ6bnRoLWNoaWxkKDEpLAp0Ym9keSB0cjpudGgtY2hpbGQoZXZlbikgdGQ6bnRoLWNoaWxkKDIpLAp0Ym9keSB0cjpudGgtY2hpbGQoZXZlbikgdGQ6bnRoLWNoaWxkKDMpe2JhY2tncm91bmQtY29sb3I6dmFyKC0taGQpO30KdGJvZHkgdHI6bnRoLWNoaWxkKG9kZCkgdGQ6bnRoLWNoaWxkKDEpLAp0Ym9keSB0cjpudGgtY2hpbGQob2RkKSB0ZDpudGgtY2hpbGQoMiksCnRib2R5IHRyOm50aC1jaGlsZChvZGQpIHRkOm50aC1jaGlsZCgzKXtiYWNrZ3JvdW5kLWNvbG9yOnZhcigtLWNhcmQpO30KCi8qIFplcm8vZGFzaCBjZWxscyDigJQgZGltbWVzdCwgc28gcmVhbCBudW1iZXJzIHN0YW5kIG91dCAqLwp0ZC5udW1iZXJ7dGV4dC1hbGlnbjpyaWdodDtmb250LXZhcmlhbnQtbnVtZXJpYzp0YWJ1bGFyLW51bXM7fQoKLyogVE9UQUwgcm93IOKAlCB0aGUgT05FIHBsYWNlIGdyZWVuIGxpdmVzICovCnRib2R5IHRyLnRvdGFsLXJvdyB0ZHtiYWNrZ3JvdW5kOnZhcigtLXRvdCkgIWltcG9ydGFudDtjb2xvcjp2YXIoLS1hYyk7CiAgZm9udC13ZWlnaHQ6NzAwO2ZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5OidKZXRCcmFpbnMgTW9ubycsbW9ub3NwYWNlOwogIGJvcmRlci10b3A6MS41cHggc29saWQgdmFyKC0tYWMpICFpbXBvcnRhbnQ7fQp0Ym9keSB0ci50b3RhbC1yb3cgdGQ6bnRoLWNoaWxkKDIpe2ZvbnQtZmFtaWx5OidETSBTYW5zJyxzYW5zLXNlcmlmO2NvbG9yOnZhcigtLWFjKTt9Cjwvc3R5bGU+CjwvaGVhZD4KPGJvZHk+CiAgICA8ZGl2IGNsYXNzPSJwYWdlLWhlYWRlciI+TE1GIERlcG9zaXQgTG9nPGRpdiBjbGFzcz0ic3ViIj5Hcm91cCBDb250cmlidXRpb25zIFRyYWNrZXI8L2Rpdj48L2Rpdj4KICAgIDxkaXYgaWQ9ImxvYWRpbmciPgogICAgICAgIDxkaXYgY2xhc3M9InNwaW4iPjwvZGl2PgogICAgICAgIDxwPkxvYWRpbmcgZGVwb3NpdCBkYXRh4oCmPC9wPgogICAgPC9kaXY+CiAgICA8ZGl2IGlkPSJlcnJvciI+PC9kaXY+CiAgICA8ZGl2IGlkPSJ0YWJsZUNvbnRhaW5lciIgY2xhc3M9InRhYmxlLWNvbnRhaW5lciIgc3R5bGU9ImRpc3BsYXk6IG5vbmU7Ij48L2Rpdj4KCiAgICA8c2NyaXB0PgogICAgICAgIChmdW5jdGlvbigpewogICAgICAgICAgdmFyIHQgPSAobG9jYXRpb24uaGFzaC5tYXRjaCgvdGhlbWU9KGRhcmt8bGlnaHQpLyl8fFtdKVsxXTsKICAgICAgICAgIGlmICh0KSBkb2N1bWVudC5kb2N1bWVudEVsZW1lbnQuc2V0QXR0cmlidXRlKCdkYXRhLXRoZW1lJywgdCk7CiAgICAgICAgfSkoKTsKICAgIDwvc2NyaXB0PgogICAgPHNjcmlwdD4KICAgICAgICBjb25zdCBDU1ZfVVJMID0gJ2h0dHBzOi8vZG9jcy5nb29nbGUuY29tL3NwcmVhZHNoZWV0cy9kL2UvMlBBQ1gtMXZRZlFkQlZsMDFjeHNJb0duZkpMbHRHRHVPa0lWREZxai1yTmczS3dGVlo4LUdHYlVxazFEU3NfQ1ZheWdpc2phTGhnMzBnMWdqeklzZEMvcHViP2dpZD0yMDc5NDUzMDE2JnNpbmdsZT10cnVlJm91dHB1dD1jc3YnOwogICAgICAgIAogICAgICAgIGZ1bmN0aW9uIHBhcnNlQ1NWKHRleHQpIHsKICAgICAgICAgICAgY29uc3QgbGluZXMgPSBbXTsKICAgICAgICAgICAgbGV0IGN1cnJlbnRMaW5lID0gW107CiAgICAgICAgICAgIGxldCBjdXJyZW50RmllbGQgPSAnJzsKICAgICAgICAgICAgbGV0IGluUXVvdGVzID0gZmFsc2U7CiAgICAgICAgICAgIAogICAgICAgICAgICBmb3IgKGxldCBpID0gMDsgaSA8IHRleHQubGVuZ3RoOyBpKyspIHsKICAgICAgICAgICAgICAgIGNvbnN0IGNoYXIgPSB0ZXh0W2ldOwogICAgICAgICAgICAgICAgY29uc3QgbmV4dENoYXIgPSB0ZXh0W2kgKyAxXTsKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgaWYgKGNoYXIgPT09ICciJykgewogICAgICAgICAgICAgICAgICAgIGlmIChpblF1b3RlcyAmJiBuZXh0Q2hhciA9PT0gJyInKSB7CiAgICAgICAgICAgICAgICAgICAgICAgIGN1cnJlbnRGaWVsZCArPSAnIic7CiAgICAgICAgICAgICAgICAgICAgICAgIGkrKzsKICAgICAgICAgICAgICAgICAgICB9IGVsc2UgewogICAgICAgICAgICAgICAgICAgICAgICBpblF1b3RlcyA9ICFpblF1b3RlczsKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9IGVsc2UgaWYgKGNoYXIgPT09ICcsJyAmJiAhaW5RdW90ZXMpIHsKICAgICAgICAgICAgICAgICAgICBjdXJyZW50TGluZS5wdXNoKGN1cnJlbnRGaWVsZCk7CiAgICAgICAgICAgICAgICAgICAgY3VycmVudEZpZWxkID0gJyc7CiAgICAgICAgICAgICAgICB9IGVsc2UgaWYgKChjaGFyID09PSAnXG4nIHx8IGNoYXIgPT09ICdccicpICYmICFpblF1b3RlcykgewogICAgICAgICAgICAgICAgICAgIGlmIChjdXJyZW50RmllbGQgfHwgY3VycmVudExpbmUubGVuZ3RoID4gMCkgewogICAgICAgICAgICAgICAgICAgICAgICBjdXJyZW50TGluZS5wdXNoKGN1cnJlbnRGaWVsZCk7CiAgICAgICAgICAgICAgICAgICAgICAgIGxpbmVzLnB1c2goY3VycmVudExpbmUpOwogICAgICAgICAgICAgICAgICAgICAgICBjdXJyZW50TGluZSA9IFtdOwogICAgICAgICAgICAgICAgICAgICAgICBjdXJyZW50RmllbGQgPSAnJzsKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgaWYgKGNoYXIgPT09ICdccicgJiYgbmV4dENoYXIgPT09ICdcbicpIHsKICAgICAgICAgICAgICAgICAgICAgICAgaSsrOwogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0gZWxzZSB7CiAgICAgICAgICAgICAgICAgICAgY3VycmVudEZpZWxkICs9IGNoYXI7CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0KICAgICAgICAgICAgCiAgICAgICAgICAgIGlmIChjdXJyZW50RmllbGQgfHwgY3VycmVudExpbmUubGVuZ3RoID4gMCkgewogICAgICAgICAgICAgICAgY3VycmVudExpbmUucHVzaChjdXJyZW50RmllbGQpOwogICAgICAgICAgICAgICAgbGluZXMucHVzaChjdXJyZW50TGluZSk7CiAgICAgICAgICAgIH0KICAgICAgICAgICAgCiAgICAgICAgICAgIHJldHVybiBsaW5lczsKICAgICAgICB9CiAgICAgICAgCiAgICAgICAgZnVuY3Rpb24gaXNOdW1lcmljKHZhbHVlKSB7CiAgICAgICAgICAgIGlmICghdmFsdWUgfHwgdmFsdWUudHJpbSgpID09PSAnJykgcmV0dXJuIGZhbHNlOwogICAgICAgICAgICBjb25zdCBudW0gPSB2YWx1ZS5yZXBsYWNlKC8sL2csICcnKTsKICAgICAgICAgICAgcmV0dXJuICFpc05hTihudW0pICYmICFpc05hTihwYXJzZUZsb2F0KG51bSkpOwogICAgICAgIH0KICAgICAgICAKICAgICAgICBmdW5jdGlvbiBmb3JtYXROdW1iZXIodmFsdWUpIHsKICAgICAgICAgICAgY29uc3QgbnVtID0gcGFyc2VGbG9hdCh2YWx1ZS5yZXBsYWNlKC8sL2csICcnKSk7CiAgICAgICAgICAgIGlmIChpc05hTihudW0pKSByZXR1cm4gdmFsdWU7CiAgICAgICAgICAgIHJldHVybiBNYXRoLnJvdW5kKG51bSkudG9Mb2NhbGVTdHJpbmcoJ2VuLVVTJyk7CiAgICAgICAgfQogICAgICAgIAogICAgICAgIGZ1bmN0aW9uIGNyZWF0ZVRhYmxlKGRhdGEpIHsKICAgICAgICAgICAgaWYgKCFkYXRhIHx8IGRhdGEubGVuZ3RoIDwgNSkgewogICAgICAgICAgICAgICAgdGhyb3cgbmV3IEVycm9yKCdOb3QgZW5vdWdoIGRhdGEgZm91bmQnKTsKICAgICAgICAgICAgfQogICAgICAgICAgICAKICAgICAgICAgICAgLy8gU2tpcCBmaXJzdCA0IHJvd3MKICAgICAgICAgICAgLy8gUm93IDUgKGluZGV4IDQpID0gV2VlayBudW1iZXJzCiAgICAgICAgICAgIC8vIFJvdyA2IChpbmRleCA1KSA9IE1vbnRocwogICAgICAgICAgICAvLyBSb3cgNyAoaW5kZXggNikgPSBEYXRlcwogICAgICAgICAgICBjb25zdCB3ZWVrUm93ID0gZGF0YVs0XTsKICAgICAgICAgICAgY29uc3QgbW9udGhSb3cgPSBkYXRhWzVdOwogICAgICAgICAgICBjb25zdCBkYXRlUm93ID0gZGF0YVs2XTsKICAgICAgICAgICAgbGV0IGRhdGFSb3dzID0gZGF0YS5zbGljZSg3KS5maWx0ZXIocm93ID0+IHJvdy5zb21lKGNlbGwgPT4gY2VsbCAmJiBjZWxsLnRyaW0oKSkpOwoKICAgICAgICAgICAgLy8g4pSA4pSAIFJhbmsgbWVtYmVycyBieSBncmFuZCB0b3RhbCAoY29sdW1uIGluZGV4IDIpLCBoaWdoZXN0IGZpcnN0IOKUgOKUgAogICAgICAgICAgICAvLyBUaGUgc3VtbWFyeSBUT1RBTCByb3cgaXMgc2VwYXJhdGVkIG91dCBhbmQgcmUtcGlubmVkIHRvIHRoZSBib3R0b20sCiAgICAgICAgICAgIC8vIHNvIG9ubHkgbWVtYmVyIHJvd3MgZ2V0IHNvcnRlZC4gUmVudW1iZXJlZCAxLi5OIGFmdGVyIHNvcnRpbmcuCiAgICAgICAgICAgIChmdW5jdGlvbiBzb3J0QnlUb3RhbCgpIHsKICAgICAgICAgICAgICAgIGNvbnN0IGlzVG90YWxSb3cgPSByID0+CiAgICAgICAgICAgICAgICAgICAgKHJbMF0gJiYgclswXS50b1VwcGVyQ2FzZSgpLmluY2x1ZGVzKCdUT1RBTCcpKSB8fAogICAgICAgICAgICAgICAgICAgIChyWzFdICYmIHJbMV0udG9VcHBlckNhc2UoKS5pbmNsdWRlcygnVE9UQUwnKSk7CiAgICAgICAgICAgICAgICBjb25zdCB0b3RhbFJvd3MgID0gZGF0YVJvd3MuZmlsdGVyKGlzVG90YWxSb3cpOwogICAgICAgICAgICAgICAgY29uc3QgbWVtYmVyUm93cyA9IGRhdGFSb3dzLmZpbHRlcihyID0+ICFpc1RvdGFsUm93KHIpKTsKICAgICAgICAgICAgICAgIGNvbnN0IG51bSA9IHYgPT4gcGFyc2VGbG9hdCgodiB8fCAnJykucmVwbGFjZSgvW14wLTkuLV0vZywgJycpKSB8fCAwOwogICAgICAgICAgICAgICAgbWVtYmVyUm93cy5zb3J0KChhLCBiKSA9PiBudW0oYlsyXSkgLSBudW0oYVsyXSkpOwogICAgICAgICAgICAgICAgLy8gUmVudW1iZXIgdGhlIHJhbmsgY29sdW1uIChpbmRleCAwKSB0byByZWZsZWN0IG5ldyBvcmRlcgogICAgICAgICAgICAgICAgbWVtYmVyUm93cy5mb3JFYWNoKChyLCBpKSA9PiB7IGlmIChyLmxlbmd0aCkgclswXSA9IFN0cmluZyhpICsgMSk7IH0pOwogICAgICAgICAgICAgICAgZGF0YVJvd3MgPSBtZW1iZXJSb3dzLmNvbmNhdCh0b3RhbFJvd3MpOwogICAgICAgICAgICB9KSgpOwogICAgICAgICAgICAKICAgICAgICAgICAgY29uc3QgdGFibGUgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCd0YWJsZScpOwogICAgICAgICAgICBjb25zdCB0aGVhZCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ3RoZWFkJyk7CiAgICAgICAgICAgIGNvbnN0IHRib2R5ID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgndGJvZHknKTsKICAgICAgICAgICAgCiAgICAgICAgICAgIC8vIENyZWF0ZSB3ZWVrIG51bWJlciByb3cKICAgICAgICAgICAgY29uc3Qgd2Vla1RyID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgndHInKTsKICAgICAgICAgICAgLy8gQWRkIGJsYW5rIGNlbGxzIGZvciBmaXJzdCB0aHJlZSBjb2x1bW5zCiAgICAgICAgICAgIGNvbnN0IGJsYW5rV2VlazEgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCd0aCcpOwogICAgICAgICAgICBjb25zdCBibGFua1dlZWsyID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgndGgnKTsKICAgICAgICAgICAgY29uc3QgYmxhbmtXZWVrMyA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ3RoJyk7CiAgICAgICAgICAgIGJsYW5rV2VlazMudGV4dENvbnRlbnQgPSAnV0VFSyBOTy4nOwogICAgICAgICAgICBibGFua1dlZWszLnN0eWxlLmNvbG9yID0gJyNlZWYwZjgnOwogICAgICAgICAgICBibGFua1dlZWszLnN0eWxlLmZvbnRXZWlnaHQgPSAnYm9sZCc7CiAgICAgICAgICAgIHdlZWtUci5hcHBlbmRDaGlsZChibGFua1dlZWsxKTsKICAgICAgICAgICAgd2Vla1RyLmFwcGVuZENoaWxkKGJsYW5rV2VlazIpOwogICAgICAgICAgICB3ZWVrVHIuYXBwZW5kQ2hpbGQoYmxhbmtXZWVrMyk7CiAgICAgICAgICAgIAogICAgICAgICAgICBmb3IgKGxldCBpID0gMzsgaSA8IHdlZWtSb3cubGVuZ3RoOyBpKyspIHsKICAgICAgICAgICAgICAgIGNvbnN0IHRoID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgndGgnKTsKICAgICAgICAgICAgICAgIHRoLnRleHRDb250ZW50ID0gd2Vla1Jvd1tpXSB8fCAnJzsKICAgICAgICAgICAgICAgIHdlZWtUci5hcHBlbmRDaGlsZCh0aCk7CiAgICAgICAgICAgIH0KICAgICAgICAgICAgdGhlYWQuYXBwZW5kQ2hpbGQod2Vla1RyKTsKICAgICAgICAgICAgCiAgICAgICAgICAgIC8vIENyZWF0ZSBtb250aCByb3cgd2l0aCBtZXJnZWQgY2VsbHMKICAgICAgICAgICAgY29uc3QgbW9udGhUciA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ3RyJyk7CiAgICAgICAgICAgIC8vIEFkZCBibGFuayBjZWxscyBmb3IgZmlyc3QgdGhyZWUgY29sdW1ucwogICAgICAgICAgICBjb25zdCBibGFua01vbnRoMSA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ3RoJyk7CiAgICAgICAgICAgIGNvbnN0IGJsYW5rTW9udGgyID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgndGgnKTsKICAgICAgICAgICAgY29uc3QgYmxhbmtNb250aDMgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCd0aCcpOwogICAgICAgICAgICBibGFua01vbnRoMy50ZXh0Q29udGVudCA9ICdNT05USCc7CiAgICAgICAgICAgIGJsYW5rTW9udGgzLnN0eWxlLmNvbG9yID0gJyNlZWYwZjgnOwogICAgICAgICAgICBibGFua01vbnRoMy5zdHlsZS5mb250V2VpZ2h0ID0gJ2JvbGQnOwogICAgICAgICAgICBtb250aFRyLmFwcGVuZENoaWxkKGJsYW5rTW9udGgxKTsKICAgICAgICAgICAgbW9udGhUci5hcHBlbmRDaGlsZChibGFua01vbnRoMik7CiAgICAgICAgICAgIG1vbnRoVHIuYXBwZW5kQ2hpbGQoYmxhbmtNb250aDMpOwogICAgICAgICAgICAKICAgICAgICAgICAgLy8gVHJhY2sgbWVyZ2VkIG1vbnRoIGNlbGxzCiAgICAgICAgICAgIGxldCBpID0gMzsKICAgICAgICAgICAgd2hpbGUgKGkgPCBtb250aFJvdy5sZW5ndGgpIHsKICAgICAgICAgICAgICAgIGNvbnN0IG1vbnRoVmFsdWUgPSBtb250aFJvd1tpXSB8fCAnJzsKICAgICAgICAgICAgICAgIGxldCBjb2xzcGFuID0gMTsKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgLy8gQ291bnQgY29uc2VjdXRpdmUgY2VsbHMgd2l0aCBzYW1lIG1vbnRoCiAgICAgICAgICAgICAgICB3aGlsZSAoaSArIGNvbHNwYW4gPCBtb250aFJvdy5sZW5ndGggJiYgbW9udGhSb3dbaSArIGNvbHNwYW5dID09PSBtb250aFZhbHVlKSB7CiAgICAgICAgICAgICAgICAgICAgY29sc3BhbisrOwogICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICBjb25zdCB0aCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ3RoJyk7CiAgICAgICAgICAgICAgICB0aC50ZXh0Q29udGVudCA9IG1vbnRoVmFsdWU7CiAgICAgICAgICAgICAgICBpZiAoY29sc3BhbiA+IDEpIHsKICAgICAgICAgICAgICAgICAgICB0aC5zZXRBdHRyaWJ1dGUoJ2NvbHNwYW4nLCBjb2xzcGFuKTsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIG1vbnRoVHIuYXBwZW5kQ2hpbGQodGgpOwogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICBpICs9IGNvbHNwYW47CiAgICAgICAgICAgIH0KICAgICAgICAgICAgdGhlYWQuYXBwZW5kQ2hpbGQobW9udGhUcik7CiAgICAgICAgICAgIAogICAgICAgICAgICAvLyBDcmVhdGUgZGF0ZSByb3cKICAgICAgICAgICAgY29uc3QgZGF0ZVRyID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgndHInKTsKICAgICAgICAgICAgLy8gQWRkIGJsYW5rIGNlbGxzIGZvciBmaXJzdCB0aHJlZSBjb2x1bW5zCiAgICAgICAgICAgIGNvbnN0IGJsYW5rRGF0ZTEgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCd0aCcpOwogICAgICAgICAgICBjb25zdCBibGFua0RhdGUyID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgndGgnKTsKICAgICAgICAgICAgY29uc3QgYmxhbmtEYXRlMyA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ3RoJyk7CiAgICAgICAgICAgIGJsYW5rRGF0ZTMudGV4dENvbnRlbnQgPSAnVE9UQUwnOwogICAgICAgICAgICBibGFua0RhdGUzLnN0eWxlLmNvbG9yID0gJyM2OWJlNTEnOwogICAgICAgICAgICBibGFua0RhdGUzLnN0eWxlLmZvbnRXZWlnaHQgPSAnYm9sZCc7CiAgICAgICAgICAgIGRhdGVUci5hcHBlbmRDaGlsZChibGFua0RhdGUxKTsKICAgICAgICAgICAgZGF0ZVRyLmFwcGVuZENoaWxkKGJsYW5rRGF0ZTIpOwogICAgICAgICAgICBkYXRlVHIuYXBwZW5kQ2hpbGQoYmxhbmtEYXRlMyk7CiAgICAgICAgICAgIAogICAgICAgICAgICBmb3IgKGxldCBpID0gMzsgaSA8IGRhdGVSb3cubGVuZ3RoOyBpKyspIHsKICAgICAgICAgICAgICAgIGNvbnN0IHRoID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgndGgnKTsKICAgICAgICAgICAgICAgIGNvbnN0IGR2ID0gKGRhdGVSb3dbaV0gfHwgJycpLnRyaW0oKTsKICAgICAgICAgICAgICAgIGlmIChkdi5pbmNsdWRlcygnICcpKSB7CiAgICAgICAgICAgICAgICAgICAgLy8gU3BsaXQgd2VlayByYW5nZSAnc3RhcnQgZW5kJyBvbnRvIHR3byBsaW5lcwogICAgICAgICAgICAgICAgICAgIGNvbnN0IHBhcnRzID0gZHYuc3BsaXQoL1xzKy8pOwogICAgICAgICAgICAgICAgICAgIHRoLmlubmVySFRNTCA9IHBhcnRzWzBdICsgJzxicj4nICsgcGFydHMuc2xpY2UoMSkuam9pbignICcpOwogICAgICAgICAgICAgICAgfSBlbHNlIHsKICAgICAgICAgICAgICAgICAgICB0aC50ZXh0Q29udGVudCA9IGR2OwogICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgZGF0ZVRyLmFwcGVuZENoaWxkKHRoKTsKICAgICAgICAgICAgfQogICAgICAgICAgICB0aGVhZC5hcHBlbmRDaGlsZChkYXRlVHIpOwogICAgICAgICAgICAKICAgICAgICAgICAgLy8gQ3JlYXRlIGRhdGEgcm93cwogICAgICAgICAgICBkYXRhUm93cy5mb3JFYWNoKHJvdyA9PiB7CiAgICAgICAgICAgICAgICBjb25zdCB0ciA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ3RyJyk7CiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIC8vIENoZWNrIGlmIHRoaXMgaXMgYSBUT1RBTCByb3cgKGxvb2sgZm9yICJUT1RBTCIgaW4gZmlyc3Qgb3Igc2Vjb25kIGNvbHVtbikKICAgICAgICAgICAgICAgIGNvbnN0IGlzVG90YWwgPSAocm93WzBdICYmIHJvd1swXS50b1VwcGVyQ2FzZSgpLmluY2x1ZGVzKCdUT1RBTCcpKSB8fCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIChyb3dbMV0gJiYgcm93WzFdLnRvVXBwZXJDYXNlKCkuaW5jbHVkZXMoJ1RPVEFMJykpOwogICAgICAgICAgICAgICAgaWYgKGlzVG90YWwpIHsKICAgICAgICAgICAgICAgICAgICB0ci5jbGFzc0xpc3QuYWRkKCd0b3RhbC1yb3cnKTsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgZm9yIChsZXQgaSA9IDA7IGkgPCBNYXRoLm1heChyb3cubGVuZ3RoLCB3ZWVrUm93Lmxlbmd0aCk7IGkrKykgewogICAgICAgICAgICAgICAgICAgIGNvbnN0IHRkID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgndGQnKTsKICAgICAgICAgICAgICAgICAgICBsZXQgdmFsdWUgPSByb3dbaV0gfHwgJyc7CiAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgLy8gQ29sdW1uIDEgLSB0ZXh0IG9ubHkKICAgICAgICAgICAgICAgICAgICBpZiAoaSA9PT0gMCkgewogICAgICAgICAgICAgICAgICAgICAgICB0ZC50ZXh0Q29udGVudCA9IHZhbHVlOwogICAgICAgICAgICAgICAgICAgIH0gCiAgICAgICAgICAgICAgICAgICAgLy8gQ29sdW1uIDIgLSB0ZXh0IHdpdGggd3JhcHBpbmcgYWZ0ZXIgIi8iCiAgICAgICAgICAgICAgICAgICAgZWxzZSBpZiAoaSA9PT0gMSkgewogICAgICAgICAgICAgICAgICAgICAgICBpZiAodmFsdWUuaW5jbHVkZXMoJy8nKSkgewogICAgICAgICAgICAgICAgICAgICAgICAgICAgdmFsdWUgPSB2YWx1ZS5yZXBsYWNlKCcvJywgJy9cbicpOwogICAgICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgICAgIHRkLnRleHRDb250ZW50ID0gdmFsdWU7CiAgICAgICAgICAgICAgICAgICAgICAgIHRkLnN0eWxlLndoaXRlU3BhY2UgPSAncHJlLWxpbmUnOwogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICAgICAvLyBDb2x1bW4gMyAtIG51bWJlcnMgd2l0aCBjb21tYXMsIG5vIGRlY2ltYWxzLCBib2xkLCByaWdodC1hbGlnbmVkCiAgICAgICAgICAgICAgICAgICAgZWxzZSBpZiAoaSA9PT0gMikgewogICAgICAgICAgICAgICAgICAgICAgICBpZiAoaXNOdW1lcmljKHZhbHVlKSkgewogICAgICAgICAgICAgICAgICAgICAgICAgICAgdGQudGV4dENvbnRlbnQgPSBmb3JtYXROdW1iZXIodmFsdWUpOwogICAgICAgICAgICAgICAgICAgICAgICB9IGVsc2UgewogICAgICAgICAgICAgICAgICAgICAgICAgICAgdGQudGV4dENvbnRlbnQgPSB2YWx1ZTsKICAgICAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICAgICAvLyBPdGhlciBjb2x1bW5zIC0gY2hlY2sgaWYgbnVtZXJpYwogICAgICAgICAgICAgICAgICAgIGVsc2UgewogICAgICAgICAgICAgICAgICAgICAgICBpZiAoaXNOdW1lcmljKHZhbHVlKSkgewogICAgICAgICAgICAgICAgICAgICAgICAgICAgdGQudGV4dENvbnRlbnQgPSBmb3JtYXROdW1iZXIodmFsdWUpOwogICAgICAgICAgICAgICAgICAgICAgICAgICAgdGQuY2xhc3NMaXN0LmFkZCgnbnVtYmVyJyk7CiAgICAgICAgICAgICAgICAgICAgICAgIH0gZWxzZSB7CiAgICAgICAgICAgICAgICAgICAgICAgICAgICB0ZC50ZXh0Q29udGVudCA9IHZhbHVlOwogICAgICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgIHRyLmFwcGVuZENoaWxkKHRkKTsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIHRib2R5LmFwcGVuZENoaWxkKHRyKTsKICAgICAgICAgICAgfSk7CiAgICAgICAgICAgIAogICAgICAgICAgICB0YWJsZS5hcHBlbmRDaGlsZCh0aGVhZCk7CiAgICAgICAgICAgIHRhYmxlLmFwcGVuZENoaWxkKHRib2R5KTsKICAgICAgICAgICAgCiAgICAgICAgICAgIGNvbnN0IGNvbnRhaW5lciA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCd0YWJsZUNvbnRhaW5lcicpOwogICAgICAgICAgICBjb250YWluZXIuaW5uZXJIVE1MID0gJyc7CiAgICAgICAgICAgIGNvbnRhaW5lci5hcHBlbmRDaGlsZCh0YWJsZSk7CiAgICAgICAgICAgIGNvbnRhaW5lci5zdHlsZS5kaXNwbGF5ID0gJ2Jsb2NrJzsKICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2xvYWRpbmcnKS5zdHlsZS5kaXNwbGF5ID0gJ25vbmUnOwogICAgICAgICAgICAKICAgICAgICAgICAgLy8gQ2FsY3VsYXRlIGR5bmFtaWMgd2lkdGhzIGZvciBmaXJzdCB0aHJlZSBjb2x1bW5zCiAgICAgICAgICAgIHNldFRpbWVvdXQoKCkgPT4gewogICAgICAgICAgICAgICAgY29uc3QgY29sMUNlbGxzID0gdGFibGUucXVlcnlTZWxlY3RvckFsbCgndGQ6bnRoLWNoaWxkKDEpLCB0aDpudGgtY2hpbGQoMSknKTsKICAgICAgICAgICAgICAgIGNvbnN0IGNvbDJDZWxscyA9IHRhYmxlLnF1ZXJ5U2VsZWN0b3JBbGwoJ3RkOm50aC1jaGlsZCgyKSwgdGg6bnRoLWNoaWxkKDIpJyk7CiAgICAgICAgICAgICAgICBjb25zdCBjb2wzQ2VsbHMgPSB0YWJsZS5xdWVyeVNlbGVjdG9yQWxsKCd0ZDpudGgtY2hpbGQoMyksIHRoOm50aC1jaGlsZCgzKScpOwogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICBsZXQgbWF4Q29sMSA9IDA7CiAgICAgICAgICAgICAgICBsZXQgbWF4Q29sMiA9IDA7CiAgICAgICAgICAgICAgICBsZXQgbWF4Q29sMyA9IDA7CiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIGNvbDFDZWxscy5mb3JFYWNoKGNlbGwgPT4gbWF4Q29sMSA9IE1hdGgubWF4KG1heENvbDEsIGNlbGwuc2Nyb2xsV2lkdGgpKTsKICAgICAgICAgICAgICAgIGNvbDJDZWxscy5mb3JFYWNoKGNlbGwgPT4gbWF4Q29sMiA9IE1hdGgubWF4KG1heENvbDIsIGNlbGwuc2Nyb2xsV2lkdGgpKTsKICAgICAgICAgICAgICAgIGNvbDNDZWxscy5mb3JFYWNoKGNlbGwgPT4gbWF4Q29sMyA9IE1hdGgubWF4KG1heENvbDMsIGNlbGwuc2Nyb2xsV2lkdGgpKTsKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgLy8gQWRkIHNvbWUgcGFkZGluZwogICAgICAgICAgICAgICAgbWF4Q29sMSArPSA4OwogICAgICAgICAgICAgICAgbWF4Q29sMiArPSA4OwogICAgICAgICAgICAgICAgbWF4Q29sMyArPSA4OwogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAvLyBFbnN1cmUgdG90YWwgZG9lc24ndCBleGNlZWQgMzMuMzN2dwogICAgICAgICAgICAgICAgY29uc3QgbWF4VG90YWwgPSB3aW5kb3cuaW5uZXJXaWR0aCAqIDAuMzMzMzsKICAgICAgICAgICAgICAgIGNvbnN0IHRvdGFsID0gbWF4Q29sMSArIG1heENvbDIgKyBtYXhDb2wzOwogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICBpZiAodG90YWwgPiBtYXhUb3RhbCkgewogICAgICAgICAgICAgICAgICAgIGNvbnN0IHNjYWxlID0gbWF4VG90YWwgLyB0b3RhbDsKICAgICAgICAgICAgICAgICAgICBtYXhDb2wxICo9IHNjYWxlOwogICAgICAgICAgICAgICAgICAgIG1heENvbDIgKj0gc2NhbGU7CiAgICAgICAgICAgICAgICAgICAgbWF4Q29sMyAqPSBzY2FsZTsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgLy8gU2V0IHRoZSB3aWR0aHMKICAgICAgICAgICAgICAgIGNvbDFDZWxscy5mb3JFYWNoKGNlbGwgPT4gY2VsbC5zdHlsZS53aWR0aCA9IG1heENvbDEgKyAncHgnKTsKICAgICAgICAgICAgICAgIGNvbDJDZWxscy5mb3JFYWNoKGNlbGwgPT4gewogICAgICAgICAgICAgICAgICAgIGNlbGwuc3R5bGUud2lkdGggPSBtYXhDb2wyICsgJ3B4JzsKICAgICAgICAgICAgICAgICAgICBjZWxsLnN0eWxlLmxlZnQgPSBtYXhDb2wxICsgJ3B4JzsKICAgICAgICAgICAgICAgIH0pOwogICAgICAgICAgICAgICAgY29sM0NlbGxzLmZvckVhY2goY2VsbCA9PiB7CiAgICAgICAgICAgICAgICAgICAgY2VsbC5zdHlsZS53aWR0aCA9IG1heENvbDMgKyAncHgnOwogICAgICAgICAgICAgICAgICAgIGNlbGwuc3R5bGUubGVmdCA9IChtYXhDb2wxICsgbWF4Q29sMikgKyAncHgnOwogICAgICAgICAgICAgICAgfSk7CiAgICAgICAgICAgIH0sIDEwMCk7CiAgICAgICAgfQogICAgICAgIAogICAgICAgIGFzeW5jIGZ1bmN0aW9uIGxvYWREYXRhKCkgewogICAgICAgICAgICB0cnkgewogICAgICAgICAgICAgICAgY29uc3QgcmVzcG9uc2UgPSBhd2FpdCBmZXRjaChDU1ZfVVJMKTsKICAgICAgICAgICAgICAgIGlmICghcmVzcG9uc2Uub2spIHsKICAgICAgICAgICAgICAgICAgICB0aHJvdyBuZXcgRXJyb3IoYEZhaWxlZCB0byBmZXRjaDogJHtyZXNwb25zZS5zdGF0dXN9ICR7cmVzcG9uc2Uuc3RhdHVzVGV4dH1gKTsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgY29uc3QgdGV4dCA9IGF3YWl0IHJlc3BvbnNlLnRleHQoKTsKICAgICAgICAgICAgICAgIGNvbnN0IGRhdGEgPSBwYXJzZUNTVih0ZXh0KTsKICAgICAgICAgICAgICAgIGNyZWF0ZVRhYmxlKGRhdGEpOwogICAgICAgICAgICB9IGNhdGNoIChlcnJvcikgewogICAgICAgICAgICAgICAgY29uc29sZS5lcnJvcignRXJyb3IgbG9hZGluZyBkYXRhOicsIGVycm9yKTsKICAgICAgICAgICAgICAgIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdsb2FkaW5nJykuc3R5bGUuZGlzcGxheSA9ICdub25lJzsKICAgICAgICAgICAgICAgIGNvbnN0IGVycm9yRGl2ID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2Vycm9yJyk7CiAgICAgICAgICAgICAgICBlcnJvckRpdi50ZXh0Q29udGVudCA9IGBFcnJvciBsb2FkaW5nIGRhdGE6ICR7ZXJyb3IubWVzc2FnZX0uIFB1bGwgZG93biB0byByZWZyZXNoLmA7CiAgICAgICAgICAgICAgICBlcnJvckRpdi5zdHlsZS5kaXNwbGF5ID0gJ2Jsb2NrJzsKICAgICAgICAgICAgfQogICAgICAgIH0KICAgICAgICAKICAgICAgICAvLyBMb2FkIGRhdGEgb24gcGFnZSBsb2FkCiAgICAgICAgbG9hZERhdGEoKTsKICAgIDwvc2NyaXB0Pgo8L2JvZHk+CjwvaHRtbD4=';
-    const bytes=atob(b64); const arr=new Uint8Array(bytes.length);
-    for(let i=0;i<bytes.length;i++) arr[i]=bytes.charCodeAt(i);
-    const _u=URL.createObjectURL(new Blob([arr],{type:'text/html'}));
-    window.open(_u+'#theme='+theme,'_blank');
-  };
-
-  // Shared alias picker grid — used in My Balance and Statements
-  const aliasGrid = (
-    <div className="alias-grid-inline">
-      {members.map(a => (
-        <div key={a}
-          className="alias-cell"
-          style={{
-            background:   cityColor[a]  || 'var(--ibg)',
-            borderColor:  cityBorder[a] || 'var(--br)'
-          }}
-          onClick={() => setAlias(a)}>
-          <span className="alias-cell-ico">{cityIcon[a] || '👤'}</span>
-          <span className="alias-cell-lbl">{a}</span>
-        </div>
-      ))}
-    </div>
-  );
 
   return (
-    <div className="shell">
-
-      {/* HEADER */}
-      <div className="hdr">
-        <div className="hdr-row">
-          <div>
-            <div className="eyebrow">MMF Tracker &middot; {CUR_YEAR}</div>
-            <div className="title">Like-Minded Folks</div>
-            <div className="subtitle">Contributions, interest &amp; projections</div>
-          </div>
-          <button className="sw" onClick={() => {
-              const next = theme==='dark'?'light':'dark';
-              setTheme(next);
-              // Store override; user is intentionally overriding system setting
-              localStorage.setItem('mmf_theme', next);
-            }} aria-label={`Switch to ${theme==='dark'?'light':'dark'} mode`} title="Override display mode">
-            <div className="knob">{theme==='dark'?'☀️':'🌙'}</div>
+    <div className="app-shell">
+      <header className="top-hdr">
+        <div>
+          <div className="eyebrow"><span className="live-dot" /> MMF Tracker · {CUR_YEAR}</div>
+          <h1 className="brand-title">Like-Minded Folks</h1>
+          <p className="brand-sub">Etica Money Market Fund · Group &amp; Member View</p>
+        </div>
+        <div className="hdr-actions">
+          <button
+            className={`chip-btn ${tab === 'info' ? 'active' : ''}`}
+            onClick={() => setTab(tab === 'info' ? 'overview' : 'info')}
+          >
+            {tab === 'info' ? 'Close Info' : 'Paybill & Rules'}
+          </button>
+          <button
+            className="theme-toggle"
+            onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
+            aria-label="Toggle theme"
+          >
+            <span className="theme-knob">{theme === 'dark' ? '☀️' : '🌙'}</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* GREETING */}
-      <div className="greet">
-        <div className="greet-line">{greetLine()}</div>
-      </div>
+      <div className="greeting-card">{getGreeting()}</div>
 
-      {/* PILL NAV */}
-      <div className="nav-wrap">
-        <div className="nav-track">
-          {[['overview','Overview','tab-ov'],['accrual','Interest Accrual','tab-bl'],['info','Info','tab-mo']].map(([id,lbl,cls]) => (
-            <button key={id} className={`tab ${cls}${tab===id?' on':''}`}
-              onClick={() => setTab(id)}>
-              {lbl}
-            </button>
-          ))}
+      <nav className="seg-wrap" aria-label="Primary sections">
+        <div className="seg-track">
+          <button className={`seg-btn ${tab === 'overview' ? 'active' : ''}`} onClick={() => setTab('overview')}>Overview</button>
+          <button className={`seg-btn ${tab === 'balance' ? 'active' : ''}`} onClick={() => setTab('balance')}>My Balance</button>
+          <button className={`seg-btn ${tab === 'accrual' ? 'active' : ''}`} onClick={() => setTab('accrual')}>Accrual Table</button>
         </div>
+      </nav>
+
+      <div className="month-bar">
+        {MONTHS.map(m => (
+          <button key={m} className={`m-pill ${month === m ? 'active' : ''}`} onClick={() => setMonth(m)}>
+            {m.slice(0, 3)}
+          </button>
+        ))}
       </div>
 
-      {/* ══ OVERVIEW ══ */}
-      <div className={`panel${tab==='overview'?' on':''}`}>
+      {tab === 'overview' && (
         <>
-              {/* Month selector — same pill style as My Balance */}
-              <div className="bpad" style={{paddingTop:14,paddingBottom:0}}>
-                <div className="mscroll">
-                  {MONTHS.map(m => (
-                    <button key={m} className={`mpill${overviewMonth===m?' on':''}`} onClick={() => setOverviewMonth(m)}>
-                      {m.slice(0,3)}
-                    </button>
-                  ))}
-                </div>
+          <section className="surface-card">
+            <div className="hero-kicker">Group Contributions to Date · Jan – {month}</div>
+            <div className="hero-total">KES {fmtKes(cumContributions)}</div>
+            <div className="hero-badge-row">
+              <span>{month} deposits:</span>
+              <span className="pill-green">↑ KES {fmtKes(monthTopups, 0)}</span>
+            </div>
+            <div className="stat-grid-2">
+              <div className="mini-stat">
+                <div className="mini-stat-lbl">Cumulative Interest</div>
+                <div className="mini-stat-val" style={{ color: 'var(--ac)' }}>KES {fmtKes(cumInterest)}</div>
               </div>
-
-              <div className="hero">
-                {/* Top section — Group Contributions */}
-                <div className="hero-lbl">Group Contributions to Date &middot; Jan &ndash; {overviewMonth}</div>
-                <div className="hero-num">{st ? f2(st.cumC) : '—'}</div>
-                <div className="hero-sub">
-                  <span style={{color:'var(--t3)'}}>This month:</span>
-                  <span className="hero-pill">&#8593; KES {st ? f2(st.mTopups) : '0.00'}</span>
-                </div>
-
-                {/* Divider between the two number groups */}
-                <div className="hero-split"/>
-
-                {/* Bottom section — Group Performance */}
-                <div className="perf-nums">
-                  <div className="perf-row">
-                    <div className="perf-n int">{st ? f2(st.cumI) : '—'}</div>
-                    <div className="perf-lbl">Interest Earned</div>
-                  </div>
-                  <div className="perf-div"/>
-                  <div className="perf-row">
-                    <div className="perf-n bal">{st ? f2(st.totBal) : '—'}</div>
-                    <div className="perf-lbl">Total Group Balance</div>
-                  </div>
-                </div>
+              <div className="mini-stat">
+                <div className="mini-stat-lbl">Total Group Balance</div>
+                <div className="mini-stat-val">KES {fmtKes(totalBalance)}</div>
               </div>
+            </div>
+          </section>
 
-              {/* Withdrawal window banner — shown from Dec 5 */}
-              {wdraw.state !== 'off' && (
-                <div className={'wdraw-banner ' + wdraw.state} style={{margin:'14px 0 0'}}>
-                  <div className="wdraw-bhead">
-                    <span className="wdraw-bico">{wdraw.state === 'open' ? '🏦' : '🔒'}</span>
-                    <div className="wdraw-btxt">
-                      <div className="wdraw-btitle">
-                        {wdraw.state === 'open'   ? 'Withdrawal Window is Open!' : 'Withdrawal Window Closed'}
-                      </div>
-                      <div className="wdraw-bsub">
-                        {wdraw.state === 'open'
-                          ? `Go to My Balance tab to request your withdrawal. ${wdraw.daysLeft} day${wdraw.daysLeft!==1?'s':''} left — closes 21 Dec.`
-                          : 'The window closed on 21 Dec. See you next December!'}
-                      </div>
-                    </div>
-                    {wdraw.state === 'open' && (
-                      <span className="wdraw-bbadge">{wdraw.daysLeft}d left</span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className="priv"><strong>Members only.</strong> Do not share outside LMF.</div>
-            </>
-      </div>
-
-      {/* ══ INTEREST ACCRUAL ══ */}
-      <div className={`panel${tab==='accrual'?' on':''}`}>
-        <div className="bpad" style={{paddingBottom:0}}>
-          <div className="mscroll">
-            {MONTHS.map(m => (
-              <button key={m} className={`mpill${accrualMonth===m?' on':''}`} onClick={() => setAccrualMonth(m)}>
-                {m.slice(0,3)}
-              </button>
-            ))}
+          <div className="action-row">
+            <button className="action-tile" onClick={() => setTab('balance')}>
+              <span className="tile-icon" style={{ background: 'var(--bl-soft)', color: 'var(--bl)' }}>💼</span>
+              <span>
+                <div className="tile-title">My Balance</div>
+                <div className="tile-sub">{activeAlias} · {month.slice(0, 3)}</div>
+              </span>
+            </button>
+            <button className="action-tile" onClick={() => setTab('accrual')}>
+              <span className="tile-icon" style={{ background: 'var(--ac-soft)', color: 'var(--ac)' }}>📈</span>
+              <span>
+                <div className="tile-title">Interest Accrual</div>
+                <div className="tile-sub">{rows.length} members</div>
+              </span>
+            </button>
           </div>
-        </div>
-        <AllMembers month={accrualMonth} rows={getRows(accrualMonth)} ts={ts} data={data} theme={theme} members={members} />
-      </div>
 
-      {/* ══ MY BALANCE ══ */}
-      <div className={`panel${tab==='balance'?' on':''}`}>
-        <div className="bpad">
+          <section className="surface-card">
+            <div className="hero-kicker" style={{ textAlign: 'left', marginBottom: 8 }}>
+              Group Growth &amp; Year-End Projection
+            </div>
+            <GrowthChart alias={activeAlias} data={data} month={month} theme={theme} members={members} mode="group" />
+          </section>
+        </>
+      )}
 
-          {!alias ? (
-            /* ── No alias yet: show inline grid ── */
-            <>
-              <div className="alias-pick-hdr">&#128100; Who are you?</div>
-              {aliasGrid}
-            </>
-          ) : (
-            /* ── Alias selected: show balance content ── */
-            <>
-              <div className="mscroll">
-                {MONTHS.map(m => (
-                  <button key={m} className={`mpill${balanceMonth===m?' on':''}`} onClick={() => setBalanceMonth(m)}>
-                    {m.slice(0,3)}
-                  </button>
-                ))}
-              </div>
+      {tab === 'balance' && (
+        <>
+          <section className="surface-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <span className="hero-kicker" style={{ textAlign: 'left' }}>Choose Member Alias</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--t3)' }}>Viewing: <strong style={{ color: 'var(--t1)' }}>{activeAlias}</strong></span>
+            </div>
+            <div className="alias-grid">
+              {members.map(a => (
+                <button
+                  key={a}
+                  className={`alias-card ${activeAlias === a ? 'selected' : ''}`}
+                  onClick={() => setAlias(a)}
+                >
+                  <span className="alias-emoji">{cityIcon[a] || '👤'}</span>
+                  <span className="alias-name">{a}</span>
+                </button>
+              ))}
+            </div>
+          </section>
 
-              <button className="change-alias" onClick={() => setAlias('')}>
-                &#9998; Change
-              </button>
-            <div className="scrd">
-              <div className="s-head">
-                <div>
-                  <div className="s-alias">{alias}</div>
-                  <div className="s-month">{balanceMonth} {CUR_YEAR}</div>
+          <section className="surface-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', fontWeight: 800 }}>
+                  {cityIcon[activeAlias] || '👤'} {activeAlias}
                 </div>
-                <div className="s-avatar">{cityIcon[alias] || '👤'}</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--t3)' }}>{month} {CUR_YEAR} Breakdown</div>
               </div>
-
-              <div className="s-hero">
-                <div className="s-hero-lbl">Current Balance</div>
-                <div className="s-hero-num">{f2(md.closingBalance)}</div>
-                <div className="s-hero-cur">KES</div>
-              </div>
-
-              <div className="srow">
-                <span className="slbl">Opening Balance</span>
-                <span className="sval">{f2(md.openingBalance)}</span>
-              </div>
-              <div className="srow">
-                <span className="slbl">Top-ups</span>
-                <span className="sval bl">{f2(md.topups)}</span>
-              </div>
-              <div className="srow">
-                <span className="slbl">
-                  Interest Earned
-                  <div className="hint">Early deposits earn more</div>
-                </span>
-                <span className="sval gr">{f2(md.interest)}</span>
-              </div>
-              {ts && <div className="sts">Data as of {ts.toLocaleString('en-KE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})}</div>}
+              <span className="pill-green">{effectiveTopup >= MIN_CONTRIB ? 'Minimum Met' : 'Below Min'}</span>
             </div>
 
-            {warn && (
-              <div className="wcrd">
-                <div style={{fontSize:'1.2rem',flexShrink:0}}>&#9888;&#65039;</div>
-                <div>
-                  <div className="wtitle">Friendly Reminder</div>
-                  <div className="wbody">{warnMsg}</div>
-                </div>
+            <div className="bal-hero">
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--t2)' }}>
+                Closing Balance
+              </span>
+              <span className="bal-hero-num">KES {fmtKes(memberRow.closingBalance)}</span>
+            </div>
+
+            <div className="kv-row">
+              <span className="kv-lbl">Opening Balance</span>
+              <span className="kv-val">KES {fmtKes(memberRow.openingBalance)}</span>
+            </div>
+            <div className="kv-row">
+              <span className="kv-lbl">{month} Top-ups</span>
+              <span className="kv-val" style={{ color: 'var(--bl)' }}>KES {fmtKes(memberRow.topups)}</span>
+            </div>
+            <div className="kv-row">
+              <span className="kv-lbl">Interest Earned</span>
+              <span className="kv-val" style={{ color: 'var(--ac)' }}>KES {fmtKes(memberRow.interest)}</span>
+            </div>
+          </section>
+
+          {shortfall > 0 && (
+            <section className="surface-card" style={{ borderColor: 'rgba(255,170,43,0.35)', background: 'var(--gd-soft)' }}>
+              <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--gd)', marginBottom: 4 }}>
+                ⚠️ Contribution Reminder
               </div>
-            )}
+              <p style={{ fontSize: '0.83rem', color: 'var(--t2)', lineHeight: 1.5 }}>
+                {partner ? `Combined ${activeAlias} + ${partner} deposits` : `${activeAlias} deposits`} in {month} are at <strong>KES {fmtKes(effectiveTopup, 0)}</strong>. Add <strong>KES {fmtKes(shortfall, 0)}</strong> to hit KES 4,000.
+              </p>
+            </section>
+          )}
 
-            {wdraw.state === 'open' ? (
-              /* ── DECEMBER: hide chart, show withdrawal form ── */
-              (() => {
-                const decBal = decData?.[alias]?.closingBalance || 0;
-                const reqAmt = parseFloat(wdrawAmt) || 0;
-                const remaining = decBal - reqAmt;
-                const existing = wdrawReqs[alias];
+          <section className="surface-card">
+            <div className="hero-kicker" style={{ textAlign: 'left', marginBottom: 8 }}>
+              {activeAlias} Balance &amp; Projection · {month}
+            </div>
+            <GrowthChart alias={activeAlias} data={data} month={month} theme={theme} members={members} mode="member" />
+          </section>
+        </>
+      )}
 
-                const submitWithdrawal = () => {
-                  if (!reqAmt || reqAmt <= 0) return;
-                  if (reqAmt > decBal) return;
-                  const req = {
-                    alias,
-                    balance:   decBal,
-                    amount:    reqAmt,
-                    remaining: remaining,
-                    date:      new Date().toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'}),
-                    time:      new Date().toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit',hour12:true}),
-                    year:      CUR_YEAR
-                  };
-                  const updated = {...wdrawReqs, [alias]: req};
-                  setWdrawReqs(updated);
-                  localStorage.setItem('mmf_wdraw_'+CUR_YEAR, JSON.stringify(updated));
-                  setWdrawAmt('');
-                };
-
+      {tab === 'accrual' && (
+        <div className="tbl-card">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Alias</th>
+                <th>Opening</th>
+                <th>Top-ups</th>
+                <th>Int.</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r, i) => {
+                const dot = r.topups >= MIN_CONTRIB ? 'var(--ac)' : r.topups > 0 ? 'var(--gd)' : 'var(--rd)';
                 return (
-                  <div className="wdraw-crd">
-                    <div className="wdraw-chead">
-                      <span style={{fontSize:'1.1rem'}}>🏦</span>
-                      <span className="wdraw-ctitle">Request Withdrawal</span>
-                      <span className="wdraw-bbadge" style={{marginLeft:'auto'}}>{wdraw.daysLeft}d left</span>
-                    </div>
-                    <div className="wdraw-cbody">
-
-                      {existing ? (
-                        /* Already submitted */
-                        <>
-                          <div style={{textAlign:'center',padding:'8px 0 16px'}}>
-                            <div style={{fontSize:'2rem',marginBottom:6}}>✅</div>
-                            <div style={{fontSize:'var(--t-subhead)',fontWeight:700,color:'var(--ac)',marginBottom:4}}>Withdrawal Requested</div>
-                            <div style={{fontSize:'var(--t-caption1)',color:'var(--t3)'}}>Submitted {existing.date} at {existing.time}</div>
-                          </div>
-                          <div className="srow">
-                            <span className="slbl">December Balance</span>
-                            <span className="sval">{f2(existing.balance)}</span>
-                          </div>
-                          <div className="srow">
-                            <span className="slbl">Amount Requested</span>
-                            <span className="sval gr">{f2(existing.amount)}</span>
-                          </div>
-                          <div className="srow" style={{borderBottom:'none'}}>
-                            <span className="slbl big">Balance After</span>
-                            <span className="sval hero">{f2(existing.remaining)}</span>
-                          </div>
-                          <div className="wdraw-note" style={{marginTop:14}}>
-                            Your request has been recorded. The admin will process it before 21 Dec.
-                          </div>
-                          <button className="wdraw-btn" style={{background:'var(--ibg)',color:'var(--t3)',border:'1px solid var(--br2)',marginTop:4}}
-                            onClick={() => {
-                              const updated = {...wdrawReqs};
-                              delete updated[alias];
-                              setWdrawReqs(updated);
-                              localStorage.setItem('mmf_wdraw_'+CUR_YEAR, JSON.stringify(updated));
-                            }}>
-                            ✏️ Edit Request
-                          </button>
-                        </>
-                      ) : (
-                        /* Withdrawal form */
-                        <>
-                          <div className="srow">
-                            <span className="slbl big">December Balance</span>
-                            <span className="sval hero">{decBal > 0 ? f2(decBal) : '—'}</span>
-                          </div>
-                          <div style={{margin:'14px 0 6px',fontSize:'var(--t-caption2)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.07em',color:'var(--t3)'}}>Amount to Withdraw</div>
-                          <div style={{position:'relative',marginBottom:12}}>
-                            <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',fontSize:'var(--t-footnote)',fontWeight:700,color:'var(--t3)'}}>KES</span>
-                            <input
-                              type="number"
-                              value={wdrawAmt}
-                              onChange={e => setWdrawAmt(e.target.value)}
-                              placeholder="0"
-                              min="0"
-                              max={decBal}
-                              inputMode="decimal"
-                              style={{width:'100%',padding:'12px 12px 12px 44px',background:'var(--ibg)',border:'1px solid '+(reqAmt>decBal?'var(--rd)':'var(--br2)'),borderRadius:12,color:'var(--t1)',fontFamily:"'JetBrains Mono',monospace",fontSize:'var(--t-subhead)',fontWeight:600,outline:'none'}}
-                            />
-                          </div>
-                          <div className="srow" style={{borderBottom:'none',paddingBottom:0}}>
-                            <span className="slbl big">Balance After</span>
-                            <span className="sval hero" style={{color: remaining < 0 ? 'var(--rd)' : 'var(--ac)'}}>
-                              {reqAmt > 0 ? f2(Math.max(remaining,0)) : '—'}
-                            </span>
-                          </div>
-                          {reqAmt > decBal && (
-                            <div style={{fontSize:'var(--t-caption2)',color:'var(--rd)',marginTop:6}}>
-                              ⚠️ Amount exceeds your balance
-                            </div>
-                          )}
-                          <button
-                            className={'wdraw-btn' + (!reqAmt || reqAmt <= 0 || reqAmt > decBal ? ' disabled' : '')}
-                            style={{marginTop:16}}
-                            onClick={submitWithdrawal}
-                          >
-                            🏦 Submit Withdrawal Request
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
+                  <tr key={r.alias}>
+                    <td>{i + 1}</td>
+                    <td style={{ fontWeight: 700 }}>{cityIcon[r.alias] || '👤'} {r.alias}</td>
+                    <td className="mono">{fmtKes(r.openingBalance, 0)}</td>
+                    <td className="mono">
+                      {fmtKes(r.topups, 0)}
+                      <span className="status-dot" style={{ background: dot }} />
+                    </td>
+                    <td className="mono" style={{ color: 'var(--ac)' }}>{fmtKes(r.interest, 0)}</td>
+                    <td className="mono" style={{ fontWeight: 700, color: 'var(--t1)' }}>{fmtKes(r.closingBalance, 0)}</td>
+                  </tr>
                 );
-              })()
-            ) : (
-              /* Normal months — show chart and motivational card */
-              <>
-                <div className="ccrd">
-                  <div className="clbl">Contributions &amp; Balance Growth</div>
-                  <div className="csub">
-                    <span style={{color:'#69be51'}}>&#9646;</span> Top-ups &nbsp;
-                    <span style={{color:'#69be51'}}>&#9135;</span> Balance &nbsp;
-                    <span style={{color:'#3b82f6'}}>&#8213;</span> Projected
-                  </div>
-                  <MemberChart alias={alias} data={data} month={balanceMonth} theme={theme} />
-                </div>
-                <div className="mcrd">
-                  <div className="mico">{motiv.icon}</div>
-                  <div className="mtxt">{renderBold(motiv.text)}</div>
-                </div>
-              </>
-            )}
-          </>
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {tab === 'statements' && (
+        <section className="surface-card">
+          <div className="hero-kicker" style={{ textAlign: 'left', marginBottom: 10 }}>
+            Member YTD Statement
+          </div>
+          <div className="info-box">
+            <strong>Alias:</strong> {cityIcon[activeAlias] || '👤'} {activeAlias}<br />
+            <strong>Etica Statement Password:</strong> <span style={{ fontFamily: 'var(--font-mono)' }}>308398</span>
+          </div>
+          <button className="primary-btn" onClick={openYtdStatement}>
+            Generate {activeAlias} Statement ({CUR_YEAR})
+          </button>
+          {statementSummary && (
+            <div className="info-box" style={{ marginTop: 12, borderColor: 'var(--ac-border)', background: 'var(--ac-soft)', color: 'var(--t1)' }}>
+              {statementSummary}
+            </div>
           )}
-        </div>
-      </div>
+        </section>
+      )}
 
-      {/* ══ INFO ══ */}
-      <div className={`panel${tab==='info'?' on':''}`}>
-        <div className="morepad">
-
-          <div className="morecrd">
-            <div className="morehead">&#128179; Make a Deposit</div>
-            <div className="morebody">
-              <div className="dep">
-                <div className="dep-t">M-PESA</div>
-                <div className="dep-i">Paybill: <strong>4096483</strong><br/>Account: <strong>308398M</strong></div>
-              </div>
-              <div className="dep">
-                <div className="dep-t">Bank Deposit / Transfer</div>
-                <div className="dep-i">
-                  Bank: <strong>Equity Bank</strong><br/>
-                  A/C Name: Etica Unit Trust Collection<br/>
-                  A/C No: <strong>0180 28395 1027</strong><br/>
-                  Reference: <strong>308398M</strong>
-                </div>
-                <div className="dep-w">&#9888;&#65039; Always indicate <strong>308398M</strong> on the Reference / Remarks section.</div>
-              </div>
+      {tab === 'info' && (
+        <>
+          <section className="surface-card">
+            <div className="hero-kicker" style={{ textAlign: 'left', marginBottom: 10 }}>
+              Deposit Instructions · Ref 308398M
             </div>
-          </div>
-
-          <div className="morecrd">
-            <div className="morehead">&#128220; Group Rules</div>
-            <div className="morebody">
-              <ul className="rlist">
-                <li>Minimum contribution: <strong>KES 4,000/month</strong></li>
-                <li>Interest only on months with full minimum</li>
-                <li>Withdrawals in December — window open 5–21 Dec</li>
-                <li>Fund: <strong>Etica MMF</strong></li>
-                <li>Maximum members: <strong>15</strong></li>
-              </ul>
+            <div className="info-box">
+              <strong>M-PESA Paybill:</strong> <span style={{ fontFamily: 'var(--font-mono)' }}>4096483</span><br />
+              <strong>Account Number:</strong> <span style={{ fontFamily: 'var(--font-mono)' }}>308398M</span>
             </div>
-          </div>
-
-
-        </div>
-      </div>
-
-      {/* ══ STATEMENTS ══ */}
-      <div className={`panel${tab==='statements'?' on':''}`}>
-        <div className="morepad">
-
-          {/* My member statement */}
-          <div className="morecrd">
-            <div className="morehead">&#128196; My Member Statement</div>
-            <div className="morebody">
-              {!alias ? (
-                <>
-                  <div className="alias-pick-hdr" style={{marginTop:0}}>&#128100; Who are you?</div>
-                  {aliasGrid}
-                </>
-              ) : (
-                <>
-                  <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
-                    <span style={{fontSize:'1.5rem'}}>{cityIcon[alias]||'👤'}</span>
-                    <span style={{fontFamily:"'Sora',sans-serif",fontWeight:800,fontSize:'var(--t-title3)'}}>{alias}</span>
-                    <button className="change-alias" style={{marginBottom:0,marginLeft:'auto'}} onClick={() => setAlias('')}>
-                      &#9998; Change
-                    </button>
-                  </div>
-                  <div style={{fontSize:'var(--t-footnote)',color:'var(--t3)',marginBottom:12,lineHeight:1.5}}>
-                    Year-to-date summary of your deposits, interest and balance &middot; Jan &ndash; {curMonth()} {CUR_YEAR}
-                  </div>
-                  <button className="stmt-btn" style={{marginBottom:0}} onClick={generateStatement}>
-                    &#128196; Generate My Statement
-                  </button>
-                </>
-              )}
+            <div className="info-box" style={{ marginBottom: 0 }}>
+              <strong>Equity Bank:</strong> Etica Unit Trust Collection<br />
+              <strong>Account:</strong> <span style={{ fontFamily: 'var(--font-mono)' }}>0180 28395 1027</span> · Ref <strong>308398M</strong>
             </div>
-          </div>
+          </section>
 
-          {/* Etica monthly PDFs */}
-          <div className="morecrd">
-            <div className="morehead">&#128196; Etica Monthly Statements</div>
-            <div className="morebody">
-              <div className="pdf-pw">PDF Password: 308398</div>
-              <button className="cdrop-btn ssel-btn" style={{width:'100%'}} onClick={() => setOpenDrop('stmt')}>
-                <span>&#128229; Select Month to Download</span>
-                <span style={{fontSize:'.65rem',opacity:.55}}>&#9660;</span>
-              </button>
-              {pdfMsg && <div className="pdf-msg">⏳ {pdfMsg}</div>}
+          <section className="surface-card">
+            <div className="hero-kicker" style={{ textAlign: 'left', marginBottom: 6 }}>
+              Group Rules
             </div>
-          </div>
+            <div className="rule-item"><span>Minimum contribution</span><strong>KES 4,000/month</strong></div>
+            <div className="rule-item"><span>Interest rule</span><strong>Full minimum met</strong></div>
+            <div className="rule-item"><span>Withdrawal window</span><strong>5–21 Dec</strong></div>
+            <div className="rule-item"><span>Fund</span><strong>Etica MMF</strong></div>
+          </section>
+        </>
+      )}
 
-          {/* STATEMENTS MODAL */}
-          {/* Withdrawal Statement — shown in Dec if a request exists for the selected alias */}
-          {alias && wdrawReqs[alias] && (() => {
-            const r = wdrawReqs[alias];
-            return (
-              <div className="morecrd" style={{borderColor:'rgba(105,190,81,.25)'}}>
-                <div className="morehead" style={{color:'var(--ac)'}}>🏦 Withdrawal Statement {CUR_YEAR}</div>
-                <div className="morebody">
-                  <div style={{fontSize:'var(--t-caption2)',color:'var(--t3)',marginBottom:12}}>
-                    Submitted {r.date} at {r.time}
-                  </div>
-                  <div className="srow">
-                    <span className="slbl">Member</span>
-                    <span className="sval" style={{display:'flex',alignItems:'center',gap:6}}>
-                      <span>{cityIcon[r.alias]||'👤'}</span>{r.alias}
-                    </span>
-                  </div>
-                  <div className="srow">
-                    <span className="slbl">December Balance</span>
-                    <span className="sval">{f2(r.balance)}</span>
-                  </div>
-                  <div className="srow">
-                    <span className="slbl">Amount Requested</span>
-                    <span className="sval gr">{f2(r.amount)}</span>
-                  </div>
-                  <div className="srow" style={{borderBottom:'none'}}>
-                    <span className="slbl big">Balance After Withdrawal</span>
-                    <span className="sval hero">{f2(r.remaining)}</span>
-                  </div>
-                  <div style={{marginTop:12,padding:'10px 12px',background:'var(--acl)',borderRadius:12,fontSize:'var(--t-caption2)',color:'var(--t2)',lineHeight:1.6}}>
-                    ℹ️ This is your withdrawal request record. The admin will confirm processing separately.
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
-
-          {openDrop === 'stmt' && (
-            <>
-              <div className="modal-blur" onClick={() => setOpenDrop(null)} />
-              <div className="modal-overlay" onClick={() => setOpenDrop(null)}>
-                <div className="modal-sheet" onClick={e => e.stopPropagation()}>
-                  <div className="modal-handle" />
-                  <div className="modal-title">&#128196; Select a Statement</div>
-                  {MONTHS.map(m => (
-                    <div key={m} className="modal-item" onClick={() => {
-                      setOpenDrop(null);
-                      const base = window.location.href.split('/').slice(0, -1).join('/');
-                      const url  = base + '/' + m + '_' + CUR_YEAR + '_Statement.pdf';
-                      fetch(url, {method:'HEAD'})
-                        .then(r => {
-                          if (r.ok) {
-                            window.open(url, '_blank');
-                            setPdfMsg(null);
-                          } else {
-                            const msgs = [
-                              'The ' + m + ' statement is still being prepared. Check back soon!',
-                              m + ' numbers are being finalised. Almost ready!'
-                            ];
-                            setPdfMsg(msgs[Math.floor(Math.random()*msgs.length)]);
-                            setTimeout(() => setPdfMsg(null), 7000);
-                          }
-                        })
-                        .catch(() => { window.open(url, '_blank'); });
-                    }}>
-                      <span>{m}</span>
-                      <span style={{fontSize:'1rem'}}>&#128229;</span>
-                    </div>
-                  ))}
-                  <button className="modal-cancel" onClick={() => setOpenDrop(null)}>Cancel</button>
-                </div>
-              </div>
-            </>
-          )}
-
-        </div>
-      </div>
-
-      {/* BOTTOM NAV — personal destinations */}
-      <div className="bnav">
-        <button className={`bnav-it bi-bal${tab==='balance'?' on':''}`} onClick={() => setTab('balance')}>
-          <span className="bnav-ico">&#128188;</span>
+      <nav className="bottom-dock" aria-label="Bottom navigation">
+        <button className={`dock-item ${tab === 'overview' ? 'active' : ''}`} onClick={() => setTab('overview')}>
+          <span className="dock-icon">🏠</span>
+          <span>Overview</span>
+        </button>
+        <button className={`dock-item ${tab === 'balance' ? 'active' : ''}`} onClick={() => setTab('balance')}>
+          <span className="dock-icon">💼</span>
           <span>My Balance</span>
         </button>
-        <button className="bnav-it bi-dep" onClick={openContrib}>
-          <span className="bnav-ico">&#129534;</span>
-          <span>Deposit Log</span>
-        </button>
-        <button className={`bnav-it bi-stm${tab==='statements'?' on':''}`} onClick={() => setTab('statements')}>
-          <span className="bnav-ico">&#128196;</span>
+        <button className={`dock-item ${tab === 'statements' ? 'active' : ''}`} onClick={() => setTab('statements')}>
+          <span className="dock-icon">📄</span>
           <span>Statements</span>
         </button>
-      </div>
-
+      </nav>
     </div>
   );
 }
 
-ReactDOM.render(<App/>, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));
 </script>
 </body>
 </html>
