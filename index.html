@@ -422,20 +422,52 @@ button,select,input{touch-action:manipulation;font-family:inherit;}
 /* ── Withdrawal window ── */
 .wdraw-banner{margin:0 16px 14px;border-radius:20px;overflow:hidden;border:1px solid rgba(105,190,81,.25);}
 .wdraw-banner.soon{border-color:rgba(255,165,25,.3);}
-.wdraw-banner.closed{border-color:rgba(255,64,95,.25);}
+.wdraw-banner.closed{border-color:var(--br2);}
 .wdraw-bhead{padding:12px 16px;display:flex;align-items:center;gap:10px;background:rgba(105,190,81,.08);}
 .wdraw-banner.soon .wdraw-bhead{background:rgba(255,165,25,.08);}
-.wdraw-banner.closed .wdraw-bhead{background:rgba(255,64,95,.07);}
+.wdraw-banner.closed .wdraw-bhead{background:var(--ibg);}
 .wdraw-bico{font-size:1.3rem;flex-shrink:0;}
 .wdraw-btxt{flex:1;}
 .wdraw-btitle{font-size:var(--t-footnote);font-weight:700;color:var(--ac);margin-bottom:1px;}
 .wdraw-banner.soon .wdraw-btitle{color:var(--gd);}
-.wdraw-banner.closed .wdraw-btitle{color:var(--rd);}
+.wdraw-banner.closed .wdraw-btitle{color:var(--t2);}
 .wdraw-bsub{font-size:var(--t-caption2);color:var(--t3);}
 .wdraw-bbadge{font-size:var(--t-caption2);font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(105,190,81,.15);color:var(--ac);border:1px solid rgba(105,190,81,.3);}
 .wdraw-banner.soon .wdraw-bbadge{background:rgba(255,165,25,.13);color:var(--gd);border-color:rgba(255,165,25,.3);}
 .wdraw-banner.closed .wdraw-bbadge{background:rgba(255,64,95,.1);color:var(--rd);border-color:rgba(255,64,95,.25);}
 
+/* Open window banner: red, tappable, opens the withdrawal wizard */
+.wdraw-banner.open{border:none;background:var(--rd);box-shadow:0 6px 20px rgba(255,64,95,.35);cursor:pointer;animation:wzPulse 2s ease-in-out infinite;-webkit-tap-highlight-color:transparent;}
+.wdraw-banner.open:active{transform:scale(.99);}
+.wdraw-banner.open .wdraw-bhead{background:transparent;}
+.wdraw-banner.open .wdraw-btitle{color:#fff;font-size:var(--t-subhead);}
+.wdraw-banner.open .wdraw-bsub{color:rgba(255,255,255,.9);}
+.wdraw-banner.open .wdraw-bbadge{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.45);}
+@keyframes wzPulse{0%,100%{box-shadow:0 6px 20px rgba(255,64,95,.35)}50%{box-shadow:0 6px 30px rgba(255,64,95,.7)}}
+@media (prefers-reduced-motion: reduce){.wdraw-banner.open{animation:none;}}
+
+/* Withdrawal wizard */
+.wz-ov{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;}
+.wz-sheet{width:100%;max-width:430px;max-height:92vh;max-height:92dvh;overflow-y:auto;background:var(--card);border-radius:24px 24px 0 0;border:1px solid var(--br2);padding:14px 18px calc(22px + env(safe-area-inset-bottom,0px));animation:up .25s ease;}
+.wz-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.wz-back,.wz-x{width:36px;height:36px;border-radius:50%;border:1px solid var(--br2);background:var(--ibg);color:var(--t2);font-size:1.05rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+.wz-dots{display:flex;gap:6px;}
+.wz-dot{width:24px;height:5px;border-radius:3px;background:var(--br2);}
+.wz-dot.on{background:var(--ac);}
+.wz-h{font-family:'Sora',sans-serif;font-size:var(--t-title3);font-weight:800;color:var(--t1);margin-bottom:4px;}
+.wz-sub{font-size:var(--t-footnote);color:var(--t3);margin-bottom:16px;line-height:1.5;}
+.wz-hero{text-align:center;padding:18px 10px;background:var(--acl);border:1px solid rgba(105,190,81,.25);border-radius:18px;margin-bottom:18px;}
+.wz-hero-lbl{font-size:var(--t-caption1);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:6px;}
+.wz-hero-num{font-family:'JetBrains Mono',monospace;font-size:var(--t-title1);font-weight:700;color:var(--ac);}
+.wz-hero-cur{font-size:var(--t-caption1);font-weight:700;color:var(--t3);margin-top:2px;}
+.wz-hero-cap{font-size:var(--t-caption2);color:var(--t3);margin-top:6px;}
+.wz-lbl{margin:14px 0 6px;font-size:var(--t-caption2);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);}
+.wz-inp{width:100%;padding:13px 12px;background:var(--ibg);border:1px solid var(--br2);border-radius:12px;color:var(--t1);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;outline:none;}
+.wz-inp.mono{font-family:'JetBrains Mono',monospace;}
+.wz-inp.err{border-color:var(--rd);}
+.wz-err{font-size:var(--t-caption2);color:var(--rd);margin-top:6px;}
+.wz-link{background:none;border:none;color:var(--ac);font-family:'DM Sans',sans-serif;font-size:var(--t-footnote);font-weight:700;padding:8px 0;cursor:pointer;}
+.wz-ghost{background:var(--ibg);color:var(--t2);border:1px solid var(--br2);}
 .wdraw-crd{background:var(--card);border:1px solid rgba(105,190,81,.25);border-radius:20px;margin-bottom:14px;overflow:hidden;box-shadow:var(--sh);}
 .wdraw-crd.closed{border-color:rgba(255,64,95,.2);}
 .wdraw-chead{padding:14px 16px 12px;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:8px;}
@@ -1161,7 +1193,9 @@ function App() {
   const [wdrawName, setWdrawName] = useState('');
   const [wdrawBusy, setWdrawBusy] = useState(false);
   const [wdrawErr,  setWdrawErr]  = useState('');
-  const [wdrawEdit, setWdrawEdit] = useState(false);
+  const [wizOpen,  setWizOpen]  = useState(false);
+  const [wizStep,  setWizStep]  = useState(1);
+  const [wizAlias, setWizAlias] = useState('');
   const [wdrawReqs,setWdrawReqs]= useState(() => {
     try { return JSON.parse(localStorage.getItem('mmf_wdraw_'+CUR_YEAR)||'{}'); }
     catch(e) { return {}; }
@@ -1365,14 +1399,73 @@ function App() {
   const cm      = curMonth();
   const today   = new Date().getDate();
   const wdraw   = withdrawalWindow();
-  // Latest balance on record for this member, whichever month it comes from
-  const latestBal = (() => {
+  // Latest balance on record for a member, whichever month it comes from
+  const latestFor = (a) => {
     for (let i = MONTHS.length - 1; i >= 0; i--) {
-      const r = data?.[MONTHS[i]]?.[alias];
+      const r = data?.[MONTHS[i]]?.[a];
       if (r && (r.closingBalance > 0 || r.openingBalance > 0 || r.topups > 0)) return { month: MONTHS[i], bal: r.closingBalance || 0 };
     }
     return { month: '', bal: 0 };
-  })();
+  };
+
+  // Withdrawal wizard helpers
+  const fillFromExisting = (a) => {
+    const ex = wdrawReqs[a];
+    setWdrawAmt(ex ? String(ex.amount) : '');
+    setWdrawPhone(ex ? (ex.phone || '') : '');
+    setWdrawName(ex ? (ex.name || '') : '');
+    setWdrawErr('');
+  };
+  const openWizard = (preAlias) => {
+    const a = preAlias || '';
+    setWizAlias(a);
+    fillFromExisting(a);
+    setWizStep(a ? 2 : 1);
+    setWizOpen(true);
+  };
+  const closeWizard = () => { setWizOpen(false); setWdrawBusy(false); setWdrawErr(''); };
+  const pickWizMember = (a) => { setWizAlias(a); fillFromExisting(a); setWizStep(2); };
+
+  const submitWizard = async () => {
+    const a = wizAlias;
+    const lb = latestFor(a);
+    const amt = parseFloat(wdrawAmt) || 0;
+    const phoneN = normPhone(wdrawPhone);
+    const nm = wdrawName.trim();
+    if (wdrawBusy || !a || !(amt > 0) || amt > lb.bal || !phoneN || nm.length < 3) return;
+    if (withdrawalWindow().state !== 'open') { setWdrawErr('The withdrawal window is closed.'); return; }
+    setWdrawBusy(true); setWdrawErr('');
+    const req = {
+      alias: a,
+      balanceMonth: lb.month,
+      balance:   lb.bal,
+      amount:    amt,
+      remaining: lb.bal - amt,
+      phone:     phoneN,
+      name:      nm,
+      date:      new Date().toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'}),
+      time:      new Date().toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit',hour12:true}),
+      year:      CUR_YEAR
+    };
+    try {
+      const res = await fetch(WITHDRAW_URL, {
+        method: 'POST',
+        headers: {'Content-Type': 'text/plain;charset=utf-8'},
+        body: JSON.stringify(req)
+      });
+      const out = await res.json();
+      if (!out.ok) throw new Error(out.error || 'Not saved');
+      const updated = {...wdrawReqs, [a]: req};
+      setWdrawReqs(updated);
+      localStorage.setItem('mmf_wdraw_'+CUR_YEAR, JSON.stringify(updated));
+      setWizStep(5);
+    } catch(e) {
+      setWdrawErr(String(e.message||'').includes('closed')
+        ? 'The withdrawal window is closed.'
+        : 'Could not send your request. Check your internet and try again.');
+    }
+    setWdrawBusy(false);
+  };
   const md      = data?.[balanceMonth]?.[alias]||{openingBalance:0,topups:0,interest:0,daysActive:0,closingBalance:0};
   const partner = pairs[alias];
   const f2 = n => n.toLocaleString('en-KE',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -1659,6 +1752,145 @@ function App() {
   return (
     <div className="shell">
 
+      {/* ══ WITHDRAWAL WIZARD ══ */}
+      {wizOpen && (() => {
+        const wa     = wizAlias;
+        const lb     = latestFor(wa);
+        const wBal   = lb.bal;
+        const amt    = parseFloat(wdrawAmt) || 0;
+        const after  = wBal - amt;
+        const amtOk  = amt > 0 && amt <= wBal;
+        const phoneN = normPhone(wdrawPhone);
+        const nameOk = wdrawName.trim().length >= 3;
+        const ex     = wdrawReqs[wa];
+        return (
+          <div className="wz-ov">
+            <div className="wz-sheet" role="dialog" aria-modal="true" aria-label="Withdrawal request">
+              <div className="wz-top">
+                {wizStep > 1 && wizStep < 5
+                  ? <button className="wz-back" onClick={() => { setWdrawErr(''); setWizStep(wizStep - 1); }} aria-label="Back">&#8249;</button>
+                  : <span style={{width:36}}/>}
+                <div className="wz-dots">
+                  {[1,2,3,4].map(n => <span key={n} className={'wz-dot' + (n <= Math.min(wizStep,4) ? ' on' : '')}/>)}
+                </div>
+                <button className="wz-x" onClick={closeWizard} aria-label="Close">&#10005;</button>
+              </div>
+
+              {wizStep === 1 && (
+                <>
+                  <div className="wz-h">Who are you?</div>
+                  <div className="wz-sub">Tap your name to start your withdrawal request.</div>
+                  <div className="alias-grid-inline">
+                    {members.map(a => (
+                      <div key={a} className="alias-cell"
+                        style={{background: cityColor[a] || 'var(--ibg)', borderColor: cityBorder[a] || 'var(--br)'}}
+                        onClick={() => pickWizMember(a)}>
+                        <span className="alias-cell-ico">{cityIcon[a] || '👤'}</span>
+                        <span className="alias-cell-lbl">{a}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {wizStep === 2 && (
+                <>
+                  <div className="wz-h">{cityIcon[wa] || '👤'} {wa}</div>
+                  <div className="wz-sub">Here is what you have available to withdraw.</div>
+                  <div className="wz-hero">
+                    <div className="wz-hero-lbl">Current Balance</div>
+                    <div className="wz-hero-num">{f2(wBal)}</div>
+                    <div className="wz-hero-cur">KES</div>
+                    {lb.month && <div className="wz-hero-cap">As at {lb.month} records</div>}
+                  </div>
+                  {ex && (
+                    <div className="wdraw-note">
+                      You already have a request of {f2(ex.amount)}. Submitting a new one replaces it.
+                    </div>
+                  )}
+                  {wBal > 0 ? (
+                    <>
+                      <div className="wz-lbl" style={{marginTop:0}}>How much do you want to withdraw? (KES)</div>
+                      <input className={'wz-inp mono' + (amt > wBal ? ' err' : '')}
+                        type="number" inputMode="decimal" min="0" step="any"
+                        value={wdrawAmt} onChange={e => setWdrawAmt(e.target.value)}
+                        placeholder="0.00"/>
+                      <button className="wz-link" onClick={() => setWdrawAmt(String(wBal))}>Withdraw full balance</button>
+                      {amt > wBal && <div className="wz-err">Amount exceeds your Current Balance.</div>}
+                      {amtOk && (
+                        <div className="srow" style={{borderBottom:'none',paddingBottom:0}}>
+                          <span className="slbl big">Balance After</span>
+                          <span className="sval hero">{f2(after)}</span>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="wdraw-note">You have no balance available to withdraw right now.</div>
+                  )}
+                  <button className={'wdraw-btn' + (!amtOk ? ' disabled' : '')} style={{marginTop:16}}
+                    onClick={() => amtOk && setWizStep(3)}>Continue</button>
+                </>
+              )}
+
+              {wizStep === 3 && (
+                <>
+                  <div className="wz-h">Where should we send it?</div>
+                  <div className="wz-sub">Enter the M-Pesa number that will receive the money and the name it is registered under.</div>
+                  <div className="wz-lbl" style={{marginTop:0}}>M-Pesa Number</div>
+                  <input className={'wz-inp mono' + (wdrawPhone && !phoneN ? ' err' : '')}
+                    type="tel" inputMode="tel" autoComplete="tel"
+                    value={wdrawPhone} onChange={e => setWdrawPhone(e.target.value)}
+                    placeholder="07XX XXX XXX"/>
+                  {wdrawPhone && !phoneN && <div className="wz-err">Enter a valid Safaricom or Airtel number, e.g. 0712 345 678</div>}
+                  <div className="wz-lbl">Name Registered on That Number</div>
+                  <input className="wz-inp" type="text" autoComplete="name"
+                    value={wdrawName} onChange={e => setWdrawName(e.target.value)}
+                    placeholder="As it appears on M-Pesa"/>
+                  <button className={'wdraw-btn' + (!(phoneN && nameOk) ? ' disabled' : '')} style={{marginTop:18}}
+                    onClick={() => phoneN && nameOk && setWizStep(4)}>Continue</button>
+                </>
+              )}
+
+              {wizStep === 4 && (
+                <>
+                  <div className="wz-h">Review and submit</div>
+                  <div className="wz-sub">Check everything carefully. The money goes to exactly this number.</div>
+                  <div className="srow"><span className="slbl">Member</span><span className="sval">{cityIcon[wa] || '👤'} {wa}</span></div>
+                  <div className="srow"><span className="slbl">Current Balance</span><span className="sval">{f2(wBal)}</span></div>
+                  <div className="srow"><span className="slbl">Amount to Withdraw</span><span className="sval gr">{f2(amt)}</span></div>
+                  <div className="srow"><span className="slbl">Send To</span><span className="sval">{showPhone(phoneN)}</span></div>
+                  <div className="srow"><span className="slbl">Registered Name</span><span className="sval">{wdrawName.trim()}</span></div>
+                  <div className="srow" style={{borderBottom:'none'}}>
+                    <span className="slbl big">Balance After</span>
+                    <span className="sval hero">{f2(after)}</span>
+                  </div>
+                  {wdrawErr && <div className="wz-err" style={{marginTop:10,fontSize:'var(--t-footnote)'}}>&#9888;&#65039; {wdrawErr}</div>}
+                  <button className={'wdraw-btn' + (wdrawBusy ? ' disabled' : '')} style={{marginTop:16}}
+                    onClick={submitWizard}>{wdrawBusy ? 'Sending…' : '🏦 Submit Withdrawal Request'}</button>
+                </>
+              )}
+
+              {wizStep === 5 && (
+                <>
+                  <div style={{textAlign:'center',padding:'10px 0 18px'}}>
+                    <div style={{fontSize:'2.4rem',marginBottom:8}}>✅</div>
+                    <div className="wz-h">Withdrawal Requested</div>
+                    <div className="wz-sub" style={{marginBottom:0}}>Your request has been recorded and sent to the admin.</div>
+                  </div>
+                  <div className="srow"><span className="slbl">Amount Requested</span><span className="sval gr">{f2(amt)}</span></div>
+                  <div className="srow"><span className="slbl">Send To</span><span className="sval">{showPhone(phoneN)}</span></div>
+                  <div className="srow" style={{borderBottom:'none'}}><span className="slbl">Registered Name</span><span className="sval">{wdrawName.trim()}</span></div>
+                  <div className="wdraw-note" style={{marginTop:14}}>
+                    You can change it until the window closes on 5 Dec. Open the red banner again and submit a new request to replace this one.
+                  </div>
+                  <button className="wdraw-btn" onClick={closeWizard}>Done</button>
+                </>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* HEADER */}
       <div className="hdr">
         <div className="hdr-row">
@@ -1735,18 +1967,23 @@ function App() {
                 </div>
               </div>
 
-              {/* Withdrawal window banner — shown from 30 Nov */}
+              {/* Withdrawal window banner: red and tappable while open, opens the wizard */}
               {wdraw.state !== 'off' && (
-                <div className={'wdraw-banner ' + wdraw.state} style={{margin:'14px 0 0'}}>
+                <div className={'wdraw-banner ' + wdraw.state} style={{margin:'14px 0 0'}}
+                  {...(wdraw.state === 'open' ? {
+                    role: 'button', tabIndex: 0,
+                    onClick: () => openWizard(''),
+                    onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openWizard(''); } }
+                  } : {})}>
                   <div className="wdraw-bhead">
                     <span className="wdraw-bico">{wdraw.state === 'open' ? '🏦' : '🔒'}</span>
                     <div className="wdraw-btxt">
                       <div className="wdraw-btitle">
-                        {wdraw.state === 'open'   ? 'Withdrawal Window is Open!' : 'Withdrawal Window Closed'}
+                        {wdraw.state === 'open' ? 'Withdrawal Window is Open! Tap to request' : 'Withdrawal Window Closed'}
                       </div>
                       <div className="wdraw-bsub">
                         {wdraw.state === 'open'
-                          ? `Go to My Balance tab to request your withdrawal. ${wdraw.daysLeft} day${wdraw.daysLeft!==1?'s':''} left — closes 5 Dec.`
+                          ? `Closes 5 Dec. ${wdraw.daysLeft} day${wdraw.daysLeft!==1?'s':''} left.`
                           : 'The window closed on 5 Dec. See you next year!'}
                       </div>
                     </div>
@@ -1843,53 +2080,9 @@ function App() {
             )}
 
             {wdraw.state === 'open' ? (
-              /* ── WITHDRAWAL WINDOW: hide chart, show withdrawal form ── */
+              /* ── WITHDRAWAL WINDOW: hide chart, show request card ── */
               (() => {
-                const decBal = latestBal.bal;
-                const reqAmt = parseFloat(wdrawAmt) || 0;
-                const remaining = decBal - reqAmt;
                 const existing = wdrawReqs[alias];
-                const phoneN = normPhone(wdrawPhone);
-                const nameOk = wdrawName.trim().length >= 3;
-                const canSubmit = reqAmt > 0 && reqAmt <= decBal && !!phoneN && nameOk && !wdrawBusy;
-                const inpStyle = {width:'100%',padding:'12px',background:'var(--ibg)',border:'1px solid var(--br2)',borderRadius:12,color:'var(--t1)',fontFamily:"'DM Sans',sans-serif",fontSize:'var(--t-subhead)',fontWeight:600,outline:'none'};
-                const lblStyle = {margin:'14px 0 6px',fontSize:'var(--t-caption2)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.07em',color:'var(--t3)'};
-
-                const submitWithdrawal = async () => {
-                  if (!canSubmit) return;
-                  setWdrawBusy(true); setWdrawErr('');
-                  const req = {
-                    alias,
-                    balanceMonth: latestBal.month,
-                    balance:   decBal,
-                    amount:    reqAmt,
-                    remaining: remaining,
-                    phone:     phoneN,
-                    name:      wdrawName.trim(),
-                    date:      new Date().toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'}),
-                    time:      new Date().toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit',hour12:true}),
-                    year:      CUR_YEAR
-                  };
-                  try {
-                    const res = await fetch(WITHDRAW_URL, {
-                      method: 'POST',
-                      headers: {'Content-Type': 'text/plain;charset=utf-8'},
-                      body: JSON.stringify(req)
-                    });
-                    const out = await res.json();
-                    if (!out.ok) throw new Error(out.error || 'Not saved');
-                    const updated = {...wdrawReqs, [alias]: req};
-                    setWdrawReqs(updated);
-                    localStorage.setItem('mmf_wdraw_'+CUR_YEAR, JSON.stringify(updated));
-                    setWdrawAmt(''); setWdrawPhone(''); setWdrawName(''); setWdrawEdit(false);
-                  } catch(e) {
-                    setWdrawErr(String(e.message||'').includes('closed')
-                      ? 'The withdrawal window is closed.'
-                      : 'Could not send your request. Check your internet and try again.');
-                  }
-                  setWdrawBusy(false);
-                };
-
                 return (
                   <div className="wdraw-crd">
                     <div className="wdraw-chead">
@@ -1898,9 +2091,7 @@ function App() {
                       <span className="wdraw-bbadge" style={{marginLeft:'auto'}}>{wdraw.daysLeft}d left</span>
                     </div>
                     <div className="wdraw-cbody">
-
-                      {existing && !wdrawEdit ? (
-                        /* Already submitted */
+                      {existing ? (
                         <>
                           <div style={{textAlign:'center',padding:'8px 0 16px'}}>
                             <div style={{fontSize:'2rem',marginBottom:6}}>✅</div>
@@ -1908,7 +2099,7 @@ function App() {
                             <div style={{fontSize:'var(--t-caption1)',color:'var(--t3)'}}>Submitted {existing.date} at {existing.time}</div>
                           </div>
                           <div className="srow">
-                            <span className="slbl">{existing.balanceMonth||'December'} Balance</span>
+                            <span className="slbl">Current Balance</span>
                             <span className="sval">{f2(existing.balance)}</span>
                           </div>
                           <div className="srow">
@@ -1930,94 +2121,18 @@ function App() {
                           <div className="wdraw-note" style={{marginTop:14}}>
                             Your request has been recorded and sent to the admin. You can edit it until the window closes on 5 Dec.
                           </div>
-                          <button className="wdraw-btn" style={{background:'var(--ibg)',color:'var(--t3)',border:'1px solid var(--br2)',marginTop:4}}
-                            onClick={() => {
-                              setWdrawAmt(String(existing.amount));
-                              setWdrawPhone(existing.phone || '');
-                              setWdrawName(existing.name || '');
-                              setWdrawErr('');
-                              setWdrawEdit(true);
-                            }}>
+                          <button className="wdraw-btn wz-ghost" style={{marginTop:4}} onClick={() => openWizard(alias)}>
                             ✏️ Edit Request
                           </button>
                         </>
                       ) : (
-                        /* Withdrawal form */
                         <>
-                          <div className="srow">
-                            <span className="slbl big">{latestBal.month ? latestBal.month + ' Balance' : 'Balance'}</span>
-                            <span className="sval hero">{decBal > 0 ? f2(decBal) : '—'}</span>
+                          <div className="wdraw-note">
+                            The withdrawal window is open until 5 Dec. Tap below to request your withdrawal. It only takes a minute.
                           </div>
-                          <div style={{margin:'14px 0 6px',fontSize:'var(--t-caption2)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.07em',color:'var(--t3)'}}>Amount to Withdraw</div>
-                          <div style={{position:'relative',marginBottom:12}}>
-                            <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',fontSize:'var(--t-footnote)',fontWeight:700,color:'var(--t3)'}}>KES</span>
-                            <input
-                              type="number"
-                              value={wdrawAmt}
-                              onChange={e => setWdrawAmt(e.target.value)}
-                              placeholder="0"
-                              min="0"
-                              max={decBal}
-                              inputMode="decimal"
-                              style={{width:'100%',padding:'12px 12px 12px 44px',background:'var(--ibg)',border:'1px solid '+(reqAmt>decBal?'var(--rd)':'var(--br2)'),borderRadius:12,color:'var(--t1)',fontFamily:"'JetBrains Mono',monospace",fontSize:'var(--t-subhead)',fontWeight:600,outline:'none'}}
-                            />
-                          </div>
-                          <div className="srow" style={{borderBottom:'none',paddingBottom:0}}>
-                            <span className="slbl big">Balance After</span>
-                            <span className="sval hero" style={{color: remaining < 0 ? 'var(--rd)' : 'var(--ac)'}}>
-                              {reqAmt > 0 ? f2(Math.max(remaining,0)) : '—'}
-                            </span>
-                          </div>
-                          {reqAmt > decBal && (
-                            <div style={{fontSize:'var(--t-caption2)',color:'var(--rd)',marginTop:6}}>
-                              ⚠️ Amount exceeds your balance
-                            </div>
-                          )}
-                          <div style={lblStyle}>M-Pesa Number to Receive Money</div>
-                          <input
-                            type="tel"
-                            value={wdrawPhone}
-                            onChange={e => setWdrawPhone(e.target.value)}
-                            placeholder="07XX XXX XXX"
-                            inputMode="tel"
-                            autoComplete="tel"
-                            style={{...inpStyle, fontFamily:"'JetBrains Mono',monospace", border:'1px solid '+(wdrawPhone && !phoneN ? 'var(--rd)' : 'var(--br2)')}}
-                          />
-                          {wdrawPhone && !phoneN && (
-                            <div style={{fontSize:'var(--t-caption2)',color:'var(--rd)',marginTop:6}}>
-                              ⚠️ Enter a valid Safaricom or Airtel number, e.g. 0712 345 678
-                            </div>
-                          )}
-                          <div style={lblStyle}>Name Registered on That Number</div>
-                          <input
-                            type="text"
-                            value={wdrawName}
-                            onChange={e => setWdrawName(e.target.value)}
-                            placeholder="As it appears on M-Pesa"
-                            autoComplete="name"
-                            style={inpStyle}
-                          />
-                          {canSubmit && (
-                            <div className="wdraw-note" style={{marginTop:14,marginBottom:0}}>
-                              Please confirm: <b>{f2(reqAmt)}</b> will be sent to <b>{showPhone(phoneN)}</b> ({wdrawName.trim()}).
-                            </div>
-                          )}
-                          {wdrawErr && (
-                            <div style={{fontSize:'var(--t-caption2)',color:'var(--rd)',marginTop:10}}>⚠️ {wdrawErr}</div>
-                          )}
-                          <button
-                            className={'wdraw-btn' + (!canSubmit ? ' disabled' : '')}
-                            style={{marginTop:16}}
-                            onClick={submitWithdrawal}
-                          >
-                            {wdrawBusy ? 'Sending…' : '🏦 Submit Withdrawal Request'}
+                          <button className="wdraw-btn" onClick={() => openWizard(alias)}>
+                            🏦 Request Withdrawal
                           </button>
-                          {existing && wdrawEdit && (
-                            <button className="wdraw-btn" style={{background:'var(--ibg)',color:'var(--t3)',border:'1px solid var(--br2)',marginTop:8}}
-                              onClick={() => { setWdrawEdit(false); setWdrawErr(''); setWdrawAmt(''); setWdrawPhone(''); setWdrawName(''); }}>
-                              Cancel Edit
-                            </button>
-                          )}
                         </>
                       )}
                     </div>
@@ -2152,7 +2267,7 @@ function App() {
                     </span>
                   </div>
                   <div className="srow">
-                    <span className="slbl">{r.balanceMonth||'December'} Balance</span>
+                    <span className="slbl">Current Balance</span>
                     <span className="sval">{f2(r.balance)}</span>
                   </div>
                   <div className="srow">
