@@ -161,6 +161,13 @@ html.glass .ccrd,html.glass .mcrd,html.glass .morecrd,html.glass .qac,html.glass
 html.glass .hero{background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(16,185,129,.08) 55%,rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.2);}
 html.glass .hero-num{background:linear-gradient(90deg,#fff 10%,#6ee7b7 90%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;}
 html.glass .hero-pill{background:linear-gradient(135deg,rgba(16,185,129,.55),rgba(5,150,105,.3));color:#eafff6;border-color:rgba(110,231,183,.4);}
+.wz-sheet{--t1:#fff;--t2:#fff;--t3:rgba(255,255,255,.88);background:linear-gradient(160deg,#10303a 0%,#0a1822 100%);border-color:rgba(255,255,255,.2);}
+.wz-sheet .wz-lbl,.wz-sheet .wz-hero-lbl,.wz-sheet .wz-hero-cur,.wz-sheet .wz-hero-cap,.wz-sheet .wz-sub{color:#fff;}
+.wz-sheet .wz-inp{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.28);color:#fff;}
+.wz-sheet .wz-inp::placeholder{color:rgba(255,255,255,.6);}
+.wz-sheet .wz-back,.wz-sheet .wz-x,.wz-sheet .wz-ghost{color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.1);}
+.wz-sheet .wz-dot{background:rgba(255,255,255,.3);}
+.wz-sheet .wz-dot.on{background:var(--ac);}
 .pw-screen{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:24px;}
 .pw-card{background:var(--card);border:1px solid var(--br2);border-radius:28px;padding:40px 32px;width:100%;max-width:360px;box-shadow:var(--shl);display:flex;flex-direction:column;align-items:center;gap:6px;}
 .pw-title{font-family:'Sora',sans-serif;font-size:var(--t-title2);font-weight:800;margin-top:6px;}
@@ -1131,11 +1138,6 @@ function AllMembers({month, rows, ts, data, theme, onBack, members}) {
     <div className="inner">
       {onBack && <button className="back-btn" onClick={onBack}>&#8592; Back to Overview</button>}
       <div className="inner-title">Interest Accrual &middot; {month}</div>
-      <div className="ccrd">
-        <div className="clbl">Group Monthly Totals &amp; Projection</div>
-        <div className="csub"><span style={{color:'#69be51'}}>&#9646;</span> Monthly &middot; <span style={{color:'#3b82f6'}}>&#8213;</span> Projected</div>
-        <GroupChart data={data} month={month} theme={theme} members={members} />
-      </div>
       <div className="mtbl-wrap">
         <table className="mtbl">
           <thead>
@@ -1217,7 +1219,7 @@ function App() {
   });
 
   useEffect(() => {
-    const q = quietSeason();
+    const q = true; // liquid glass is now permanent
     document.documentElement.setAttribute('data-theme', q ? 'dark' : theme);
     document.documentElement.classList.toggle('glass', q);
     localStorage.setItem('mmf_theme', theme);
